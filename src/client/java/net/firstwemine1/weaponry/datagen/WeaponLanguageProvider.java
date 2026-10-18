@@ -23,6 +23,7 @@ public class WeaponLanguageProvider extends FabricLanguageProvider {
 		ModItems.all().forEach(item ->
 				builder.add(item, item.material().displayName() + " " + item.type().displayName()));
 		builder.add(ModEntities.THROWN_WEAPON, "Thrown Weapon");
+		builder.add(ModEntities.ROPE_DART, "Rope Dart");
 
 		builder.add(ModEffects.BLEED.value().getDescriptionId(), "Bleed");
 		builder.add(ModEffects.STAGGER.value().getDescriptionId(), "Stagger");
