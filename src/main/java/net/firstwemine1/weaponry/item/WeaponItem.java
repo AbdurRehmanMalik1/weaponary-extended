@@ -189,6 +189,11 @@ public class WeaponItem extends TieredItem {
 	}
 
 	@Override
+	public void onUseTick(Level level, LivingEntity user, ItemStack stack, int remainingTicks) {
+		type.ability().onUseTick(stack, level, user, remainingTicks);
+	}
+
+	@Override
 	public void releaseUsing(ItemStack stack, Level level, LivingEntity user, int remainingTicks) {
 		type.ability().onReleaseUsing(stack, level, user, remainingTicks);
 	}
