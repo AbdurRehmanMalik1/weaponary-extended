@@ -1,8 +1,8 @@
 # Weaponry
 
 Fabric mod for Minecraft **1.21.4** (Java 21, Mojang mappings). It adds 22 melee weapons in
-5 material tiers, for 110 items in total. The original 10 plus the flail, morning star and hook sword have their own
-abilities (see [Abilities](#abilities)); the other 9 have stats only for now.
+5 material tiers, for 110 items in total. The original 10 plus the flail, morning star, hook sword and rope dart have their
+own abilities (see [Abilities](#abilities)); the other 8 have stats only for now.
 
 Built from the official [fabric-example-mod](https://github.com/FabricMC/fabric-example-mod)
 template (`1.21.4` branch). A pristine copy of that template lives at `../fabric-example-mod`.
@@ -40,8 +40,8 @@ synced to the client, so the mod can't be client-only, and a vanilla client can'
 | Rope Dart | −2 | 1.6 | 4.5 | 0.75 | |
 
 The last 12 (rapier to rope dart) are newer: their stats are a first pass and their textures are the tentative
-designs from `pixel-art`. Of these, only the flail, morning star and hook sword have abilities so far. The rope dart is
-planned next (`../pixel-art/weaponry/docs/new-weapon-abilities.md`).
+designs from `pixel-art`. Of these, the flail, morning star, hook sword and rope dart have abilities so far
+(`../pixel-art/weaponry/docs/new-weapon-abilities.md`).
 
 Tiers are wooden, stone, iron, golden and diamond. Damage bonus, enchantability, repair item and base
 durability all come from the vanilla tool material. Source: `../pixel-art/weaponry/docs/weapon-stats.md`.
@@ -70,6 +70,7 @@ the same threshold vanilla uses for sweeps and crits.
 | Club | +1 knockback. **Daze:** full-charge hits have a 20% chance to cause **Daze** for 2 s. | |
 | Flail | **Over the Shield:** a full-charge hit on a raised shield isn't blocked; it deals 50% damage, and the shield takes no damage and isn't disabled. **Unwieldy:** hits below 50% charge do nothing. | **Wind-up:** hold use to spin the head. Each 0.5 s adds +1 damage to your next hit (max +3 at 1.5 s). Lost if you don't hit within 2 s of letting go. |
 | Hook Sword | | **Hook Pull:** use on a target in reach to pull it toward you (1.5 s cooldown, 1 durability). **Hook Leap:** use twice on the same target within 0.3 s to pull yourself toward it, stopping about 1 block short (3 s cooldown, 2 durability). A single use waits out that 0.3 s before pulling. **Wall Brake:** hold use while falling with a block right beside you to hook into it. It slows the fall gradually (0.12 blocks/tick per tick) down to a 4 blocks/s slide, and fall damage follows your speed: from high up you land unhurt, just above the ground you still take most of it. 1 durability per 0.5 s. |
+| Rope Dart | Never dropped: the dart is tied to the rope dart in your hand. Use again to reel it in; sneak + use lets go in any state. Switching items or the rope running out (12 blocks) also reels it in. | **Throw:** hold use (at least 0.5 s) and release; melee damage −1. **Tether:** hitting a living target leashes it for 5 s, holding it within 12 blocks; hold use to drag it in (1 durability per 0.5 s). Iron golems, ravagers and wardens are too heavy, so dragging pulls you to them; the wither and ender dragon shrug the dart off. A tethered player breaks free by hitting you, or when you hit them for 4+; past 16 blocks the rope snaps. **Grapple:** hitting a block anchors the rope (1 durability). You swing on it; hold jump to climb, sneak to lower. No fall protection: climbing up starts a fresh fall like a jump does, but a drop the rope catches still counts when you land. |
 | Morning Star | **Puncture:** full-charge hits cause **Bleed**. **Mail-breaker:** hits cost the target's armor twice the durability (only players' armor wears in vanilla). | |
 
 Material twists:
@@ -124,7 +125,9 @@ MS.      S.          .S.         .S.         .S.       S..     ..S     S..   S..
 - `effect/` holds the status effects; `BleedEffect.apply` handles stacking, immunity and the material durations.
 - `combat/Motion` tracks player and mount speed on the server (for the brace, the couched charge and the wall brake).
 - `entity/ThrownWeapon` is the thrown spear or hatchet; `ThrownWeaponRenderer` (client) draws its item model.
-- `datagen/` (in the client source set, `src/client/java`) generates models, item model definitions, lang, recipes and tags into `src/main/generated`.
+- `entity/RopeDart` is the rope dart's dart (flying, tethered or anchored); `RopeDartRenderer` (client) draws it and
+  the rope. The rope's pull on its own thrower runs on that player's client, like all player movement.
+- `datagen/` generates models, lang, recipes and tags into `src/main/generated`.
 - Textures in `assets/weaponry/textures/item` are copied from `../pixel-art/weaponry/png/<tier>/` (render with `python render.py weaponry` there; `warhammer.png` → `<tier>_war_hammer.png`, `gold/` → `golden_`).
 
 ## Testing
@@ -180,5 +183,7 @@ Abilities and status effects (ported from the 1.21.1 baseline, same behaviour):
   `ServerLevel`. The flail's shield pass-through in `LivingEntityMixin` hooks `hurtServer` instead of `hurt`.
 - Item cooldowns take an `ItemStack` (cooldown groups), and `Player.disableShield` takes the shield stack.
 - The hatchet's axe mining builds the same `Tool` rules `ToolMaterial.applyToolProperties` gives an axe.
-- Entity types are built with their `ResourceKey`. `ThrownWeaponRenderer` uses the render-state API
-  (`createRenderState`/`extractRenderState`) and draws the item through `ItemModelResolver`.
+- Entity types are built with their `ResourceKey`. `ThrownWeaponRenderer` and `RopeDartRenderer` use the
+  render-state API (`createRenderState`/`extractRenderState`) and draw the item through `ItemModelResolver`;
+  the rope's hand-to-dart offset is worked out while extracting the state, as vanilla's fishing line does.
+- Arrows expose `isInGround()` instead of the `inGround` field (thrown weapons and the rope dart's anchor).
