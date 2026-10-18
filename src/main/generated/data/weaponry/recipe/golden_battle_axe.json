@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "M": "minecraft:gold_ingot",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "M M",
+    "MSM",
+    " S "
+  ],
+  "result": {
+    "id": "weaponry:golden_battle_axe"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "M": "minecraft:iron_ingot",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "MMM",
+    "MS ",
+    " S "
+  ],
+  "result": {
+    "id": "weaponry:iron_war_pick"
+  }
+}

@@ -23,7 +23,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.Ingredient;
 
 /**
- * Crafting recipes. M = tier material, S = stick. Shapes avoid every vanilla tool/weapon pattern
+ * Crafting recipes. M = tier material, S = stick, C = chain, X = string, L = leather. Shapes avoid every vanilla tool/weapon pattern
  * and each other (vanilla shaped recipes also match mirrored, which was checked too).
  */
 public class WeaponRecipeProvider extends FabricRecipeProvider {
@@ -48,9 +48,22 @@ public class WeaponRecipeProvider extends FabricRecipeProvider {
 						builder.pattern(row);
 					}
 					MaterialInput material = materialInput(item);
-					builder.define('M', material.ingredient())
-							.define('S', Items.STICK)
-							.unlockedBy(material.criterionName(), material.criterion())
+					builder.define('M', material.ingredient());
+					// A key defined but missing from the pattern fails datagen, so only define the ones used.
+					String keys = String.join("", pattern(item));
+					if (keys.indexOf('S') >= 0) {
+						builder.define('S', Items.STICK);
+					}
+					if (keys.indexOf('C') >= 0) {
+						builder.define('C', Items.IRON_CHAIN);
+					}
+					if (keys.indexOf('X') >= 0) {
+						builder.define('X', Items.STRING);
+					}
+					if (keys.indexOf('L') >= 0) {
+						builder.define('L', Items.LEATHER);
+					}
+					builder.unlockedBy(material.criterionName(), material.criterion())
 							.save(this.output);
 				}
 			}
@@ -91,6 +104,19 @@ public class WeaponRecipeProvider extends FabricRecipeProvider {
 			case HATCHET -> new String[] {"MM", "MS"};
 			case WAR_HAMMER -> new String[] {"MMM", "MSM", " S "};
 			case CLUB -> new String[] {" M", "S "};
+			case RAPIER -> new String[] {"  M", " M ", "MS "};
+			case HOOK_SWORD -> new String[] {"MM", "M ", "S "};
+			case GREATSWORD -> new String[] {" M ", "MMM", " S "};
+			case BATTLE_AXE -> new String[] {"M M", "MSM", " S "};
+			case WAR_PICK -> new String[] {"MMM", "MS ", " S "};
+			// The 1.21.1 glaive shape (..M / .SM / S..) is the spear's here, so the blade sits on the other side.
+			case GLAIVE -> new String[] {"  M", "MS ", "S  "};
+			case SCYTHE -> new String[] {"MMM", "M S", "  S"};
+			case MACE -> new String[] {" MM", " MM", "S  "};
+			case MORNING_STAR -> new String[] {"M M", " M ", "S  "};
+			case FLAIL -> new String[] {"  M", " C ", "S  "};
+			case GAUNTLETS -> new String[] {"MMM", " L "};
+			case ROPE_DART -> new String[] {"  M", " X ", "X  "};
 		};
 	}
 
