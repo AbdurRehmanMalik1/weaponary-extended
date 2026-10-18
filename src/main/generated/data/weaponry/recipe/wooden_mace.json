@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "M": "#minecraft:planks",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    " MM",
+    " MM",
+    "S  "
+  ],
+  "result": {
+    "count": 1,
+    "id": "weaponry:wooden_mace"
+  }
+}
