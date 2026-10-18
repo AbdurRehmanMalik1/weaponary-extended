@@ -179,6 +179,11 @@ public class WeaponItem extends Item {
 	}
 
 	@Override
+	public void onUseTick(Level level, LivingEntity user, ItemStack stack, int remainingTicks) {
+		type.ability().onUseTick(stack, level, user, remainingTicks);
+	}
+
+	@Override
 	public boolean releaseUsing(ItemStack stack, Level level, LivingEntity user, int remainingTicks) {
 		return type.ability().onReleaseUsing(stack, level, user, remainingTicks);
 	}
