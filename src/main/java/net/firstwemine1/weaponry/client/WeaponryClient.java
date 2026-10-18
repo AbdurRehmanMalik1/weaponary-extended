@@ -1,5 +1,6 @@
 package net.firstwemine1.weaponry.client;
 
+import net.firstwemine1.weaponry.client.render.RopeDartRenderer;
 import net.firstwemine1.weaponry.client.render.ThrownWeaponRenderer;
 import net.firstwemine1.weaponry.effect.ModEffects;
 import net.firstwemine1.weaponry.entity.ModEntities;
@@ -31,6 +32,7 @@ public class WeaponryClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		EntityRendererRegistry.INSTANCE.register(ModEntities.THROWN_WEAPON, (dispatcher, context) -> new ThrownWeaponRenderer(dispatcher));
+		EntityRendererRegistry.INSTANCE.register(ModEntities.ROPE_DART, (dispatcher, context) -> new RopeDartRenderer(dispatcher));
 		ClientPlayNetworking.registerGlobalReceiver(SpawnPacket.ID, (client, handler, buf, sender) -> {
 			SpawnPacket.Data data = SpawnPacket.read(buf);
 			client.execute(() -> spawn(client, data));

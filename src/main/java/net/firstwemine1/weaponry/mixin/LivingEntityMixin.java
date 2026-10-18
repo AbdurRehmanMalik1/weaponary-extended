@@ -3,6 +3,7 @@ package net.firstwemine1.weaponry.mixin;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.firstwemine1.weaponry.ability.SabreAbility;
+import net.firstwemine1.weaponry.entity.RopeDart;
 import net.firstwemine1.weaponry.item.WeaponItem;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
@@ -17,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Weapon effects on the entity being hit: the sabre parry, some weapons hit through a raised shield
+ * Weapon effects on the entity being hit: the sabre parry, the rope dart's PvP break, some weapons hit through a raised shield
  * (flail), and some wear armor faster (morning star). Shield breaking is in
  * {@code PlayerMixin.blockUsingShield} in this version.
  */
@@ -33,13 +34,21 @@ abstract class LivingEntityMixin {
 		throw new AssertionError();
 	}
 
-	/** The sabre parry, run where later Fabric API versions fire {@code ALLOW_DAMAGE}. */
+	/**
+	 * The sabre parry and the rope dart's PvP break, run where later Fabric API versions fire
+	 * {@code ALLOW_DAMAGE} (in the same order: a parried hit doesn't reach the rope dart).
+	 */
 	@Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
 	private void weaponry$parry(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
 		LivingEntity self = (LivingEntity) (Object) this;
-		if (!self.level.isClientSide() && !SabreAbility.allowDamage(self, source, amount)) {
-			cir.setReturnValue(false);
+		if (self.level.isClientSide()) {
+			return;
 		}
+		if (!SabreAbility.allowDamage(self, source, amount)) {
+			cir.setReturnValue(false);
+			return;
+		}
+		RopeDart.onDamage(self, source, amount);
 	}
 
 	/** Over the shield: a hit the shield would block deals part of its damage instead of none. */
