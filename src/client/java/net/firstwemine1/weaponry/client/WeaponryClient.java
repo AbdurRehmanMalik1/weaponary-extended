@@ -1,5 +1,6 @@
 package net.firstwemine1.weaponry.client;
 
+import net.firstwemine1.weaponry.client.render.RopeDartRenderer;
 import net.firstwemine1.weaponry.client.render.ThrownWeaponRenderer;
 import net.firstwemine1.weaponry.effect.ModEffects;
 import net.firstwemine1.weaponry.entity.ModEntities;
@@ -22,6 +23,7 @@ public class WeaponryClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		EntityRendererRegistry.register(ModEntities.THROWN_WEAPON, ThrownWeaponRenderer::new);
+		EntityRendererRegistry.register(ModEntities.ROPE_DART, RopeDartRenderer::new);
 		ClientTickEvents.END_CLIENT_TICK.register(client -> wobble(client.player));
 	}
 
