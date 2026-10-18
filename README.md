@@ -1,7 +1,8 @@
 # Weaponry
 
-Fabric mod for Minecraft **26.2** (Java 25, unobfuscated). It adds 10 melee weapons in
-5 material tiers, for 50 items in total, each with its own abilities (see [Abilities](#abilities)).
+Fabric mod for Minecraft **26.2** (Java 25, unobfuscated). It adds 22 melee weapons in
+5 material tiers, for 110 items in total. The first 10 have their own abilities (see [Abilities](#abilities));
+the other 12 have stats only for now.
 
 Built from the official [fabric-example-mod](https://github.com/FabricMC/fabric-example-mod)
 template (`26.2` branch). A pristine copy of that template lives at `../fabric-example-mod`.
@@ -25,6 +26,21 @@ synced to the client, so the mod can't be client-only, and a vanilla client can'
 | Hatchet | +1 | 1.1 | 2.75 | 1.0 | |
 | War Hammer | +3 | 0.7 | 3.0 | 1.5 | yes |
 | Club | −1 | 1.2 | 3.0 | 1.5 | |
+| Rapier | −1 | 2.0 | 3.25 | 0.8 | |
+| Hook Sword | −1 | 1.8 | 3.0 | 1.0 | |
+| Greatsword | +3 | 0.9 | 3.5 | 1.3 | yes |
+| Battle Axe | +4 | 0.8 | 3.0 | 1.2 | yes |
+| War Pick | +2 | 0.9 | 3.0 | 1.25 | |
+| Glaive | +1 | 1.0 | 4.5 | 1.2 | yes |
+| Scythe | +2 | 0.8 | 4.0 | 1.0 | yes |
+| Mace | +1 | 1.1 | 3.0 | 1.5 | |
+| Morning Star | +2 | 1.0 | 3.0 | 1.25 | |
+| Flail | +3 | 0.8 | 3.0 | 1.0 | |
+| Gauntlets | −3 | 2.6 | 2.5 | 1.0 | |
+| Rope Dart | −2 | 1.6 | 4.5 | 0.75 | |
+
+The last 12 (rapier to rope dart) don't have abilities yet; their stats are a first pass and their textures are
+the tentative designs from `pixel-art`.
 
 Tiers are wooden, stone, iron, golden and diamond. Damage bonus, enchantability, repair item and base
 durability all come from the vanilla tier. Source: `../pixel-art/weaponry/docs/weapon-stats.md`.
@@ -75,7 +91,7 @@ hit cooldown.
 
 Also not done yet: the lance's "−1 speed tier on foot" (it is already the slowest weapon), and the brace doesn't lock movement.
 
-## Recipes (M = material, S = stick)
+## Recipes (M = material, S = stick, C = chain, X = string, L = leather)
 
 The material is planks, stone tool materials, iron ingot, gold ingot or diamond. The wooden club uses a **log**.
 
@@ -84,6 +100,11 @@ Dagger   Sabre    Scimitar  Spear    Pike     Lance    Halberd  Hatchet  War Ham
 M        ..M      .MM       ..M      .MM      ..M      MMM      MM       MMM         .M
 S        .M.      .M.       .SM      .SM      MM.      .S.      MS       MSM         S.
          S..      S..       S..      S..      S..      S..               .S.
+
+Rapier   Hook Sword  Greatsword  Battle Axe  War Pick  Glaive  Scythe  Mace  Morning Star  Flail  Gauntlets  Rope Dart
+..M      MM          .M.         M.M         MMM       ..M     MMM     .MM   M.M           ..M    MMM        ..M
+.M.      M.          MMM         MSM         MS.       MS.     M.S     .MM   .M.           .C.    .L.        .X.
+MS.      S.          .S.         .S.         .S.       S..     ..S     S..   S..           S..               X..
 ```
 
 ## Layout
@@ -108,10 +129,11 @@ S        .M.      .M.       .SM      .SM      MM.      .S.      MS       MSM    
 { "testChest": true }
 ```
 
-When `testChest` is on, every world load places a named double chest ("Weaponry Test Chest") 2 blocks
-east of world spawn, holding one of each of the 50 weapons. Later launches refill that same chest and clear anything else in it. It defaults
+When `testChest` is on, every world load places a row of named double chests ("Weaponry Test Chest",
+"Weaponry Test Chest 2", ...) starting 2 blocks east of world spawn, holding one of each of the 110 weapons (54 per chest).
+Later launches refill those same chests and clear anything else in them. It defaults
 to **on in the dev environment** (`runClient`/`runServer`, config in `run/config/`) and **off** in a normally
-installed jar, so the code can stay in releases. Weapons have durability, so they stack to 1 and the chest holds one of each.
+installed jar, so the code can stay in releases. Weapons have durability, so they stack to 1 and each chest slot holds one weapon.
 
 Commands: `/give @s weaponry:<material>_<weapon>`, e.g. `weaponry:iron_war_hammer`, `weaponry:golden_dagger`.
 
@@ -125,7 +147,7 @@ Commands: `/give @s weaponry:<material>_<weapon>`, e.g. `weaponry:iron_war_hamme
 
 ## Version notes (26.2)
 
-Ported from the 1.21.1 baseline (via 26.1.2). Stats, recipes (except the spear), tiers, reach, the creative tab, the
+Ported from the 1.21.1 baseline (via 26.1.2). Stats, recipes (except the spear and glaive), tiers, reach, the creative tab, the
 config and the test chest are unchanged.
 
 - **Build:** Minecraft 26.x ships unobfuscated: `net.fabricmc.fabric-loom` without a `mappings` line,
@@ -141,7 +163,9 @@ config and the test chest are unchanged.
 - **Item models:** item model definitions (`assets/weaponry/items/*.json`) are generated next to the models.
 - **Vanilla spear:** 26.x has `minecraft:*_spear` (added in 1.21.11). Our ids are `weaponry:*_spear`, so
   nothing clashes, but vanilla's recipe uses our old spear shape. The spear recipe now has a wider head
-  (`..M / .SM / S..`). Our spear is a plain melee weapon, not vanilla's charge/jab spear.
+  (`..M / .SM / S..`). Our spear is a plain melee weapon, not vanilla's charge/jab spear. That is the 1.21.1
+  glaive shape, so the glaive here uses `..M / MS. / S..` instead.
+- **Flail recipe:** the chain is `minecraft:iron_chain` (renamed when copper chains were added).
 - **Test chest:** placed next to the world respawn point, in the respawn dimension.
 - Attribute ids in commands have no `generic.` prefix (`minecraft:attack_damage`, `minecraft:entity_interaction_range`).
 - **26.1.2 -> 26.2:** no gameplay change. Only datagen code moved: advancement criteria are in
