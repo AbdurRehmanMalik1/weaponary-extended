@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "M": {
+      "tag": "minecraft:planks"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    "MMM",
+    "M S",
+    "  S"
+  ],
+  "result": {
+    "count": 1,
+    "id": "weaponry:wooden_scythe"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "C": {
+      "item": "minecraft:chain"
+    },
+    "M": {
+      "item": "minecraft:diamond"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    "  M",
+    " C ",
+    "S  "
+  ],
+  "result": {
+    "count": 1,
+    "id": "weaponry:diamond_flail"
+  }
+}
