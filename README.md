@@ -1,8 +1,8 @@
 # Weaponry
 
 Fabric mod for Minecraft **26.2** (Java 25, unobfuscated). It adds 22 melee weapons in
-5 material tiers, for 110 items in total. The first 10 have their own abilities (see [Abilities](#abilities));
-the other 12 have stats only for now.
+5 material tiers, for 110 items in total. The original 10 plus the flail and morning star have their own abilities
+(see [Abilities](#abilities)); the other 10 have stats only for now.
 
 Built from the official [fabric-example-mod](https://github.com/FabricMC/fabric-example-mod)
 template (`26.2` branch). A pristine copy of that template lives at `../fabric-example-mod`.
@@ -39,8 +39,9 @@ synced to the client, so the mod can't be client-only, and a vanilla client can'
 | Gauntlets | −3 | 2.6 | 2.5 | 1.0 | |
 | Rope Dart | −2 | 1.6 | 4.5 | 0.75 | |
 
-The last 12 (rapier to rope dart) don't have abilities yet; their stats are a first pass and their textures are
-the tentative designs from `pixel-art`.
+The last 12 (rapier to rope dart) are newer: their stats are a first pass and their textures are the tentative
+designs from `pixel-art`. Of these, only the flail and morning star have abilities so far. The hook sword and rope
+dart abilities are planned next (`../pixel-art/weaponry/docs/new-weapon-abilities.md`).
 
 Tiers are wooden, stone, iron, golden and diamond. Damage bonus, enchantability, repair item and base
 durability all come from the vanilla tier. Source: `../pixel-art/weaponry/docs/weapon-stats.md`.
@@ -67,19 +68,22 @@ the same threshold vanilla uses for sweeps and crits.
 | Hatchet | Disables shields. Mines wood at axe speed and takes Efficiency, Fortune and Silk Touch. | **Throw:** like the spear, but short range and spinning. Melee damage +1. |
 | War Hammer | **Armor Crush:** ignores 50% of the target's armor. Full-charge hits cause **Stagger** for 1 s. | **Overhead Smash:** a full-charge hit while sneaking knocks back everything within 2.5 blocks of the target, and everything it hits (target included) gets **Stun** for 0.75 s. |
 | Club | +1 knockback. **Daze:** full-charge hits have a 20% chance to cause **Daze** for 2 s. | |
+| Flail | **Over the Shield:** a full-charge hit on a raised shield isn't blocked; it deals 50% damage, and the shield takes no damage and isn't disabled. **Unwieldy:** hits below 50% charge do nothing. | **Wind-up:** hold use to spin the head. Each 0.5 s adds +1 damage to your next hit (max +3 at 1.5 s). Lost if you don't hit within 2 s of letting go. |
+| Morning Star | **Puncture:** full-charge hits cause **Bleed**. **Mail-breaker:** hits cost the target's armor twice the durability (only players' armor wears in vanilla). | |
 
 Material twists:
 
 - **Wooden:** half the armor crush; Bleed lasts 2 s.
 - **Stone:** +1 knockback on the club and war hammer.
-- **Golden:** ability numbers × 1.5 (bonus damage, effect durations, daze chance, hook pull, smash knockback, armor crush).
+- **Golden:** ability numbers × 1.5 (bonus damage, effect durations, daze chance, hook pull, smash knockback, armor crush,
+  flail shield pass-through 75% and wind-up +1.5 per step, morning star armor wear ×2.5).
 - **Diamond:** +1 throw damage; Bleed lasts 6 s.
 
 Status effects (`effect/ModEffects`), each with its own icon:
 
 | Effect | Does | From |
 |---|---|---|
-| **Bleed** | 1 damage per second per stack for 4 s, ignoring armor and hit cooldown. Each new application adds a stack (max 3, shown as Bleed II/III) and refreshes the duration. Undead and golems are immune. | Dagger crits and throws, scimitar sweeps |
+| **Bleed** | 1 damage per second per stack for 4 s, ignoring armor and hit cooldown. Each new application adds a stack (max 3, shown as Bleed II/III) and refreshes the duration. Undead and golems are immune. | Dagger crits and throws, scimitar sweeps, morning star |
 | **Stagger** | A short, sharp screen lurch for a staggered player. No slowdown. | War hammer full-charge hits |
 | **Stun** | 90% slower, nearly rooted. | War hammer smash |
 | **Daze** | 15% slower (like Slowness I), and a dazed player's view wobbles like Nausea. | Club |
@@ -114,7 +118,9 @@ MS.      S.          .S.         .S.         .S.       S..     ..S     S..   S..
 - `item/WeaponAbility` is the ability interface; each `WeaponType` holds one. The implementations are in `ability/`,
   and their tooltip lines are generated into the lang file from `WeaponAbility.description()`.
 - `mixin/PlayerMixin` captures the attack charge (vanilla resets it before item hooks run), turns off crits for the
-  lance and applies armor crush. Halberds and hatchets disable shields through their `weapon` component.
+  lance, cancels hits below a weapon's minimum charge (flail) and applies armor crush. Halberds and hatchets disable
+  shields through their `weapon` component. `mixin/LivingEntityMixin` lets the flail hit through shields and makes the
+  morning star wear armor.
 - `effect/` holds the status effects; `BleedEffect.apply` handles stacking, immunity and the material durations.
 - `combat/Motion` tracks player and mount speed on the server (for the brace and the couched charge).
 - `entity/ThrownWeapon` is the thrown spear or hatchet; `ThrownWeaponRenderer` (client) draws its item model.
@@ -187,6 +193,10 @@ Abilities and status effects (ported from the 1.21.1 baseline through 1.21.11 an
 - **Shield breaking** is the `weapon` component's `disable_blocking_for_seconds` (5 s, the axe value) on
   halberds and hatchets; `canDisableShield()` is gone. The halberd hook disables a raised shield through its
   `blocks_attacks` component, the way an axe hit does.
+- **Over the Shield** (flail): `isDamageSourceBlocked` is gone. `LivingEntityMixin` asks the shield's
+  `blocks_attacks` component whether it would block the hit (`resolveBlockedDamage`, with vanilla's angle check),
+  scales the damage at the start of `hurtServer`, and skips `applyItemBlocking` for that hit, so the shield takes no
+  damage and isn't disabled. In 26.1.2 `bypassedBy` is a `HolderSet` of damage types.
 - **Crits:** the jump-crit check moved to `Player.canCriticalAttack`, which `PlayerMixin` turns off for the
   lance. It checks `isMobilityRestricted()` instead of Blindness, and `AttackContext.vanillaCrit` follows it.
 - `Player.sweepAttack()` is gone, so the scimitar sends the sweep particle itself, as the vanilla sweep does.
