@@ -196,7 +196,9 @@ Abilities and status effects (same behaviour as 1.21.1, except where noted):
 - **Over the Shield and Mail-breaker** (flail, morning star) only apply to plain melee hits. Without damage types,
   `LivingEntityMixin` recognises those as the `"player"` and `"mob"` sources whose direct entity is the attacker.
 - **Hook sword wall brake:** the wall check uses `new BlockPos(x, y, z)` with doubles, which floors like the later
-  `BlockPos.containing`.
+  `BlockPos.containing`. `isControlledByLocalInstance()` is false for the client's own player in this version (it
+  only looks at the controlling passenger and the server side), so the brake and the rope dart's swing run where
+  `isLocalPlayer()` is true.
 - **Hatchet mining** overrides `getDestroySpeed`/`isCorrectToolForDrops` with the vanilla `DiggerItem` rules
   for `#minecraft:mineable/axe` (there is no `tool` component), costs 1 durability per block like an axe,
   and `WeaponDiggerCategoryMixin` lets it take the `DIGGER` enchantments.
