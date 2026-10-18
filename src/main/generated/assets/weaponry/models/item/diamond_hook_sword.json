@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "weaponry:item/diamond_hook_sword"
+  }
+}

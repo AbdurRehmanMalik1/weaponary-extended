@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "M": {
+      "item": "minecraft:diamond"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    "M M",
+    " M ",
+    "S  "
+  ],
+  "result": {
+    "item": "weaponry:diamond_morning_star"
+  }
+}

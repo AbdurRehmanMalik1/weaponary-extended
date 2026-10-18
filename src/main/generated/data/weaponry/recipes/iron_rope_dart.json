@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "M": {
+      "item": "minecraft:iron_ingot"
+    },
+    "X": {
+      "item": "minecraft:string"
+    }
+  },
+  "pattern": [
+    "  M",
+    " X ",
+    "X  "
+  ],
+  "result": {
+    "item": "weaponry:iron_rope_dart"
+  }
+}
