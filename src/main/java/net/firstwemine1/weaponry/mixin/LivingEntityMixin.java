@@ -2,6 +2,8 @@ package net.firstwemine1.weaponry.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
+import net.firstwemine1.weaponry.bow.HorseBowAbility;
 import net.firstwemine1.weaponry.item.WeaponItem;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
@@ -16,11 +18,13 @@ import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 /**
  * Weapon effects on the entity being hit: some weapons hit through a raised shield (flail), and some
  * wear armor faster (morning star). Shield-breakers disable shields through their {@code weapon} component.
+ * Horse bow arrows knock back half as far.
  */
 @Mixin(LivingEntity.class)
 abstract class LivingEntityMixin {
@@ -88,6 +92,13 @@ abstract class LivingEntityMixin {
 			angle = Math.acos(new Vec3(toSource.x, 0.0, toSource.z).normalize().dot(view));
 		}
 		return blocks.resolveBlockedDamage(source, amount, angle) > 0;
+	}
+
+	/** Light Arrows: a horse bow's arrow knocks its target back half as far. */
+	@ModifyArg(method = "dealDefaultKnockback", at = @At(value = "INVOKE",
+			target = "Lnet/minecraft/world/entity/LivingEntity;knockback(DDDLnet/minecraft/world/damagesource/DamageSource;F)V"), index = 0)
+	private double weaponry$lightArrow(double strength, @Local(argsOnly = true) DamageSource source) {
+		return HorseBowAbility.isLight(source.getDirectEntity()) ? strength * 0.5 : strength;
 	}
 
 	/** The attacker of a plain melee hit (no projectiles, thorns or sweeps), or {@code null}. */

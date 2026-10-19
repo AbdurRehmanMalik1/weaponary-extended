@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "L": "minecraft:leather",
+    "S": "minecraft:stick",
+    "X": "minecraft:string"
+  },
+  "pattern": [
+    "SSX",
+    "L X",
+    "SSX"
+  ],
+  "result": {
+    "id": "weaponry:longbow"
+  }
+}
