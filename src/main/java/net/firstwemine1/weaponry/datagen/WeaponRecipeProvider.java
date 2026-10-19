@@ -2,6 +2,8 @@ package net.firstwemine1.weaponry.datagen;
 
 import java.util.concurrent.CompletableFuture;
 
+import net.firstwemine1.weaponry.bow.BowType;
+import net.firstwemine1.weaponry.bow.ModBows;
 import net.firstwemine1.weaponry.item.ModItems;
 import net.firstwemine1.weaponry.item.WeaponItem;
 import net.firstwemine1.weaponry.item.WeaponType;
@@ -22,6 +24,9 @@ import net.minecraft.world.item.crafting.Ingredient;
 /**
  * Crafting recipes. M = tier material, S = stick, C = chain, X = string, L = leather. Shapes avoid every vanilla tool/weapon pattern
  * and each other (vanilla shaped recipes also match mirrored, which was checked too).
+ *
+ * <p>Bows follow vanilla's bow layout (the bow on the left, string down the right), from
+ * {@code pixel-art/weaponry/docs/bow-stats.md} §6: S = stick, X = string, L = leather, I = iron ingot, G = gold ingot.
  */
 public class WeaponRecipeProvider extends FabricRecipeProvider {
 	public WeaponRecipeProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registries) {
@@ -53,6 +58,34 @@ public class WeaponRecipeProvider extends FabricRecipeProvider {
 			}
 			builder.unlockedBy(material.criterionName(), material.criterion())
 					.save(output);
+		}
+		bows(output);
+	}
+
+	private static void bows(RecipeOutput output) {
+		for (BowType type : BowType.values()) {
+			ShapedRecipeBuilder builder = ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModBows.get(type));
+			String[] rows = switch (type) {
+				case SELFBOW -> new String[] {" SX", "S  ", " SX"};
+				case LONGBOW -> new String[] {"SSX", "L X", "SSX"};
+				case RECURVE_BOW -> new String[] {" SX", "I X", " SX"};
+				case HORSE_BOW -> new String[] {"GSX", "S X", "GSX"};
+			};
+			for (String row : rows) {
+				builder.pattern(row);
+			}
+			String keys = String.join("", rows);
+			builder.define('S', Items.STICK).define('X', Items.STRING);
+			if (keys.indexOf('L') >= 0) {
+				builder.define('L', Items.LEATHER);
+			}
+			if (keys.indexOf('I') >= 0) {
+				builder.define('I', Items.IRON_INGOT);
+			}
+			if (keys.indexOf('G') >= 0) {
+				builder.define('G', Items.GOLD_INGOT);
+			}
+			builder.unlockedBy(getHasName(Items.STRING), has(Items.STRING)).save(output);
 		}
 	}
 

@@ -6,6 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import net.firstwemine1.weaponry.Weaponry;
+import net.firstwemine1.weaponry.bow.ModBows;
 import net.firstwemine1.weaponry.item.ModComponents;
 import net.firstwemine1.weaponry.item.ModItems;
 import net.firstwemine1.weaponry.item.WeaponType;
@@ -30,6 +31,12 @@ public class WeaponModelProvider extends FabricModelProvider {
 			Optional.of(ResourceLocation.fromNamespaceAndPath(Weaponry.MOD_ID, "item/handheld_mirrored")),
 			Optional.empty(), TextureSlot.LAYER0);
 
+	/** Bows: vanilla's bow model (its in-hand pose) with our texture. */
+	private static final ModelTemplate BOW = new ModelTemplate(
+			Optional.of(ResourceLocation.withDefaultNamespace("item/bow")), Optional.empty(), TextureSlot.LAYER0);
+	/** Vanilla's draw frames: shown while drawing, from 0.65 of a full draw, and from 0.9. */
+	private static final float[] PULL = {0, 0.65f, 0.9f};
+
 	public WeaponModelProvider(FabricDataOutput output) {
 		super(output);
 	}
@@ -47,6 +54,30 @@ public class WeaponModelProvider extends FabricModelProvider {
 			} else {
 				generator.generateFlatItem(item, mirrored(item.type()) ? HANDHELD_MIRRORED : ModelTemplates.FLAT_HANDHELD_ITEM);
 			}
+		});
+		ModBows.all().forEach(bow -> bow(generator, bow));
+	}
+
+	/** A bow and its three draw frames ({@code <bow>_pulling_0..2}), switched like vanilla's bow model. */
+	private static void bow(ItemModelGenerators generator, Item item) {
+		JsonArray overrides = new JsonArray();
+		for (int frame = 0; frame < PULL.length; frame++) {
+			ResourceLocation model = BOW.create(ModelLocationUtils.getModelLocation(item, "_pulling_" + frame),
+					TextureMapping.layer0(TextureMapping.getItemTexture(item, "_pulling_" + frame)), generator.output);
+			JsonObject predicate = new JsonObject();
+			predicate.addProperty("pulling", 1);
+			if (PULL[frame] > 0) {
+				predicate.addProperty("pull", PULL[frame]);
+			}
+			JsonObject override = new JsonObject();
+			override.add("predicate", predicate);
+			override.addProperty("model", model.toString());
+			overrides.add(override);
+		}
+		BOW.create(ModelLocationUtils.getModelLocation(item), TextureMapping.layer0(item), generator.output, (id, textures) -> {
+			JsonObject json = BOW.createBaseTemplate(id, textures);
+			json.add("overrides", overrides);
+			return json;
 		});
 	}
 

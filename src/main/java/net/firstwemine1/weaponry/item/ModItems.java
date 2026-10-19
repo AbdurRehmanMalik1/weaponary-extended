@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.firstwemine1.weaponry.Weaponry;
+import net.firstwemine1.weaponry.bow.ModBows;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -39,7 +40,10 @@ public final class ModItems {
 		CreativeModeTab tab = FabricItemGroup.builder()
 				.title(Component.translatable(CREATIVE_TAB_KEY))
 				.icon(() -> get(WeaponType.HALBERD, WeaponMaterial.IRON).getDefaultInstance())
-				.displayItems((parameters, output) -> ALL.forEach(output::accept))
+				.displayItems((parameters, output) -> {
+					ALL.forEach(output::accept);
+					ModBows.all().forEach(output::accept);
+				})
 				.build();
 		Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, Weaponry.id("weapons"), tab);
 	}

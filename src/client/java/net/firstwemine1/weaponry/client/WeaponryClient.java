@@ -1,5 +1,8 @@
 package net.firstwemine1.weaponry.client;
 
+import net.firstwemine1.weaponry.bow.BowState;
+import net.firstwemine1.weaponry.bow.ModBows;
+import net.firstwemine1.weaponry.bow.WeaponBowItem;
 import net.firstwemine1.weaponry.client.render.RopeDartRenderer;
 import net.firstwemine1.weaponry.client.render.ThrownWeaponRenderer;
 import net.firstwemine1.weaponry.effect.ModEffects;
@@ -13,10 +16,11 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.resources.ResourceLocation;
 
 /**
- * Client-only setup: renderers for ability entities, the flipped war pick model, and the Stagger and
- * Daze screen wobble.
+ * Client-only setup: renderers for ability entities, the flipped war pick model, the bows' draw
+ * animation, and the Stagger and Daze screen wobble.
  */
 public class WeaponryClient implements ClientModInitializer {
 	/**
@@ -36,7 +40,21 @@ public class WeaponryClient implements ClientModInitializer {
 			ItemProperties.register(item, ModComponents.FLIPPED_ID,
 					(stack, level, entity, seed) -> stack.has(ModComponents.FLIPPED) ? 1 : 0);
 		}
+		ModBows.all().forEach(WeaponryClient::registerBowAnimation);
 		ClientTickEvents.END_CLIENT_TICK.register(client -> wobble(client.player));
+	}
+
+	/**
+	 * The {@code pull} and {@code pulling} properties vanilla gives {@code minecraft:bow}, which pick the
+	 * draw frame. {@code pull} is measured against this bow's own draw time (and any Quick Nock head
+	 * start), so every bow reaches its last frame when it's fully drawn.
+	 */
+	private static void registerBowAnimation(WeaponBowItem bow) {
+		ItemProperties.register(bow, ResourceLocation.withDefaultNamespace("pull"), (stack, level, entity, seed) ->
+				entity == null || entity.getUseItem() != stack ? 0.0f
+						: (entity.getTicksUsingItem() + BowState.headStart(entity)) / (float) bow.drawTicks(entity));
+		ItemProperties.register(bow, ResourceLocation.withDefaultNamespace("pulling"), (stack, level, entity, seed) ->
+				entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0f : 0.0f);
 	}
 
 	/**
