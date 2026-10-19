@@ -21,8 +21,8 @@ public class HatchetAbility extends ThrowAbility {
 	@Override
 	public List<String> description() {
 		return List.of(
-				"Disables shields; chops wood like an axe",
-				"Hold use to throw: +1 damage, short range");
+				"Shield Breaker: disables shields; chops wood like an axe",
+				"Throw (hold use): +1 damage, short range");
 	}
 
 	@Override

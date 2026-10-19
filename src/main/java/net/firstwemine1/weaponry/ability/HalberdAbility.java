@@ -31,8 +31,8 @@ public class HalberdAbility implements WeaponAbility {
 	@Override
 	public List<String> description() {
 		return List.of(
-				"Disables shields",
-				"Use: hook a target toward you, pulling riders off their mounts");
+				"Shield Breaker: disables shields",
+				"Hook (use): pull a target toward you, unseating riders");
 	}
 
 	@Override
