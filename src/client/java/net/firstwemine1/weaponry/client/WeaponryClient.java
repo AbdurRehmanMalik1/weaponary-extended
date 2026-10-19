@@ -6,7 +6,7 @@ import net.firstwemine1.weaponry.effect.ModEffects;
 import net.firstwemine1.weaponry.entity.ModEntities;
 import net.firstwemine1.weaponry.item.ModComponents;
 import net.firstwemine1.weaponry.item.ModItems;
-import net.firstwemine1.weaponry.item.WeaponMaterial;
+import net.firstwemine1.weaponry.item.WeaponItem;
 import net.firstwemine1.weaponry.item.WeaponType;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -32,8 +32,8 @@ public class WeaponryClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		EntityRendererRegistry.register(ModEntities.THROWN_WEAPON, ThrownWeaponRenderer::new);
 		EntityRendererRegistry.register(ModEntities.ROPE_DART, RopeDartRenderer::new);
-		for (WeaponMaterial material : WeaponMaterial.values()) {
-			ItemProperties.register(ModItems.get(WeaponType.WAR_PICK, material), ModComponents.FLIPPED_ID,
+		for (WeaponItem item : ModItems.variants(WeaponType.WAR_PICK)) {
+			ItemProperties.register(item, ModComponents.FLIPPED_ID,
 					(stack, level, entity, seed) -> stack.has(ModComponents.FLIPPED) ? 1 : 0);
 		}
 		ClientTickEvents.END_CLIENT_TICK.register(client -> wobble(client.player));
