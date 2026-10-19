@@ -29,8 +29,8 @@ public class LanceAbility implements WeaponAbility {
 	@Override
 	public List<String> description() {
 		return List.of(
-				"No critical hits",
-				"Mounted charge: bonus damage from speed, heavy knockback, dismounts the target");
+				"Stiff Grip: no critical hits",
+				"Couched Charge (mounted hit): bonus damage from speed, heavy knockback, dismounts the target");
 	}
 
 	@Override
