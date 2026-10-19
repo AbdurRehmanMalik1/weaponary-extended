@@ -105,6 +105,10 @@
     "weaponry:iron_gauntlets",
     "weaponry:golden_gauntlets",
     "weaponry:diamond_gauntlets",
-    "weaponry:rope_dart"
+    "weaponry:rope_dart",
+    "weaponry:selfbow",
+    "weaponry:longbow",
+    "weaponry:recurve_bow",
+    "weaponry:horse_bow"
   ]
 }

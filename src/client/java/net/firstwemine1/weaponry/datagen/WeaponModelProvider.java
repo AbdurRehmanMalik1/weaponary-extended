@@ -3,6 +3,8 @@ package net.firstwemine1.weaponry.datagen;
 import java.util.Optional;
 
 import net.firstwemine1.weaponry.Weaponry;
+import net.firstwemine1.weaponry.bow.ModBows;
+import net.firstwemine1.weaponry.client.BowPull;
 import net.firstwemine1.weaponry.item.ModComponents;
 import net.firstwemine1.weaponry.item.ModItems;
 import net.firstwemine1.weaponry.item.WeaponType;
@@ -25,6 +27,10 @@ public class WeaponModelProvider extends FabricModelProvider {
 	private static final ModelTemplate HANDHELD_MIRRORED = new ModelTemplate(
 			Optional.of(Weaponry.id("item/handheld_mirrored")), Optional.empty(), TextureSlot.LAYER0);
 
+	/** Vanilla's draw frames: the first while drawing, the second from 0.65 of a full draw, the third from 0.9. */
+	private static final float PULL_1 = 0.65f;
+	private static final float PULL_2 = 0.9f;
+
 	public WeaponModelProvider(FabricPackOutput output) {
 		super(output);
 	}
@@ -44,6 +50,22 @@ public class WeaponModelProvider extends FabricModelProvider {
 				generator.generateFlatItem(item, mirrored(item.type()) ? HANDHELD_MIRRORED : ModelTemplates.FLAT_HANDHELD_ITEM);
 			}
 		});
+		ModBows.all().forEach(bow -> bow(generator, bow));
+	}
+
+	/**
+	 * A bow and its three draw frames ({@code <bow>_pulling_0..2}) on vanilla's bow model (its in-hand pose),
+	 * switched like vanilla's bow but on {@link BowPull}: the draw measured against this bow's own draw time.
+	 */
+	private static void bow(ItemModelGenerators generator, Item item) {
+		ItemModel.Unbaked idle = ItemModelUtils.plainModel(generator.createFlatItemModel(item, ModelTemplates.BOW));
+		ItemModel.Unbaked frame0 = ItemModelUtils.plainModel(generator.createFlatItemModel(item, "_pulling_0", ModelTemplates.BOW));
+		ItemModel.Unbaked frame1 = ItemModelUtils.plainModel(generator.createFlatItemModel(item, "_pulling_1", ModelTemplates.BOW));
+		ItemModel.Unbaked frame2 = ItemModelUtils.plainModel(generator.createFlatItemModel(item, "_pulling_2", ModelTemplates.BOW));
+		generator.itemModelOutput.accept(item, ItemModelUtils.conditional(ItemModelUtils.isUsingItem(),
+				ItemModelUtils.rangeSelect(new BowPull(), frame0,
+						ItemModelUtils.override(frame1, PULL_1), ItemModelUtils.override(frame2, PULL_2)),
+				idle));
 	}
 
 	/**
