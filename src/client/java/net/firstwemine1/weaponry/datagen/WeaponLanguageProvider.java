@@ -3,6 +3,9 @@ package net.firstwemine1.weaponry.datagen;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import net.firstwemine1.weaponry.bow.BowType;
+import net.firstwemine1.weaponry.bow.ModBows;
+import net.firstwemine1.weaponry.bow.WeaponBowItem;
 import net.firstwemine1.weaponry.effect.ModEffects;
 import net.firstwemine1.weaponry.entity.ModEntities;
 import net.firstwemine1.weaponry.item.ModItems;
@@ -23,6 +26,13 @@ public class WeaponLanguageProvider extends FabricLanguageProvider {
 		ModItems.all().forEach(item -> builder.add(item, item.type().singleVersion()
 				? item.type().displayName()
 				: item.material().displayName() + " " + item.type().displayName()));
+		for (BowType type : BowType.values()) {
+			builder.add(ModBows.get(type), type.displayName());
+			List<String> lines = type.ability().description();
+			for (int i = 0; i < lines.size(); i++) {
+				builder.add(WeaponBowItem.tooltipKey(type, i), lines.get(i));
+			}
+		}
 		builder.add(ModEntities.THROWN_WEAPON, "Thrown Weapon");
 		builder.add(ModEntities.ROPE_DART, "Rope Dart");
 

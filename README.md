@@ -2,7 +2,7 @@
 
 Fabric mod for Minecraft **1.21.11** (Java 21, Mojang mappings). It adds 22 melee weapons, 21 of them in
 5 material tiers. The rope dart is a utility weapon, so it comes in one version only (`weaponry:rope_dart`, iron).
-That makes 106 items in total. The original 10 plus the rapier, war pick, flail, morning star, hook sword and rope dart
+That makes 106 weapon items, plus four bows (see [Bows](#bows)). The original 10 plus the rapier, war pick, flail, morning star, hook sword and rope dart
 have their own abilities (see [Abilities](#abilities)); the other 6 have stats only for now.
 
 Built from the official [fabric-example-mod](https://github.com/FabricMC/fabric-example-mod)
@@ -102,6 +102,34 @@ hit cooldown.
 
 Also not done yet: the lance's "−1 speed tier on foot" (it is already the slowest weapon), and the brace doesn't lock movement.
 
+## Bows
+
+Four bows, one version each (no material tiers): `weaponry:selfbow`, `longbow`, `recurve_bow` and `horse_bow`.
+They shoot vanilla arrows and take the same enchantments as vanilla's bow. Each draws over its own draw time, with
+the vanilla power curve stretched to fit, and has its own three-frame draw animation and zoom. Source:
+`../pixel-art/weaponry/docs/bow-stats.md` (stats §3, abilities §5, recipes §6).
+
+| Bow | Draw | Full damage | Spread | Durability | Abilities |
+|---|---:|---:|---:|---:|---|
+| *Vanilla bow* | *1.0 s* | *6* | *1.0* | *384* | |
+| Selfbow | 0.8 s | 5 | 1.25 | 256 | **Light Draw:** walk at 50% speed while drawing (vanilla 20%). **Rough Arrows:** 15% of its arrows can't be picked up again. |
+| Longbow | 1.5 s | 8 | 0.6 | 384 | **Steady Aim:** after 1 s at full draw, spread 0.1 and extra zoom. **Arm Fatigue:** after 5 s at full draw, spread grows 0.25/s up to 1.5 until you draw again. **No Horseback:** can't be drawn while riding. |
+| Recurve Bow | 1.0 s | 7 | 0.9 | 432 | **Quick Nock:** drawing again within 1 s of a shot starts 25% drawn. **Snap Shot:** +1 damage if released within 0.25 s of full draw. **Dry-fire Strain:** shots below half draw cost 2 durability. |
+| Horse Bow | 0.6 s | 5 | 1.5 | 336 | **Horse Archer:** while riding, a 25% faster draw (0.45 s) and +1 damage. **Light Arrows:** half knockback and half Punch. **Spread While Moving:** spread x1.2 when shooting on the move on foot. |
+
+Arrow speed is x0.9 / x1.3 / x1.15 / x1 vanilla's, which sets range (about 99 / 178 / 147 / 117 blocks). Damage is
+`ceil(arrow speed x base damage)` as in vanilla; flat bonuses (Snap Shot, Horse Archer) are added to base damage as
+`bonus / arrow speed`, so they come out as about +1.
+
+Recipes (S = stick, X = string, L = leather, I = iron ingot, G = gold ingot), all in vanilla's bow layout:
+
+```
+Selfbow   Longbow   Recurve Bow   Horse Bow
+.SX       SSX       .SX           GSX
+S..       L.X       I.X           S.X
+.SX       SSX       .SX           GSX
+```
+
 ## Recipes (M = material, S = stick, C = chain, X = string, L = leather)
 
 The material is planks, stone tool materials, iron ingot, gold ingot or diamond. The wooden club uses a **log**, and the
@@ -121,6 +149,12 @@ MS.      S.          .S.         .S.         .S.       S..     ..S     S..   S..
 
 ## Layout
 
+- `bow/` holds the bows: `BowType` (stats), `WeaponBowItem` (draw and shoot, extends vanilla's `BowItem`),
+  `BowAbility` and one ability class per bow, `BowState` (Quick Nock timing). `ModBows` registers them. Each bow's
+  item definition picks its draw frame with the `weaponry:bow/pull` property (`client/BowPull`), measured against its
+  own draw time. The walk speed while drawing is each bow's `use_effects` component, and a client mixin handles the
+  draw zoom (`AbstractClientPlayerMixin`). Horse bow arrows carry the
+  `weaponry.light_arrow` entity tag, which `LivingEntityMixin` and `AbstractArrowMixin` use to halve knockback.
 - `item/WeaponType` holds the per-weapon stats. `item/WeaponMaterial` holds the tiers. Edit these to rebalance.
 - `item/WeaponItem` is the single item class. It behaves like a sword without the sweep attack.
 - `item/WeaponAbility` is the ability interface; each `WeaponType` holds one. The implementations are in `ability/`,
@@ -215,6 +249,16 @@ Abilities and status effects (ported from the 1.21.1 baseline, same behaviour):
   render-state API (`createRenderState`/`extractRenderState`) and draw the item through `ItemModelResolver`;
   the rope's hand-to-dart offset is worked out while extracting the state, as vanilla's fishing line does.
 - Arrows expose `isInGround()` instead of the `inGround` field (thrown weapons and the rope dart's anchor).
+- **Bows.** `use()` returns `InteractionResult` and `releaseUsing` returns whether it shot. Enchantability is an item
+  component now, so the bows set `enchantable(1)` like vanilla's. The draw frames are an item definition like vanilla's
+  bow (`using_item`, then a `range_dispatch` at 0.65 and 0.9), but on `weaponry:bow/pull` (`client/BowPull`, put in
+  `RangeSelectItemModelProperties.ID_MAPPER` by the client and the datagen) instead of `use_duration`, so each bow's
+  own draw time and the Quick Nock head start count. Light Arrows halves knockback in `hurtServer`, and Punch in
+  `AbstractArrow.doKnockback`.
+- **Bows (1.21.11).** Light Draw sets the bow's `use_effects` speed multiplier (vanilla's 0.2 for the others) instead of
+  patching `LocalPlayer`, which now reads that component. `AbstractArrow` has no `getBaseDamage()`, so the bows read the
+  base damage through `AbstractArrowAccessor` before scaling it. Tooltips use the `TooltipDisplay`/`Consumer` signature,
+  and `BowPull` gets the holder from the `ItemOwner`.
 
 Abilities and status effects (ported from the 1.21.1 baseline through 1.21.4, same behaviour):
 
