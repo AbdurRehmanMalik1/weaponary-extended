@@ -4,12 +4,20 @@ import net.firstwemine1.weaponry.client.render.RopeDartRenderer;
 import net.firstwemine1.weaponry.client.render.ThrownWeaponRenderer;
 import net.firstwemine1.weaponry.effect.ModEffects;
 import net.firstwemine1.weaponry.entity.ModEntities;
+import net.firstwemine1.weaponry.item.ModComponents;
+import net.firstwemine1.weaponry.item.ModItems;
+import net.firstwemine1.weaponry.item.WeaponMaterial;
+import net.firstwemine1.weaponry.item.WeaponType;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.item.ItemProperties;
 
-/** Client-only setup: renderers for ability entities, and the Stagger and Daze screen wobble. */
+/**
+ * Client-only setup: renderers for ability entities, the flipped war pick model, and the Stagger and
+ * Daze screen wobble.
+ */
 public class WeaponryClient implements ClientModInitializer {
 	/**
 	 * Both effects use the nausea-style view wobble (vanilla Nausea winds it up to 1.0). Stagger is a
@@ -24,6 +32,10 @@ public class WeaponryClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		EntityRendererRegistry.register(ModEntities.THROWN_WEAPON, ThrownWeaponRenderer::new);
 		EntityRendererRegistry.register(ModEntities.ROPE_DART, RopeDartRenderer::new);
+		for (WeaponMaterial material : WeaponMaterial.values()) {
+			ItemProperties.register(ModItems.get(WeaponType.WAR_PICK, material), ModComponents.FLIPPED_ID,
+					(stack, level, entity, seed) -> stack.has(ModComponents.FLIPPED) ? 1 : 0);
+		}
 		ClientTickEvents.END_CLIENT_TICK.register(client -> wobble(client.player));
 	}
 

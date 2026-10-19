@@ -4,6 +4,11 @@
     "weaponry:stone_hatchet",
     "weaponry:iron_hatchet",
     "weaponry:golden_hatchet",
-    "weaponry:diamond_hatchet"
+    "weaponry:diamond_hatchet",
+    "weaponry:wooden_war_pick",
+    "weaponry:stone_war_pick",
+    "weaponry:iron_war_pick",
+    "weaponry:golden_war_pick",
+    "weaponry:diamond_war_pick"
   ]
 }

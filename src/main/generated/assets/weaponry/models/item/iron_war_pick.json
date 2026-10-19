@@ -1,5 +1,13 @@
 {
   "parent": "minecraft:item/handheld",
+  "overrides": [
+    {
+      "model": "weaponry:item/iron_war_pick_flipped",
+      "predicate": {
+        "weaponry:flipped": 1
+      }
+    }
+  ],
   "textures": {
     "layer0": "weaponry:item/iron_war_pick"
   }
