@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import net.firstwemine1.weaponry.item.ModItems;
-import net.firstwemine1.weaponry.item.WeaponMaterial;
 import net.firstwemine1.weaponry.item.WeaponType;
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
@@ -34,9 +33,7 @@ public class WeaponItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		for (TagKey<Item> tag : List.of(ItemTags.MINING_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE)) {
 			var builder = builder(tag);
 			for (WeaponType type : List.of(WeaponType.HATCHET, WeaponType.WAR_PICK)) {
-				for (WeaponMaterial material : WeaponMaterial.values()) {
-					builder.add(ModItems.get(type, material).builtInRegistryHolder().key());
-				}
+				ModItems.variants(type).forEach(item -> builder.add(item.builtInRegistryHolder().key()));
 			}
 		}
 	}
