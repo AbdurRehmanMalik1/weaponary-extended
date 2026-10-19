@@ -32,7 +32,7 @@ public class WarPickAbility implements WeaponAbility {
 
 	@Override
 	public List<String> description() {
-		return List.of("Use: flip it to mine like a pickaxe (80% speed)");
+		return List.of("Flip (use): turn it round to mine like a pickaxe (80% speed)");
 	}
 
 	public static boolean isFlipped(ItemStack stack) {
