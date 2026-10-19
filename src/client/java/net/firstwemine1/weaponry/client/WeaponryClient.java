@@ -9,7 +9,10 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.player.LocalPlayer;
 
-/** Client-only setup: renderers for ability entities, and the Stagger and Daze screen wobble. */
+/**
+ * Client-only setup: renderers for ability entities, the bows' draw frame property, and the Stagger and Daze
+ * screen wobble.
+ */
 public class WeaponryClient implements ClientModInitializer {
 	/**
 	 * Both effects use the nausea-style view wobble (vanilla Nausea winds it up to 1.0). Stagger is a
@@ -24,6 +27,7 @@ public class WeaponryClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		EntityRendererRegistry.register(ModEntities.THROWN_WEAPON, ThrownWeaponRenderer::new);
 		EntityRendererRegistry.register(ModEntities.ROPE_DART, RopeDartRenderer::new);
+		BowPull.register();
 		ClientTickEvents.END_CLIENT_TICK.register(client -> wobble(client.player));
 	}
 
