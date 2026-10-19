@@ -1,8 +1,9 @@
 # Weaponry
 
-Fabric mod for Minecraft **26.2** (Java 25, unobfuscated). It adds 22 melee weapons in
-5 material tiers, for 110 items in total. The original 10 plus the flail, morning star, hook sword and rope dart have their
-own abilities (see [Abilities](#abilities)); the other 8 have stats only for now.
+Fabric mod for Minecraft **26.2** (Java 25, unobfuscated). It adds 22 melee weapons, 21 of them in
+5 material tiers. The rope dart is a utility weapon, so it comes in one version only (`weaponry:rope_dart`, iron).
+That makes 106 items in total. The original 10 plus the rapier, war pick, flail, morning star, hook sword and rope dart
+have their own abilities (see [Abilities](#abilities)); the other 6 have stats only for now.
 
 Built from the official [fabric-example-mod](https://github.com/FabricMC/fabric-example-mod)
 template (`26.2` branch). A pristine copy of that template lives at `../fabric-example-mod`.
@@ -43,7 +44,7 @@ The last 12 (rapier to rope dart) are newer: their stats are a first pass and th
 designs from `pixel-art`. Of these, the rapier, war pick, flail, morning star, hook sword and rope dart have abilities so far
 (`../pixel-art/weaponry/docs/new-weapon-abilities.md`).
 
-Tiers are wooden, stone, iron, golden and diamond. Damage bonus, enchantability, repair item and base
+Tiers are wooden, stone, iron, golden and diamond (the rope dart is iron only; see `WeaponType.materials()`). Damage bonus, enchantability, repair item and base
 durability all come from the vanilla tier. Source: `../pixel-art/weaponry/docs/weapon-stats.md`.
 
 \* Needs both hands. While it's in the main hand, whatever is in the off hand (a shield, a torch...) is moved
@@ -101,7 +102,8 @@ Also not done yet: the lance's "−1 speed tier on foot" (it is already the slow
 
 ## Recipes (M = material, S = stick, C = chain, X = string, L = leather)
 
-The material is planks, stone tool materials, iron ingot, gold ingot or diamond. The wooden club uses a **log**.
+The material is planks, stone tool materials, iron ingot, gold ingot or diamond. The wooden club uses a **log**, and the
+rope dart (iron only) always takes an iron ingot.
 
 ```
 Dagger   Sabre    Scimitar  Spear    Pike     Lance    Halberd  Hatchet  War Hammer  Club
@@ -143,7 +145,7 @@ MS.      S.          .S.         .S.         .S.       S..     ..S     S..   S..
 ```
 
 When `testChest` is on, every world load places a row of named double chests ("Weaponry Test Chest",
-"Weaponry Test Chest 2", ...) starting 2 blocks east of world spawn, holding one of each of the 110 weapons (54 per chest).
+"Weaponry Test Chest 2", ...) starting 2 blocks east of world spawn, holding one of each of the 106 weapons (54 per chest).
 Later launches refill those same chests and clear anything else in them. It defaults
 to **on in the dev environment** (`runClient`/`runServer`, config in `run/config/`) and **off** in a normally
 installed jar, so the code can stay in releases. Weapons have durability, so they stack to 1 and each chest slot holds one weapon.
