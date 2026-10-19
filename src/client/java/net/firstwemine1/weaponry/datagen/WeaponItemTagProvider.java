@@ -13,7 +13,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 
-/** Vanilla tags that make weapons enchantable and behave like melee weapons (and the hatchet like an axe). */
+/** Vanilla tags that make weapons enchantable and behave like melee weapons (and the hatchet and war pick like mining tools). */
 public class WeaponItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 	public WeaponItemTagProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
 		super(output, registries);
@@ -29,11 +29,14 @@ public class WeaponItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		addAll(ItemTags.DURABILITY_ENCHANTABLE);
 		addAll(ItemTags.BREAKS_DECORATED_POTS);
 
-		// The hatchet chops wood, so it takes Efficiency, Fortune and Silk Touch like an axe.
+		// The hatchet chops wood and the flipped war pick mines, so they take Efficiency, Fortune and
+		// Silk Touch like an axe or pickaxe.
 		for (TagKey<Item> tag : List.of(ItemTags.MINING_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE)) {
 			var builder = builder(tag);
-			for (WeaponMaterial material : WeaponMaterial.values()) {
-				builder.add(ModItems.get(WeaponType.HATCHET, material).builtInRegistryHolder().key());
+			for (WeaponType type : List.of(WeaponType.HATCHET, WeaponType.WAR_PICK)) {
+				for (WeaponMaterial material : WeaponMaterial.values()) {
+					builder.add(ModItems.get(type, material).builtInRegistryHolder().key());
+				}
 			}
 		}
 	}
