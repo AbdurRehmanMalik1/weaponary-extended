@@ -36,7 +36,7 @@ public class ClubAbility implements WeaponAbility {
 		addKnockback(builder, KNOCKBACK + (material == WeaponMaterial.STONE ? STONE_KNOCKBACK : 0));
 	}
 
-	/** Shared with the war hammer, the other blunt weapon. */
+	/** Shared with the war hammer and mace, the other blunt weapons. */
 	static void addStoneKnockback(ImmutableMultimap.Builder<Attribute, AttributeModifier> builder, WeaponMaterial material) {
 		if (material == WeaponMaterial.STONE) {
 			addKnockback(builder, STONE_KNOCKBACK);
@@ -51,7 +51,8 @@ public class ClubAbility implements WeaponAbility {
 		}
 	}
 
-	private static void addKnockback(ImmutableMultimap.Builder<Attribute, AttributeModifier> builder, double amount) {
+	/** Shared with the other knockback weapons. */
+	static void addKnockback(ImmutableMultimap.Builder<Attribute, AttributeModifier> builder, double amount) {
 		builder.put(Attributes.ATTACK_KNOCKBACK,
 				new AttributeModifier(KNOCKBACK_UUID, "Weapon modifier", amount, AttributeModifier.Operation.ADDITION));
 	}
