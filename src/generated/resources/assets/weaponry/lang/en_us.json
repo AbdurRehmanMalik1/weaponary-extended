@@ -133,6 +133,7 @@
   "tooltip.weaponry.hatchet.1": "Hold use to throw: +1 damage, short range",
   "tooltip.weaponry.hook_sword.0": "Use: hook a target toward you",
   "tooltip.weaponry.hook_sword.1": "Double use: pull yourself toward the target",
+  "tooltip.weaponry.hook_sword.2": "Hold use while falling beside a wall: hook in and slow the fall",
   "tooltip.weaponry.lance.0": "No critical hits",
   "tooltip.weaponry.lance.1": "Mounted charge: bonus damage from speed, heavy knockback, dismounts the target",
   "tooltip.weaponry.morning_star.0": "Full-charge hits cause Bleed; wears armor twice as fast",
