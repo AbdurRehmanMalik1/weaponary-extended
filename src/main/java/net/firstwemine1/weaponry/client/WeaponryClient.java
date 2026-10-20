@@ -6,7 +6,7 @@ import net.firstwemine1.weaponry.client.render.ThrownWeaponRenderer;
 import net.firstwemine1.weaponry.effect.ModEffects;
 import net.firstwemine1.weaponry.entity.ModEntities;
 import net.firstwemine1.weaponry.item.ModItems;
-import net.firstwemine1.weaponry.item.WeaponMaterial;
+import net.firstwemine1.weaponry.item.WeaponItem;
 import net.firstwemine1.weaponry.item.WeaponType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -49,8 +49,8 @@ public final class WeaponryClient {
 	}
 
 	private static void registerItemProperties() {
-		for (WeaponMaterial material : WeaponMaterial.values()) {
-			ItemProperties.register(ModItems.get(WeaponType.WAR_PICK, material), WarPickAbility.FLIPPED_ID,
+		for (WeaponItem item : ModItems.variants(WeaponType.WAR_PICK)) {
+			ItemProperties.register(item, WarPickAbility.FLIPPED_ID,
 					(stack, level, entity, seed) -> WarPickAbility.isFlipped(stack) ? 1 : 0);
 		}
 	}

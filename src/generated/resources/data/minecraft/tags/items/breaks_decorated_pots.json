@@ -106,10 +106,6 @@
     "weaponry:iron_gauntlets",
     "weaponry:golden_gauntlets",
     "weaponry:diamond_gauntlets",
-    "weaponry:wooden_rope_dart",
-    "weaponry:stone_rope_dart",
-    "weaponry:iron_rope_dart",
-    "weaponry:golden_rope_dart",
-    "weaponry:diamond_rope_dart"
+    "weaponry:rope_dart"
   ]
 }
