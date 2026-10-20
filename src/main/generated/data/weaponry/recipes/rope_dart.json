@@ -7,13 +7,13 @@
   ],
   "key": {
     "M": {
-      "tag": "minecraft:stone_tool_materials"
+      "item": "minecraft:iron_ingot"
     },
     "X": {
       "item": "minecraft:string"
     }
   },
   "result": {
-    "item": "weaponry:stone_rope_dart"
+    "item": "weaponry:rope_dart"
   }
 }

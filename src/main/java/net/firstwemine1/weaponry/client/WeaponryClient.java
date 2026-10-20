@@ -6,7 +6,7 @@ import net.firstwemine1.weaponry.client.render.ThrownWeaponRenderer;
 import net.firstwemine1.weaponry.effect.ModEffects;
 import net.firstwemine1.weaponry.entity.ModEntities;
 import net.firstwemine1.weaponry.item.ModItems;
-import net.firstwemine1.weaponry.item.WeaponMaterial;
+import net.firstwemine1.weaponry.item.WeaponItem;
 import net.firstwemine1.weaponry.item.WeaponType;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -38,8 +38,8 @@ public class WeaponryClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		EntityRendererRegistry.INSTANCE.register(ModEntities.THROWN_WEAPON, (dispatcher, context) -> new ThrownWeaponRenderer(dispatcher));
 		EntityRendererRegistry.INSTANCE.register(ModEntities.ROPE_DART, (dispatcher, context) -> new RopeDartRenderer(dispatcher));
-		for (WeaponMaterial material : WeaponMaterial.values()) {
-			FabricModelPredicateProviderRegistry.register(ModItems.get(WeaponType.WAR_PICK, material), WarPickAbility.FLIPPED_ID,
+		for (WeaponItem item : ModItems.variants(WeaponType.WAR_PICK)) {
+			FabricModelPredicateProviderRegistry.register(item, WarPickAbility.FLIPPED_ID,
 					(stack, level, entity) -> WarPickAbility.isFlipped(stack) ? 1 : 0);
 		}
 		ClientPlayNetworking.registerGlobalReceiver(SpawnPacket.ID, (client, handler, buf, sender) -> {

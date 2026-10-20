@@ -1,6 +1,7 @@
 package net.firstwemine1.weaponry.item;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
@@ -32,7 +33,7 @@ public final class ModItems {
 
 		for (WeaponType type : WeaponType.values()) {
 			Map<WeaponMaterial, WeaponItem> byMaterial = new EnumMap<>(WeaponMaterial.class);
-			for (WeaponMaterial material : WeaponMaterial.values()) {
+			for (WeaponMaterial material : type.materials()) {
 				WeaponItem item = new WeaponItem(type, material, new Item.Properties().tab(tab));
 				Registry.register(Registry.ITEM, Weaponry.id(itemId(type, material)), item);
 				byMaterial.put(material, item);
@@ -43,11 +44,17 @@ public final class ModItems {
 	}
 
 	public static String itemId(WeaponType type, WeaponMaterial material) {
-		return material.id() + "_" + type.id();
+		return type.singleVersion() ? type.id() : material.id() + "_" + type.id();
 	}
 
+	/** The weapon of {@code type} in {@code material}, or {@code null} if the type doesn't come in it. */
 	public static WeaponItem get(WeaponType type, WeaponMaterial material) {
 		return WEAPONS.get(type).get(material);
+	}
+
+	/** Every version of {@code type}, one per material it comes in. */
+	public static Collection<WeaponItem> variants(WeaponType type) {
+		return Collections.unmodifiableCollection(WEAPONS.get(type).values());
 	}
 
 	/** Every weapon, ordered by type then material. */
