@@ -3,6 +3,7 @@
 	"package": "net.firstwemine1.weaponry.mixin",
 	"compatibilityLevel": "JAVA_8",
 	"mixins": [
+		"ItemStackMixin",
 		"LivingEntityAccessor",
 		"LivingEntityMixin",
 		"PlayerMixin",

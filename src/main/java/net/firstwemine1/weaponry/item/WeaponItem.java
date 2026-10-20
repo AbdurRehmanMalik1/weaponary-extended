@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import net.firstwemine1.weaponry.Weaponry;
+import net.firstwemine1.weaponry.ability.WarPickAbility;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -40,7 +41,7 @@ public class WeaponItem extends TieredItem {
 	private static final int SWORD_BASE_DAMAGE = 3;
 	private static final float PLAYER_BASE_DAMAGE = 1.0f;
 	private static final float PLAYER_BASE_ATTACK_SPEED = 4.0f;
-	/** Breaking a block costs 2 durability, like a sword; the hatchet, an axe, pays 1. */
+	/** Breaking a block costs 2 durability, like a sword; the hatchet and flipped war pick, tools, pay 1. */
 	private static final int BLOCK_DAMAGE = 2;
 	private static final int CHOPPING_BLOCK_DAMAGE = 1;
 	public static final String TWO_HANDED_TOOLTIP_KEY = "tooltip." + Weaponry.MOD_ID + ".two_handed";
@@ -128,15 +129,18 @@ public class WeaponItem extends TieredItem {
 		}
 	}
 
-	// --- sword-like durability handling, axe mining for the hatchet ---
+	// --- sword-like durability handling, axe mining for the hatchet, pickaxe mining for the flipped war pick ---
 
 	@Override
 	public boolean canAttackBlock(BlockState state, Level level, BlockPos pos, Player player) {
-		return type.ability().choppingTool() || !player.isCreative();
+		return type.ability().choppingTool() || WarPickAbility.isFlipped(player.getMainHandItem()) || !player.isCreative();
 	}
 
 	@Override
 	public float getDestroySpeed(ItemStack stack, BlockState state) {
+		if (WarPickAbility.isFlipped(stack)) {
+			return WarPickAbility.destroySpeed(material, stack, state);
+		}
 		return type.ability().choppingTool() && choppable(stack, state) ? getTier().getSpeed() : 1.0f;
 	}
 
@@ -151,7 +155,7 @@ public class WeaponItem extends TieredItem {
 	@Override
 	public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity miner) {
 		if (!level.isClientSide() && state.getDestroySpeed(level, pos) != 0.0f) {
-			int cost = type.ability().choppingTool() ? CHOPPING_BLOCK_DAMAGE : BLOCK_DAMAGE;
+			int cost = type.ability().choppingTool() || WarPickAbility.isFlipped(stack) ? CHOPPING_BLOCK_DAMAGE : BLOCK_DAMAGE;
 			stack.hurtAndBreak(cost, miner, entity -> entity.broadcastBreakEvent(EquipmentSlot.MAINHAND));
 		}
 		return true;

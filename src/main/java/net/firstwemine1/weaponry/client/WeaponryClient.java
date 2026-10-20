@@ -1,13 +1,18 @@
 package net.firstwemine1.weaponry.client;
 
+import net.firstwemine1.weaponry.ability.WarPickAbility;
 import net.firstwemine1.weaponry.client.render.RopeDartRenderer;
 import net.firstwemine1.weaponry.client.render.ThrownWeaponRenderer;
 import net.firstwemine1.weaponry.effect.ModEffects;
 import net.firstwemine1.weaponry.entity.ModEntities;
+import net.firstwemine1.weaponry.item.ModItems;
+import net.firstwemine1.weaponry.item.WeaponMaterial;
+import net.firstwemine1.weaponry.item.WeaponType;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
 import net.firstwemine1.weaponry.entity.SpawnPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -16,8 +21,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.Projectile;
 
 /**
- * Client-only setup: renderers and the spawn packet for ability entities, and the Stagger and Daze
- * screen wobble.
+ * Client-only setup: renderers and the spawn packet for ability entities, the flipped war pick
+ * model, and the Stagger and Daze screen wobble.
  */
 public class WeaponryClient implements ClientModInitializer {
 	/**
@@ -33,6 +38,10 @@ public class WeaponryClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		EntityRendererRegistry.INSTANCE.register(ModEntities.THROWN_WEAPON, (dispatcher, context) -> new ThrownWeaponRenderer(dispatcher));
 		EntityRendererRegistry.INSTANCE.register(ModEntities.ROPE_DART, (dispatcher, context) -> new RopeDartRenderer(dispatcher));
+		for (WeaponMaterial material : WeaponMaterial.values()) {
+			FabricModelPredicateProviderRegistry.register(ModItems.get(WeaponType.WAR_PICK, material), WarPickAbility.FLIPPED_ID,
+					(stack, level, entity) -> WarPickAbility.isFlipped(stack) ? 1 : 0);
+		}
 		ClientPlayNetworking.registerGlobalReceiver(SpawnPacket.ID, (client, handler, buf, sender) -> {
 			SpawnPacket.Data data = SpawnPacket.read(buf);
 			client.execute(() -> spawn(client, data));
