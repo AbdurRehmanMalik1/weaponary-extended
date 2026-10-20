@@ -33,7 +33,7 @@ public final class ModItems {
 	static {
 		for (WeaponType type : WeaponType.values()) {
 			Map<WeaponMaterial, RegistryObject<WeaponItem>> byMaterial = new EnumMap<>(WeaponMaterial.class);
-			for (WeaponMaterial material : WeaponMaterial.values()) {
+			for (WeaponMaterial material : type.materials()) {
 				RegistryObject<WeaponItem> item = ITEMS.register(itemId(type, material),
 						() -> new WeaponItem(type, material, new Item.Properties().tab(TAB)));
 				byMaterial.put(material, item);
@@ -51,11 +51,20 @@ public final class ModItems {
 	}
 
 	public static String itemId(WeaponType type, WeaponMaterial material) {
-		return material.id() + "_" + type.id();
+		return type.singleVersion() ? type.id() : material.id() + "_" + type.id();
 	}
 
+	/** The weapon of {@code type} in {@code material}, or {@code null} if the type doesn't come in it. */
 	public static WeaponItem get(WeaponType type, WeaponMaterial material) {
-		return WEAPONS.get(type).get(material).get();
+		RegistryObject<WeaponItem> item = WEAPONS.get(type).get(material);
+		return item != null ? item.get() : null;
+	}
+
+	/** Every version of {@code type}, one per material it comes in. Only valid once items are registered. */
+	public static List<WeaponItem> variants(WeaponType type) {
+		List<WeaponItem> items = new ArrayList<>();
+		WEAPONS.get(type).values().forEach(item -> items.add(item.get()));
+		return items;
 	}
 
 	/** Every weapon, ordered by type then material. Only valid once items are registered. */
