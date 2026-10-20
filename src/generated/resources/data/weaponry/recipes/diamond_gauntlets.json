@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "L": {
+      "item": "minecraft:leather"
+    },
+    "M": {
+      "item": "minecraft:diamond"
+    }
+  },
+  "pattern": [
+    "MMM",
+    " L "
+  ],
+  "result": {
+    "item": "weaponry:diamond_gauntlets"
+  },
+  "show_notification": true
+}

@@ -34,7 +34,20 @@ public enum WeaponType {
 	HALBERD("halberd", "Halberd", 2, 0.9f, 4.0, 1.2f, true, new HalberdAbility()),
 	HATCHET("hatchet", "Hatchet", 1, 1.1f, 2.75, 1.0f, false, new HatchetAbility()),
 	WAR_HAMMER("war_hammer", "War Hammer", 3, 0.7f, 3.0, 1.5f, true, new WarHammerAbility()),
-	CLUB("club", "Club", -1, 1.2f, 3.0, 1.5f, false, new ClubAbility());
+	CLUB("club", "Club", -1, 1.2f, 3.0, 1.5f, false, new ClubAbility()),
+	// Stats only for now; abilities still to be designed.
+	RAPIER("rapier", "Rapier", -1, 2.0f, 3.25, 0.8f, false),
+	HOOK_SWORD("hook_sword", "Hook Sword", -1, 1.8f, 3.0, 1.0f, false),
+	GREATSWORD("greatsword", "Greatsword", 3, 0.9f, 3.5, 1.3f, true),
+	BATTLE_AXE("battle_axe", "Battle Axe", 4, 0.8f, 3.0, 1.2f, true),
+	WAR_PICK("war_pick", "War Pick", 2, 0.9f, 3.0, 1.25f, false),
+	GLAIVE("glaive", "Glaive", 1, 1.0f, 4.5, 1.2f, true),
+	SCYTHE("scythe", "Scythe", 2, 0.8f, 4.0, 1.0f, true),
+	MACE("mace", "Mace", 1, 1.1f, 3.0, 1.5f, false),
+	MORNING_STAR("morning_star", "Morning Star", 2, 1.0f, 3.0, 1.25f, false),
+	FLAIL("flail", "Flail", 3, 0.8f, 3.0, 1.0f, false),
+	GAUNTLETS("gauntlets", "Gauntlets", -3, 2.6f, 2.5, 1.0f, false),
+	ROPE_DART("rope_dart", "Rope Dart", -2, 1.6f, 4.5, 0.75f, false);
 
 	private final String id;
 	private final String displayName;
