@@ -48,6 +48,27 @@ public interface WeaponAbility {
 		return true;
 	}
 
+	/**
+	 * Attack charge (0-1) below which a player's melee hit does nothing at all, as if it missed.
+	 * 0 = always hits (vanilla).
+	 */
+	default float minimumCharge() {
+		return 0;
+	}
+
+	/**
+	 * Fraction (0-1) of a melee hit's damage that gets past a raised shield. 0 = blocked as normal.
+	 * Above 0 the shield doesn't block the hit at all: it isn't damaged or disabled.
+	 */
+	default float shieldPassThrough(LivingEntity attacker) {
+		return 0;
+	}
+
+	/** Multiplier on the armor durability a melee hit costs the target (1 = vanilla). */
+	default float armorWearMultiplier(WeaponMaterial material) {
+		return 1;
+	}
+
 	/** Fraction (0-1) of the target's armor ignored by a player's melee hit. */
 	default float armorPierce(WeaponMaterial material) {
 		return 0;
@@ -82,6 +103,10 @@ public interface WeaponAbility {
 	/** How long the item can be held in use, in ticks. */
 	default int useDuration() {
 		return 0;
+	}
+
+	/** Every tick while the item is held in use, on both sides. {@code remainingTicks} counts down from {@link #useDuration()}. */
+	default void onUseTick(ItemStack stack, Level level, LivingEntity user, int remainingTicks) {
 	}
 
 	/** Use released before {@link #useDuration()} ran out. */
