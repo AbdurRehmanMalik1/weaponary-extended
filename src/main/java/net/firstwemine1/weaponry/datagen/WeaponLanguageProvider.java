@@ -18,8 +18,9 @@ public class WeaponLanguageProvider extends FabricLanguageProvider {
 	@Override
 	public void generateTranslations(TranslationBuilder builder) {
 		builder.add(ModItems.CREATIVE_TAB_KEY, "Weaponry");
-		ModItems.all().forEach(item ->
-				builder.add(item, item.material().displayName() + " " + item.type().displayName()));
+		ModItems.all().forEach(item -> builder.add(item, item.type().singleVersion()
+				? item.type().displayName()
+				: item.material().displayName() + " " + item.type().displayName()));
 		builder.add(ModEntities.THROWN_WEAPON, "Thrown Weapon");
 		builder.add(ModEntities.ROPE_DART, "Rope Dart");
 
