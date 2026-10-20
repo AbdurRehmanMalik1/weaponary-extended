@@ -16,8 +16,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(targets = "net.minecraft.world.item.enchantment.EnchantmentCategory$7")
 public abstract class WeaponDiggerCategoryMixin {
 	@Inject(method = "canEnchant(Lnet/minecraft/world/item/Item;)Z", at = @At("HEAD"), cancellable = true)
-	private void weaponry$acceptChoppingWeapons(Item item, CallbackInfoReturnable<Boolean> cir) {
-		if (item instanceof WeaponItem weapon && weapon.type().ability().choppingTool()
+	private void weaponry$acceptDiggingWeapons(Item item, CallbackInfoReturnable<Boolean> cir) {
+		if (item instanceof WeaponItem weapon && weapon.type().ability().diggerEnchantable()
 				&& (Object) this == EnchantmentCategory.DIGGER) {
 			cir.setReturnValue(true);
 		}
