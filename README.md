@@ -1,8 +1,8 @@
 # Weaponry (Forge 1.20.1)
 
 Forge mod for Minecraft **1.20.1** (Forge 47.3.0, Java 17, official Mojang mappings). It adds 22 melee weapons in
-5 material tiers, for 110 items in total. The original 10 plus the flail, morning star and hook sword have their own
-abilities (see [Abilities](#abilities)); the other 9 have stats only for now.
+5 material tiers, for 110 items in total. The original 10 plus the flail, morning star, hook sword and rope dart have their
+own abilities (see [Abilities](#abilities)); the other 8 have stats only for now.
 
 Ported from the `fabric/1.20.1` branch; the gameplay is the same. See [Forge notes](#forge-notes) for how the
 Fabric-only parts are done here.
@@ -40,8 +40,8 @@ installed on the server and on every client, with the same version.
 | Rope Dart | −2 | 1.6 | 4.5 | 0.75 | |
 
 The last 12 (rapier to rope dart) are newer: their stats are a first pass and their textures are the tentative
-designs from `pixel-art`. Of these, only the flail, morning star and hook sword have abilities so far. The rope dart is
-planned next (`../pixel-art/weaponry/docs/new-weapon-abilities.md`).
+designs from `pixel-art`. Of these, the flail, morning star, hook sword and rope dart have abilities so far
+(`../pixel-art/weaponry/docs/new-weapon-abilities.md`).
 
 Tiers are wooden, stone, iron, golden and diamond. Damage bonus, enchantability, repair item and base
 durability all come from the vanilla tier. Source: `../pixel-art/weaponry/docs/weapon-stats.md`.
@@ -70,6 +70,7 @@ the same threshold vanilla uses for sweeps and crits.
 | Club | +1 knockback. **Daze:** full-charge hits have a 20% chance to cause **Daze** for 2 s. | |
 | Flail | **Over the Shield:** a full-charge hit on a raised shield isn't blocked; it deals 50% damage, and the shield takes no damage and isn't disabled. **Unwieldy:** hits below 50% charge do nothing. | **Wind-up:** hold use to spin the head. Each 0.5 s adds +1 damage to your next hit (max +3 at 1.5 s). Lost if you don't hit within 2 s of letting go. |
 | Hook Sword | | **Hook Pull:** use on a target in reach to pull it toward you (1.5 s cooldown, 1 durability). **Hook Leap:** use twice on the same target within 0.3 s to pull yourself toward it, stopping about 1 block short (3 s cooldown, 2 durability). A single use waits out that 0.3 s before pulling. **Wall Brake:** hold use while falling with a block right beside you to hook into it. It slows the fall gradually (0.12 blocks/tick per tick) down to a 4 blocks/s slide, and fall damage follows your speed: from high up you land unhurt, just above the ground you still take most of it. 1 durability per 0.5 s. |
+| Rope Dart | Never dropped: the dart is tied to the rope dart in your hand. Use again to reel it in; sneak + use lets go in any state. Switching items or the rope running out (12 blocks) also reels it in. | **Throw:** hold use (at least 0.5 s) and release; melee damage −1. **Tether:** hitting a living target leashes it for 5 s, holding it within 12 blocks; hold use to drag it in (1 durability per 0.5 s). Iron golems, ravagers and wardens are too heavy, so dragging pulls you to them; the wither and ender dragon shrug the dart off. A tethered player breaks free by hitting you, or when you hit them for 4+; past 16 blocks the rope snaps. **Grapple:** hitting a block anchors the rope (1 durability). You swing on it; hold jump to climb, sneak to lower. No fall protection: climbing up starts a fresh fall like a jump does, but a drop the rope catches still counts when you land. |
 | Morning Star | **Puncture:** full-charge hits cause **Bleed**. **Mail-breaker:** hits cost the target's armor twice the durability (only players' armor wears in vanilla). | |
 
 Material twists:
@@ -121,7 +122,8 @@ MS.      S.          .S.         .S.         .S.       S..     ..S     S..   S..
 - `combat/CombatEvents` does the melee hooks (charge capture, crits, damage bonus, armor crush, minimum charge, hits
   through shields, armor wear) through Forge events;
   `combat/AttackContext` keeps the state of the attack in progress; `combat/Motion` tracks player and mount speed.
-- `effect/` holds the status effects, `entity/` the thrown weapon, `client/` its renderer and the screen wobble.
+- `effect/` holds the status effects, `entity/` the thrown weapon and the rope dart's dart, `client/` their renderers
+  and the screen wobble. The rope's pull on its own thrower runs on that player's client, like all player movement.
 - `src/generated/resources` holds the models, lang, recipes, recipe advancements and tags, carried over from the
   `fabric/1.20.1` branch's datagen output (vanilla formats). Textures are in `src/main/resources/assets`.
 
@@ -179,7 +181,7 @@ Differences from the `fabric/1.20.1` branch:
 - **Shield breaking** is `IForgeItem.canDisableShield`; **enchanting** is `canApplyAtEnchantingTable` (sword
   enchantments on every weapon, Efficiency/Fortune/Silk Touch on the hatchet), which covers the table, the anvil
   and `/enchant`. The hatchet also answers Forge's `AXE_DIG` tool action.
-- **Sabre parry** is `LivingAttackEvent`; **two-handed** blocking is `PlayerInteractEvent.RightClickItem` /
+- **Sabre parry** and the rope dart's PvP way out are `LivingAttackEvent`; **two-handed** blocking is `PlayerInteractEvent.RightClickItem` /
   `RightClickBlock` / `EntityInteract`; ticks are `TickEvent`; the test chest is `ServerStartedEvent`.
 - **Registration** goes through `DeferredRegister` (items, creative tab, entity type, effects), so effects and the
   entity type are `RegistryObject`s resolved with `.get()`. The item attribute map is built on first use, because
@@ -188,5 +190,7 @@ Differences from the `fabric/1.20.1` branch:
   accessible in the Forge-mapped jar). The `weaponry:bleed` damage type and its tags are the same data files.
 - **Client:** renderers register in `EntityRenderersEvent.RegisterRenderers`; the Stagger/Daze wobble runs on
   `TickEvent.ClientTickEvent`.
+- **Access transformer.** Climbing the rope dart's rope reads `LivingEntity.jumping`, made public by
+  `META-INF/accesstransformer.cfg` (the Fabric branch uses a mixin accessor).
 - **Build:** ForgeGradle 6 from `server-vein-miner`'s `forge/1.20.1`. There is no datagen here; the generated JSON
   comes from the Fabric branch (see Layout).
