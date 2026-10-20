@@ -175,7 +175,8 @@ public class RopeDart extends AbstractArrow {
 			return;
 		}
 		if (level.isClientSide()) {
-			if (isAnchored() && owner != null && owner.isControlledByLocalInstance()) {
+			// isControlledByLocalInstance() is false for the client's own player in this version.
+			if (isAnchored() && owner != null && owner.isLocalPlayer()) {
 				hang(owner);
 			} else {
 				ropeLength = -1;
