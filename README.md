@@ -2,7 +2,7 @@
 
 Fabric mod for Minecraft **1.19.2** (Java 17, Mojang mappings). It adds 22 melee weapons, 21 of them in
 5 material tiers. The rope dart is a utility weapon, so it comes in one version only (`weaponry:rope_dart`, iron).
-That makes 106 items in total. The original 10 plus the rapier, war pick, flail, morning star, hook sword and rope dart
+That makes 106 weapon items, plus four bows (see [Bows](#bows)). The original 10 plus the rapier, war pick, flail, morning star, hook sword and rope dart
 have their own abilities (see [Abilities](#abilities)); the other 6 have stats only for now.
 
 Built from the official [fabric-example-mod](https://github.com/FabricMC/fabric-example-mod)
@@ -105,6 +105,34 @@ hit cooldown.
 
 Also not done yet: the lance's "−1 speed tier on foot" (it is already the slowest weapon), and the brace doesn't lock movement.
 
+## Bows
+
+Four bows, one version each (no material tiers): `weaponry:selfbow`, `longbow`, `recurve_bow` and `horse_bow`.
+They shoot vanilla arrows and take the same enchantments as vanilla's bow. Each draws over its own draw time, with
+the vanilla power curve stretched to fit, and has its own three-frame draw animation and zoom. Source:
+`../pixel-art/weaponry/docs/bow-stats.md` (stats §3, abilities §5, recipes §6).
+
+| Bow | Draw | Full damage | Spread | Durability | Abilities |
+|---|---:|---:|---:|---:|---|
+| *Vanilla bow* | *1.0 s* | *6* | *1.0* | *384* | |
+| Selfbow | 0.8 s | 5 | 1.25 | 256 | **Light Draw:** walk at 50% speed while drawing (vanilla 20%). **Rough Arrows:** 15% of its arrows can't be picked up again. |
+| Longbow | 1.5 s | 8 | 0.6 | 384 | **Steady Aim:** after 1 s at full draw, spread 0.1 and extra zoom. **Arm Fatigue:** after 5 s at full draw, spread grows 0.25/s up to 1.5 until you draw again. **No Horseback:** can't be drawn while riding. |
+| Recurve Bow | 1.0 s | 7 | 0.9 | 432 | **Quick Nock:** drawing again within 1 s of a shot starts 25% drawn. **Snap Shot:** +1 damage if released within 0.25 s of full draw. **Dry-fire Strain:** shots below half draw cost 2 durability. |
+| Horse Bow | 0.6 s | 5 | 1.5 | 336 | **Horse Archer:** while riding, a 25% faster draw (0.45 s) and +1 damage. **Light Arrows:** half knockback and half Punch. **Spread While Moving:** spread x1.2 when shooting on the move on foot. |
+
+Arrow speed is x0.9 / x1.3 / x1.15 / x1 vanilla's, which sets range (about 99 / 178 / 147 / 117 blocks). Damage is
+`ceil(arrow speed x base damage)` as in vanilla; flat bonuses (Snap Shot, Horse Archer) are added to base damage as
+`bonus / arrow speed`, so they come out as about +1.
+
+Recipes (S = stick, X = string, L = leather, I = iron ingot, G = gold ingot), all in vanilla's bow layout:
+
+```
+Selfbow   Longbow   Recurve Bow   Horse Bow
+.SX       SSX       .SX           GSX
+S..       L.X       I.X           S.X
+.SX       SSX       .SX           GSX
+```
+
 ## Recipes (M = material, S = stick, C = chain, X = string, L = leather)
 
 The material is planks, stone tool materials, iron ingot, gold ingot or diamond. The wooden club uses a **log**, and the
@@ -124,6 +152,11 @@ MS.      S.          .S.         .S.         .S.       S..     ..S     S..   S..
 
 ## Layout
 
+- `bow/` holds the bows: `BowType` (stats), `WeaponBowItem` (draw and shoot, extends vanilla's `BowItem`),
+  `BowAbility` and one ability class per bow, `BowState` (Quick Nock timing). `ModBows` registers them. The client
+  registers each bow's `pull`/`pulling` properties against its own draw time; client mixins (`client/mixin`) handle the walk speed
+  while drawing (`LocalPlayerMixin`) and the draw zoom (`AbstractClientPlayerMixin`). Horse bow arrows carry the
+  `weaponry.light_arrow` entity tag, which `LivingEntityMixin` and `AbstractArrowMixin` use to halve knockback.
 - `item/WeaponType` holds the per-weapon stats. `item/WeaponMaterial` holds the tiers. Edit these to rebalance.
 - `item/WeaponItem` is the single item class. It behaves like a sword without the sweep attack.
 - `mixin/WeaponEnchantmentCategoryMixin` lets weapons take sword enchantments, and `mixin/WeaponDiggerCategoryMixin`
@@ -214,6 +247,14 @@ Abilities and status effects (same behaviour as 1.21.1, except where noted):
   `WeaponDiggerCategoryMixin` gives every war pick the `DIGGER` enchantments, flipped or not, as the tag does on 1.21.1.
   This version's `ModelTemplate` takes no custom JSON, so the datagen writes the flipped override through a small
   `ModelTemplate` subclass.
+- **Bows.** This version's `BowItem` shoots inside `releaseUsing` with no `shoot`/`createProjectile` to override, so
+  `WeaponBowItem.releaseUsing` is vanilla's copied step by step with the bow's speed, spread, damage and abilities
+  put in (Power, Punch, Flame and Infinity as vanilla applies them; Power isn't scaled by the bow's damage). Bows
+  take the bow enchantments by being `BowItem`s (the categories aren't tag-based yet). Light Arrows halves Punch in
+  `AbstractArrowMixin` at the push itself (`Vec3.scale` in `onHitEntity`), because Punch is a whole-number level
+  here. The draw frames use `FabricModelPredicateProviderRegistry`, and the bows join the creative tab through
+  `Item.Properties.tab` (`ModItems.tab()`). The client mixins
+  are in the client source set (`client/mixin`) with their own `weaponry.client.mixins.json`.
 - **Rapier thrust** adds Sharpness and the like through `EnchantmentHelper.getDamageBonus` and sets Fire Aspect
   itself, as `Player.attack` does in this version.
 - **Effects** are plain `MobEffect` fields with UUID attribute modifiers; Bleed ticks through

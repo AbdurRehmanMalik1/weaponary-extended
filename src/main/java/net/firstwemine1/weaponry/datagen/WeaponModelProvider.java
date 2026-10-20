@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 
 import net.firstwemine1.weaponry.Weaponry;
 import net.firstwemine1.weaponry.ability.WarPickAbility;
+import net.firstwemine1.weaponry.bow.ModBows;
 import net.firstwemine1.weaponry.item.ModItems;
 import net.firstwemine1.weaponry.item.WeaponType;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
@@ -31,6 +32,11 @@ public class WeaponModelProvider extends FabricModelProvider {
 	 */
 	private static final ModelTemplate HANDHELD_MIRRORED = new ModelTemplate(
 			Optional.of(Weaponry.id("item/handheld_mirrored")), Optional.empty(), TextureSlot.LAYER0);
+	/** Bows: vanilla's bow model (its in-hand pose) with our texture. */
+	private static final ResourceLocation BOW_PARENT = new ResourceLocation("item/bow");
+	private static final ModelTemplate BOW = new ModelTemplate(Optional.of(BOW_PARENT), Optional.empty(), TextureSlot.LAYER0);
+	/** Vanilla's draw frames: shown while drawing, from 0.65 of a full draw, and from 0.9. */
+	private static final float[] PULL = {0, 0.65f, 0.9f};
 
 	public WeaponModelProvider(FabricDataGenerator generator) {
 		super(generator);
@@ -45,41 +51,80 @@ public class WeaponModelProvider extends FabricModelProvider {
 		// Held like a sword; texture is textures/item/<material>_<weapon>.png
 		ModItems.all().forEach(item -> {
 			if (item.type() == WeaponType.WAR_PICK) {
-				// Switches to <item>_flipped while the weaponry:flipped item property (registered by the client) is 1.
-				generator.generateFlatItem(item, new FlippableTemplate(item));
+				generator.generateFlatItem(item, flippable(item));
 			} else {
 				generator.generateFlatItem(item, mirrored(item.type()) ? HANDHELD_MIRRORED : ModelTemplates.FLAT_HANDHELD_ITEM);
 			}
 		});
+		ModBows.all().forEach(bow -> generator.generateFlatItem(bow, bow(bow)));
 	}
 
 	/**
-	 * {@code FLAT_HANDHELD_ITEM} that also writes the flipped model and the override to it. This version's
-	 * {@code ModelTemplate} takes no custom JSON and the generators' output is private, but
-	 * {@code generateFlatItem} hands its output to the template, so the template adds the override itself.
+	 * A handheld model that switches to {@code <item>_flipped} (texture of the same name) while the
+	 * {@code weaponry:flipped} item property is 1. The client registers that property.
 	 */
-	private static final class FlippableTemplate extends ModelTemplate {
-		private final Item item;
+	private static ModelTemplate flippable(Item item) {
+		return new OverridingTemplate(new ResourceLocation("item/handheld")) {
+			@Override
+			JsonArray overrides(BiConsumer<ResourceLocation, Supplier<JsonElement>> output) {
+				ResourceLocation flipped = ModelTemplates.FLAT_HANDHELD_ITEM.create(ModelLocationUtils.getModelLocation(item, "_flipped"),
+						TextureMapping.layer0(TextureMapping.getItemTexture(item, "_flipped")), output);
+				JsonObject predicate = new JsonObject();
+				predicate.addProperty(WarPickAbility.FLIPPED_ID.toString(), 1);
+				JsonArray overrides = new JsonArray();
+				overrides.add(override(predicate, flipped));
+				return overrides;
+			}
+		};
+	}
 
-		FlippableTemplate(Item item) {
-			super(Optional.of(new ResourceLocation("item/handheld")), Optional.empty(), TextureSlot.LAYER0);
-			this.item = item;
+	/** A bow and its three draw frames ({@code <bow>_pulling_0..2}), switched like vanilla's bow model. */
+	private static ModelTemplate bow(Item item) {
+		return new OverridingTemplate(BOW_PARENT) {
+			@Override
+			JsonArray overrides(BiConsumer<ResourceLocation, Supplier<JsonElement>> output) {
+				JsonArray overrides = new JsonArray();
+				for (int frame = 0; frame < PULL.length; frame++) {
+					ResourceLocation model = BOW.create(ModelLocationUtils.getModelLocation(item, "_pulling_" + frame),
+							TextureMapping.layer0(TextureMapping.getItemTexture(item, "_pulling_" + frame)), output);
+					JsonObject predicate = new JsonObject();
+					predicate.addProperty("pulling", 1);
+					if (PULL[frame] > 0) {
+						predicate.addProperty("pull", PULL[frame]);
+					}
+					overrides.add(override(predicate, model));
+				}
+				return overrides;
+			}
+		};
+	}
+
+	private static JsonObject override(JsonObject predicate, ResourceLocation model) {
+		JsonObject override = new JsonObject();
+		override.add("predicate", predicate);
+		override.addProperty("model", model.toString());
+		return override;
+	}
+
+	/**
+	 * A one-layer item model that also gets {@code overrides}. This version's {@code ModelTemplate} takes no
+	 * custom JSON and the generators' output is private, but {@code generateFlatItem} hands its output to the
+	 * template, so the template writes the models the overrides point to and adds the overrides itself.
+	 */
+	private abstract static class OverridingTemplate extends ModelTemplate {
+		OverridingTemplate(ResourceLocation parent) {
+			super(Optional.of(parent), Optional.empty(), TextureSlot.LAYER0);
 		}
+
+		/** Writes the models the overrides point to, and returns the overrides. */
+		abstract JsonArray overrides(BiConsumer<ResourceLocation, Supplier<JsonElement>> output);
 
 		@Override
 		public ResourceLocation create(ResourceLocation id, TextureMapping textures,
 				BiConsumer<ResourceLocation, Supplier<JsonElement>> output) {
-			ResourceLocation flipped = ModelTemplates.FLAT_HANDHELD_ITEM.create(ModelLocationUtils.getModelLocation(item, "_flipped"),
-					TextureMapping.layer0(TextureMapping.getItemTexture(item, "_flipped")), output);
+			JsonArray overrides = overrides(output);
 			return super.create(id, textures, (modelId, json) -> output.accept(modelId, () -> {
 				JsonObject model = json.get().getAsJsonObject();
-				JsonObject predicate = new JsonObject();
-				predicate.addProperty(WarPickAbility.FLIPPED_ID.toString(), 1);
-				JsonObject override = new JsonObject();
-				override.add("predicate", predicate);
-				override.addProperty("model", flipped.toString());
-				JsonArray overrides = new JsonArray();
-				overrides.add(override);
 				model.add("overrides", overrides);
 				return model;
 			}));

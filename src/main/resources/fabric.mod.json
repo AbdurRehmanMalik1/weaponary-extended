@@ -3,7 +3,7 @@
 	"id": "weaponry",
 	"version": "${version}",
 	"name": "Weaponry",
-	"description": "Daggers, sabres, scimitars, spears, pikes, lances, halberds, hatchets, war hammers and clubs in every vanilla material tier.",
+	"description": "Daggers, sabres, scimitars, spears, pikes, lances, halberds, hatchets, war hammers, clubs and more in every vanilla material tier, plus four bows.",
 	"authors": [
 		"firstwemine1-mc-dev"
 	],
@@ -22,7 +22,11 @@
 		]
 	},
 	"mixins": [
-		"weaponry.mixins.json"
+		"weaponry.mixins.json",
+		{
+			"config": "weaponry.client.mixins.json",
+			"environment": "client"
+		}
 	],
 	"depends": {
 		"fabricloader": ">=0.19.5",

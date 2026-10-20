@@ -3,6 +3,8 @@ package net.firstwemine1.weaponry.mixin;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
+import net.firstwemine1.weaponry.bow.HorseBowAbility;
 import net.firstwemine1.weaponry.item.WeaponItem;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
@@ -10,11 +12,13 @@ import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 /**
  * Weapon effects on the entity being hit: shield-breakers (halberd, hatchet) disable shields the way
  * axes do, some weapons hit through a raised shield (flail), and some wear armor faster (morning star).
+ * Horse bow arrows knock back half as far.
  */
 @Mixin(LivingEntity.class)
 abstract class LivingEntityMixin {
@@ -65,6 +69,13 @@ abstract class LivingEntityMixin {
 				? weapon.type().ability().armorWearMultiplier(weapon.material())
 				: 1;
 		original.call(self, source, damage * wear);
+	}
+
+	/** Light Arrows: a horse bow's arrow knocks its target back half as far. */
+	@ModifyArg(method = "hurt", at = @At(value = "INVOKE",
+			target = "Lnet/minecraft/world/entity/LivingEntity;knockback(DDD)V"), index = 0)
+	private double weaponry$lightArrow(double strength, @Local(argsOnly = true) DamageSource source) {
+		return HorseBowAbility.isLight(source.getDirectEntity()) ? strength * 0.5 : strength;
 	}
 
 	/**
