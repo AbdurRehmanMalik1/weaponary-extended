@@ -5,6 +5,7 @@ import java.util.UUID;
 import java.util.WeakHashMap;
 
 import net.firstwemine1.weaponry.ability.SabreAbility;
+import net.firstwemine1.weaponry.bow.HorseBowAbility;
 import net.firstwemine1.weaponry.item.WeaponAbility;
 import net.firstwemine1.weaponry.item.WeaponItem;
 import net.minecraft.sounds.SoundEvents;
@@ -15,10 +16,14 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityLeaveWorldEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.ShieldBlockEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
@@ -39,15 +44,21 @@ import net.minecraftforge.eventbus.api.EventPriority;
  *       Last of all, armor wear adds to the durability the hit costs.</li>
  *   <li>{@code LivingDamageEvent}: armor crush puts the armor back.</li>
  * </ol>
+ * Light Arrows (horse bow) work on every hit by one of its arrows: see {@link #onLightArrow}.
  */
 public final class CombatEvents {
 	private static final UUID ARMOR_CRUSH_UUID = UUID.fromString("b4f7d3c2-8e1a-4b6c-9d2e-3f4a5b6c7d8e");
+	private static final UUID LIGHT_ARROW_UUID = UUID.fromString("5d0c8e3b-7a41-4f62-9b1e-2c3d4e5f6a7b");
 	private static final float CRIT_MULTIPLIER = 1.5f;
 
 	/** Targets whose armor is crushed for the hit in progress, until LivingDamageEvent restores it. */
 	private static final Map<LivingEntity, AttributeInstance> CRUSHED = new WeakHashMap<>();
 	/** Targets hit through their shield, with the fraction of the damage that gets through. */
 	private static final Map<LivingEntity, Float> THROUGH_SHIELD = new WeakHashMap<>();
+	/** Targets of a light arrow, with their lowered knockback until their next tick. */
+	private static final Map<LivingEntity, AttributeInstance> LIGHTENED = new WeakHashMap<>();
+	/** Light arrows with Punch whose hit landed this tick, with their target, until the arrow is removed. */
+	private static final Map<AbstractArrow, LivingEntity> PUNCHED = new WeakHashMap<>();
 
 	private CombatEvents() {
 	}
@@ -57,6 +68,10 @@ public final class CombatEvents {
 		MinecraftForge.EVENT_BUS.addListener(CombatEvents::onCriticalHit);
 		MinecraftForge.EVENT_BUS.addListener(CombatEvents::onLivingAttack);
 		MinecraftForge.EVENT_BUS.addListener(CombatEvents::onShieldBlock);
+		MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, CombatEvents::onLightArrow);
+		MinecraftForge.EVENT_BUS.addListener(CombatEvents::onLivingTick);
+		MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, CombatEvents::onLightArrowHurt);
+		MinecraftForge.EVENT_BUS.addListener(CombatEvents::onArrowRemoved);
 		MinecraftForge.EVENT_BUS.addListener(CombatEvents::onHurt);
 		MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, CombatEvents::onArmorWear);
 		MinecraftForge.EVENT_BUS.addListener(CombatEvents::onDamage);
@@ -114,6 +129,63 @@ public final class CombatEvents {
 		THROUGH_SHIELD.put(target, pass);
 		target.level.playSound(null, target.getX(), target.getY(), target.getZ(),
 				SoundEvents.CHAIN_HIT, target.getSoundSource(), 1.0f, 0.8f);
+	}
+
+	/**
+	 * Light Arrows: a horse bow's arrow knocks its target back half as far. The knockback in {@code hurt}
+	 * scales with {@code 1 - knockback resistance}, so the target's resistance is raised to halve that, from
+	 * the start of the hit to its next tick. Lowest priority, so a hit another listener cancels changes
+	 * nothing. Punch doesn't read knockback resistance in this version: see {@link #onArrowRemoved}.
+	 */
+	private static void onLightArrow(LivingAttackEvent event) {
+		LivingEntity target = event.getEntityLiving();
+		if (target.level.isClientSide() || !HorseBowAbility.isLight(event.getSource().getDirectEntity())) {
+			return;
+		}
+		AttributeInstance resistance = target.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
+		if (resistance == null || resistance.getModifier(LIGHT_ARROW_UUID) != null || resistance.getValue() >= 1) {
+			return;
+		}
+		resistance.addTransientModifier(new AttributeModifier(LIGHT_ARROW_UUID, "Light arrow",
+				(1 - resistance.getValue()) * 0.5, AttributeModifier.Operation.ADDITION));
+		LIGHTENED.put(target, resistance);
+	}
+
+	/**
+	 * A light arrow with Punch is about to land its hit (with damage, {@code hurt} returns true), so vanilla
+	 * pushes the target right after it. Remember the arrow to halve that push.
+	 */
+	private static void onLightArrowHurt(LivingHurtEvent event) {
+		if (event.getSource().getDirectEntity() instanceof AbstractArrow arrow && HorseBowAbility.isLight(arrow)
+				&& arrow.getKnockback() > 0 && event.getAmount() > 0 && !arrow.level.isClientSide()) {
+			PUNCHED.put(arrow, event.getEntityLiving());
+		}
+	}
+
+	/**
+	 * Half of a light arrow's Punch. After the push, {@code AbstractArrow.onHitEntity} discards the arrow,
+	 * which fires this before anything else moves the target, so take back half of the push here: vanilla's
+	 * {@code knockback * 0.6} along the arrow's horizontal motion (its 0.1 lift stays, as on the Fabric branch).
+	 */
+	private static void onArrowRemoved(EntityLeaveWorldEvent event) {
+		if (!(event.getEntity() instanceof AbstractArrow arrow) || PUNCHED.isEmpty()) {
+			return;
+		}
+		LivingEntity target = PUNCHED.remove(arrow);
+		Vec3 push = arrow.getDeltaMovement().multiply(1, 0, 1);
+		if (target != null && push.lengthSqr() > 0) {
+			push = push.normalize().scale(arrow.getKnockback() * 0.6 * 0.5);
+			target.push(-push.x, 0, -push.z);
+		}
+	}
+
+	private static void onLivingTick(LivingEvent.LivingUpdateEvent event) {
+		if (!LIGHTENED.isEmpty()) {
+			AttributeInstance resistance = LIGHTENED.remove(event.getEntityLiving());
+			if (resistance != null) {
+				resistance.removeModifier(LIGHT_ARROW_UUID);
+			}
+		}
 	}
 
 	private static void onHurt(LivingHurtEvent event) {
@@ -179,6 +251,7 @@ public final class CombatEvents {
 			return;
 		}
 		THROUGH_SHIELD.clear();
+		PUNCHED.clear();
 		if (!CRUSHED.isEmpty()) {
 			for (LivingEntity entity : CRUSHED.keySet().toArray(new LivingEntity[0])) {
 				restoreArmor(entity);
