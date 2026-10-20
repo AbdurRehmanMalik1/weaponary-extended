@@ -2,7 +2,7 @@
 
 Forge mod for Minecraft **1.19.2** (Forge 43.5.2, Java 17, official Mojang mappings). It adds 22 melee weapons, 21 of them in
 5 material tiers. The rope dart is a utility weapon, so it comes in one version only (`weaponry:rope_dart`, iron).
-That makes 106 items in total. The original 10 plus the rapier, war pick, flail, morning star, hook sword and rope dart
+That makes 106 weapon items, plus four bows (see [Bows](#bows)). The original 10 plus the rapier, war pick, flail, morning star, hook sword and rope dart
 have their own abilities (see [Abilities](#abilities)); the other 6 have stats only for now.
 
 Ported from the `fabric/1.19.2` branch (through `forge/1.20.1`); the gameplay is the same. See [Forge notes](#forge-notes) for how the
@@ -102,6 +102,34 @@ hit cooldown.
 
 Also not done yet: the lance's "−1 speed tier on foot" (it is already the slowest weapon), and the brace doesn't lock movement.
 
+## Bows
+
+Four bows, one version each (no material tiers): `weaponry:selfbow`, `longbow`, `recurve_bow` and `horse_bow`.
+They shoot vanilla arrows and take the same enchantments as vanilla's bow. Each draws over its own draw time, with
+the vanilla power curve stretched to fit, and has its own three-frame draw animation and zoom. Source:
+`../pixel-art/weaponry/docs/bow-stats.md` (stats §3, abilities §5, recipes §6).
+
+| Bow | Draw | Full damage | Spread | Durability | Abilities |
+|---|---:|---:|---:|---:|---|
+| *Vanilla bow* | *1.0 s* | *6* | *1.0* | *384* | |
+| Selfbow | 0.8 s | 5 | 1.25 | 256 | **Light Draw:** walk at 50% speed while drawing (vanilla 20%). **Rough Arrows:** 15% of its arrows can't be picked up again. |
+| Longbow | 1.5 s | 8 | 0.6 | 384 | **Steady Aim:** after 1 s at full draw, spread 0.1 and extra zoom. **Arm Fatigue:** after 5 s at full draw, spread grows 0.25/s up to 1.5 until you draw again. **No Horseback:** can't be drawn while riding. |
+| Recurve Bow | 1.0 s | 7 | 0.9 | 432 | **Quick Nock:** drawing again within 1 s of a shot starts 25% drawn. **Snap Shot:** +1 damage if released within 0.25 s of full draw. **Dry-fire Strain:** shots below half draw cost 2 durability. |
+| Horse Bow | 0.6 s | 5 | 1.5 | 336 | **Horse Archer:** while riding, a 25% faster draw (0.45 s) and +1 damage. **Light Arrows:** half knockback and half Punch. **Spread While Moving:** spread x1.2 when shooting on the move on foot. |
+
+Arrow speed is x0.9 / x1.3 / x1.15 / x1 vanilla's, which sets range (about 99 / 178 / 147 / 117 blocks). Damage is
+`ceil(arrow speed x base damage)` as in vanilla; flat bonuses (Snap Shot, Horse Archer) are added to base damage as
+`bonus / arrow speed`, so they come out as about +1.
+
+Recipes (S = stick, X = string, L = leather, I = iron ingot, G = gold ingot), all in vanilla's bow layout:
+
+```
+Selfbow   Longbow   Recurve Bow   Horse Bow
+.SX       SSX       .SX           GSX
+S..       L.X       I.X           S.X
+.SX       SSX       .SX           GSX
+```
+
 ## Recipes (M = material, S = stick, C = chain, X = string, L = leather)
 
 The material is planks, stone tool materials, iron ingot, gold ingot or diamond. The wooden club uses a **log**, and the
@@ -130,6 +158,11 @@ MS.      S.          .S.         .S.         .S.       S..     ..S     S..   S..
   `combat/AttackContext` keeps the state of the attack in progress; `combat/Motion` tracks player and mount speed.
 - `effect/` holds the status effects, `entity/` the thrown weapon and the rope dart's dart, `client/` their renderers
   and the screen wobble. The rope's pull on its own thrower runs on that player's client, like all player movement.
+- `bow/` holds the bows: `BowType` (stats), `WeaponBowItem` (draw and shoot, extends vanilla's `BowItem`),
+  `BowAbility` and one ability class per bow, `BowState` (Quick Nock timing). `ModBows` registers them. The client
+  (`client/WeaponryClient`) registers each bow's `pull`/`pulling` properties against its own draw time, and sets the
+  draw zoom and the walk speed while drawing. Horse bow arrows carry the `weaponry.light_arrow` entity tag, which
+  `combat/CombatEvents` uses to halve their knockback.
 - `src/generated/resources` holds the models, lang, recipes, recipe advancements and tags, carried over from the
   `fabric/1.19.2` branch's datagen output (vanilla formats). Textures are in `src/main/resources/assets`.
 
@@ -192,6 +225,16 @@ Differences from the `fabric/1.19.2` branch:
   Flipped, `getDestroySpeed` uses `#minecraft:mineable/pickaxe` at the tier's speed ×0.8, Forge's stack-aware
   `isCorrectToolForDrops(ItemStack, BlockState)` applies the `DiggerItem` drop rule with that tag (the Fabric branch
   needs `ItemStackMixin` for this), and it answers the `PICKAXE_DIG` tool action.
+- **Bows.** `WeaponBowItem.releaseUsing` is Forge's `BowItem.releaseUsing` copied step by step with the bow's speed,
+  spread, damage and abilities put in, so `ArrowLooseEvent` (fired with the bow's own draw ticks), `ArrowItem.isInfinite`
+  and `customArrow` still work; `use` is Forge's, so `ArrowNockEvent` fires too. Power, Punch, Flame and Infinity apply
+  as vanilla does (Power isn't scaled by the bow's damage), and bows take the bow enchantments by being `BowItem`s.
+  The Fabric client mixins become events: `ComputeFovModifierEvent` for the draw zoom, and `MovementInputUpdateEvent`
+  (which fires just before vanilla's 20% slowdown) for the walk speed while drawing.
+- **Light Arrows** (horse bow). The knockback in `hurt` and the arrow's Punch push both scale with
+  `1 − knockback resistance`, so `LivingAttackEvent` raises the target's knockback resistance by a transient modifier
+  that halves that factor, and it comes off on the target's next tick (`LivingTickEvent`). That halves both at once,
+  Punch included, where the Fabric branch needs a mixin on each (Punch is a whole-number level here).
 - **Rapier thrust** adds Sharpness and the like through `EnchantmentHelper.getDamageBonus` and sets Fire Aspect
   itself, as `Player.attack` does in this version.
 - **Sabre parry** and the rope dart's PvP way out are `LivingAttackEvent`; **two-handed** blocking is `PlayerInteractEvent.RightClickItem` /
