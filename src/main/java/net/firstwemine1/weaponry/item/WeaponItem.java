@@ -7,11 +7,13 @@ import org.jetbrains.annotations.Nullable;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import net.firstwemine1.weaponry.Weaponry;
+import net.firstwemine1.weaponry.ability.WarPickAbility;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -25,6 +27,7 @@ import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
@@ -128,37 +131,42 @@ public class WeaponItem extends TieredItem {
 		}
 	}
 
-	// --- sword-like durability handling, axe mining for the hatchet ---
+	// --- sword-like durability handling, axe mining for the hatchet, pickaxe mining for the flipped war pick ---
 
 	@Override
 	public boolean canAttackBlock(BlockState state, Level level, BlockPos pos, Player player) {
-		return type.ability().choppingTool() || !player.isCreative();
+		return type.ability().choppingTool() || WarPickAbility.isFlipped(player.getMainHandItem()) || !player.isCreative();
 	}
 
 	@Override
 	public float getDestroySpeed(ItemStack stack, BlockState state) {
+		if (WarPickAbility.isFlipped(stack)) {
+			return state.is(BlockTags.MINEABLE_WITH_PICKAXE) ? getTier().getSpeed() * WarPickAbility.MINING_SPEED : 1.0f;
+		}
 		return type.ability().choppingTool() && state.is(BlockTags.MINEABLE_WITH_AXE) ? getTier().getSpeed() : 1.0f;
 	}
 
-	/** Same rule as vanilla {@code DiggerItem} with the axe's block tag. */
+	/** The hatchet only; the flipped war pick goes through {@code ItemStackMixin}, which sees the stack. */
 	@Override
 	public boolean isCorrectToolForDrops(BlockState state) {
-		if (!type.ability().choppingTool()) {
-			return false;
-		}
+		return type.ability().choppingTool() && isCorrectToolForDrops(state, BlockTags.MINEABLE_WITH_AXE);
+	}
+
+	/** Same rule as vanilla {@code DiggerItem}, with {@code mineable} as its block tag. */
+	public boolean isCorrectToolForDrops(BlockState state, TagKey<Block> mineable) {
 		int level = getTier().getLevel();
 		if (level < 3 && state.is(BlockTags.NEEDS_DIAMOND_TOOL)
 				|| level < 2 && state.is(BlockTags.NEEDS_IRON_TOOL)
 				|| level < 1 && state.is(BlockTags.NEEDS_STONE_TOOL)) {
 			return false;
 		}
-		return state.is(BlockTags.MINEABLE_WITH_AXE);
+		return state.is(mineable);
 	}
 
 	@Override
 	public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity miner) {
 		if (!level.isClientSide() && state.getDestroySpeed(level, pos) != 0.0f) {
-			int cost = type.ability().choppingTool() ? CHOPPING_BLOCK_DAMAGE : BLOCK_DAMAGE;
+			int cost = type.ability().choppingTool() || WarPickAbility.isFlipped(stack) ? CHOPPING_BLOCK_DAMAGE : BLOCK_DAMAGE;
 			stack.hurtAndBreak(cost, miner, entity -> entity.broadcastBreakEvent(EquipmentSlot.MAINHAND));
 		}
 		return true;
