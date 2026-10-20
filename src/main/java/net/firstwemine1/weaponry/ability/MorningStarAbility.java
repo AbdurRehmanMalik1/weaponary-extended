@@ -19,7 +19,9 @@ public class MorningStarAbility implements WeaponAbility {
 
 	@Override
 	public List<String> description() {
-		return List.of("Full-charge hits cause Bleed; wears armor twice as fast");
+		return List.of(
+				"Puncture: full-charge hits cause Bleed",
+				"Mail-breaker: wears armor twice as fast");
 	}
 
 	@Override
