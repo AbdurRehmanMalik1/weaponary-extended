@@ -1,6 +1,7 @@
 package net.firstwemine1.weaponry.ability;
 
 import net.firstwemine1.weaponry.combat.Motion;
+import net.firstwemine1.weaponry.entity.RopeDart;
 import net.firstwemine1.weaponry.item.ModItems;
 import net.firstwemine1.weaponry.item.WeaponMaterial;
 import net.firstwemine1.weaponry.item.WeaponType;
@@ -41,6 +42,12 @@ public final class Abilities {
 			if (!event.getEntityLiving().level.isClientSide()
 					&& !SabreAbility.allowDamage(event.getEntityLiving(), event.getSource(), event.getAmount())) {
 				event.setCanceled(true);
+			}
+		});
+		// The rope dart's PvP way out. Not called for a hit the parry already cancelled.
+		MinecraftForge.EVENT_BUS.addListener((LivingAttackEvent event) -> {
+			if (!event.getEntityLiving().level.isClientSide()) {
+				RopeDart.onDamage(event.getEntityLiving(), event.getSource(), event.getAmount());
 			}
 		});
 

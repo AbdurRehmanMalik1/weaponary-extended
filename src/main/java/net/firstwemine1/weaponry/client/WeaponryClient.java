@@ -1,5 +1,6 @@
 package net.firstwemine1.weaponry.client;
 
+import net.firstwemine1.weaponry.client.render.RopeDartRenderer;
 import net.firstwemine1.weaponry.client.render.ThrownWeaponRenderer;
 import net.firstwemine1.weaponry.effect.ModEffects;
 import net.firstwemine1.weaponry.entity.ModEntities;
@@ -25,8 +26,10 @@ public final class WeaponryClient {
 	}
 
 	public static void init(IEventBus modBus) {
-		modBus.addListener((EntityRenderersEvent.RegisterRenderers event) ->
-				event.registerEntityRenderer(ModEntities.THROWN_WEAPON.get(), ThrownWeaponRenderer::new));
+		modBus.addListener((EntityRenderersEvent.RegisterRenderers event) -> {
+			event.registerEntityRenderer(ModEntities.THROWN_WEAPON.get(), ThrownWeaponRenderer::new);
+			event.registerEntityRenderer(ModEntities.ROPE_DART.get(), RopeDartRenderer::new);
+		});
 		MinecraftForge.EVENT_BUS.addListener((TickEvent.ClientTickEvent event) -> {
 			if (event.phase == TickEvent.Phase.END) {
 				wobble(Minecraft.getInstance().player);
