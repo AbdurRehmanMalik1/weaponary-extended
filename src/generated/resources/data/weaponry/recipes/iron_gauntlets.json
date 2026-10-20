@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "L": {
+      "item": "minecraft:leather"
+    },
+    "M": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "pattern": [
+    "MMM",
+    " L "
+  ],
+  "result": {
+    "item": "weaponry:iron_gauntlets"
+  }
+}

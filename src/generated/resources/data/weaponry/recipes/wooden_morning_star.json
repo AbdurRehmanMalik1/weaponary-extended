@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "M": {
+      "tag": "minecraft:planks"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    "M M",
+    " M ",
+    "S  "
+  ],
+  "result": {
+    "item": "weaponry:wooden_morning_star"
+  }
+}

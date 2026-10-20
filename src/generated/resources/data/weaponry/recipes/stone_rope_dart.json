@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "M": {
+      "tag": "minecraft:stone_tool_materials"
+    },
+    "X": {
+      "item": "minecraft:string"
+    }
+  },
+  "pattern": [
+    "  M",
+    " X ",
+    "X  "
+  ],
+  "result": {
+    "item": "weaponry:stone_rope_dart"
+  }
+}
