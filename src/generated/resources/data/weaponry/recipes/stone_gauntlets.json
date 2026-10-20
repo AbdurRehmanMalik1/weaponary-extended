@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "MMM",
+    " L "
+  ],
+  "key": {
+    "M": {
+      "tag": "minecraft:stone_tool_materials"
+    },
+    "L": {
+      "item": "minecraft:leather"
+    }
+  },
+  "result": {
+    "item": "weaponry:stone_gauntlets"
+  }
+}
