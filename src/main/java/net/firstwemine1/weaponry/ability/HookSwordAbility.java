@@ -116,7 +116,8 @@ public class HookSwordAbility implements WeaponAbility {
 			return;
 		}
 		if (level.isClientSide()) {
-			if (player.isControlledByLocalInstance()) {
+			// isControlledByLocalInstance() is false for the client's own player in this version.
+			if (player.isLocalPlayer()) {
 				brake(player);
 			}
 			return;
