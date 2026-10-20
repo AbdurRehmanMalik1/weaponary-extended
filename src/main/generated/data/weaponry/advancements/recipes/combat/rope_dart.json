@@ -2,17 +2,17 @@
   "parent": "minecraft:recipes/root",
   "rewards": {
     "recipes": [
-      "weaponry:golden_rope_dart"
+      "weaponry:rope_dart"
     ]
   },
   "criteria": {
-    "has_gold_ingot": {
+    "has_iron_ingot": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
           {
             "items": [
-              "minecraft:gold_ingot"
+              "minecraft:iron_ingot"
             ]
           }
         ]
@@ -21,13 +21,13 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "weaponry:golden_rope_dart"
+        "recipe": "weaponry:rope_dart"
       }
     }
   },
   "requirements": [
     [
-      "has_gold_ingot",
+      "has_iron_ingot",
       "has_the_recipe"
     ]
   ]
