@@ -2,5 +2,13 @@
   "parent": "minecraft:item/handheld",
   "textures": {
     "layer0": "weaponry:item/golden_war_pick"
-  }
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "weaponry:flipped": 1
+      },
+      "model": "weaponry:item/golden_war_pick_flipped"
+    }
+  ]
 }

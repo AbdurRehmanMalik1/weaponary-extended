@@ -2,5 +2,13 @@
   "parent": "minecraft:item/handheld",
   "textures": {
     "layer0": "weaponry:item/wooden_war_pick"
-  }
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "weaponry:flipped": 1
+      },
+      "model": "weaponry:item/wooden_war_pick_flipped"
+    }
+  ]
 }
