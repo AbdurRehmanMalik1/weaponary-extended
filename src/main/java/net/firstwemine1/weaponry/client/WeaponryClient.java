@@ -1,17 +1,26 @@
 package net.firstwemine1.weaponry.client;
 
+import net.firstwemine1.weaponry.ability.WarPickAbility;
 import net.firstwemine1.weaponry.client.render.RopeDartRenderer;
 import net.firstwemine1.weaponry.client.render.ThrownWeaponRenderer;
 import net.firstwemine1.weaponry.effect.ModEffects;
 import net.firstwemine1.weaponry.entity.ModEntities;
+import net.firstwemine1.weaponry.item.ModItems;
+import net.firstwemine1.weaponry.item.WeaponMaterial;
+import net.firstwemine1.weaponry.item.WeaponType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
-/** Client-only setup: renderers for ability entities, and the Stagger and Daze screen wobble. */
+/**
+ * Client-only setup: renderers for ability entities, the flipped war pick model, and the Stagger and
+ * Daze screen wobble.
+ */
 public final class WeaponryClient {
 	/**
 	 * Both effects use the nausea-style view wobble (vanilla Nausea winds it up to 1.0). Stagger is a
@@ -30,11 +39,20 @@ public final class WeaponryClient {
 			event.registerEntityRenderer(ModEntities.THROWN_WEAPON.get(), ThrownWeaponRenderer::new);
 			event.registerEntityRenderer(ModEntities.ROPE_DART.get(), RopeDartRenderer::new);
 		});
+		// Item properties aren't thread-safe, so they go on the main thread.
+		modBus.addListener((FMLClientSetupEvent event) -> event.enqueueWork(WeaponryClient::registerItemProperties));
 		MinecraftForge.EVENT_BUS.addListener((TickEvent.ClientTickEvent event) -> {
 			if (event.phase == TickEvent.Phase.END) {
 				wobble(Minecraft.getInstance().player);
 			}
 		});
+	}
+
+	private static void registerItemProperties() {
+		for (WeaponMaterial material : WeaponMaterial.values()) {
+			ItemProperties.register(ModItems.get(WeaponType.WAR_PICK, material), WarPickAbility.FLIPPED_ID,
+					(stack, level, entity, seed) -> WarPickAbility.isFlipped(stack) ? 1 : 0);
+		}
 	}
 
 	/**

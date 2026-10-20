@@ -38,6 +38,11 @@ public interface WeaponAbility {
 		return false;
 	}
 
+	/** Takes the digging enchantments (Efficiency, Fortune, Silk Touch). */
+	default boolean diggerEnchantable() {
+		return choppingTool();
+	}
+
 	/** Disables a blocking shield for 5 s, like an axe. */
 	default boolean disablesShields() {
 		return false;

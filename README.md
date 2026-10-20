@@ -40,7 +40,7 @@ installed on the server and on every client, with the same version.
 | Rope Dart | −2 | 1.6 | 4.5 | 0.75 | |
 
 The last 12 (rapier to rope dart) are newer: their stats are a first pass and their textures are the tentative
-designs from `pixel-art`. Of these, the flail, morning star, hook sword and rope dart have abilities so far
+designs from `pixel-art`. Of these, the rapier, war pick, flail, morning star, hook sword and rope dart have abilities so far
 (`../pixel-art/weaponry/docs/new-weapon-abilities.md`).
 
 Tiers are wooden, stone, iron, golden and diamond. Damage bonus, enchantability, repair item and base
@@ -68,6 +68,8 @@ the same threshold vanilla uses for sweeps and crits.
 | Hatchet | Disables shields. Mines wood at axe speed and takes Efficiency, Fortune and Silk Touch. | **Throw:** like the spear, but short range and spinning. Melee damage +1. |
 | War Hammer | **Armor Crush:** ignores 50% of the target's armor. Full-charge hits cause **Stagger** for 1 s. | **Overhead Smash:** a full-charge hit while sneaking knocks back everything within 2.5 blocks of the target, and everything it hits (target included) gets **Stun** for 0.75 s. |
 | Club | +1 knockback. **Daze:** full-charge hits have a 20% chance to cause **Daze** for 2 s. | |
+| Rapier | | **Thrust:** use on a target up to 1 block past your reach (4.25 blocks) for full damage +2, whatever your attack charge (2.5 s cooldown, 1 durability). Resets your attack charge. |
+| War Pick | | **Flip:** use to turn it round (0.5 s cooldown). Flipped, it mines like a pickaxe of its tier at 80% speed, 1 durability per block, and takes Efficiency, Fortune and Silk Touch. Use again to flip it back. It still fights the same either way. |
 | Flail | **Over the Shield:** a full-charge hit on a raised shield isn't blocked; it deals 50% damage, and the shield takes no damage and isn't disabled. **Unwieldy:** hits below 50% charge do nothing. | **Wind-up:** hold use to spin the head. Each 0.5 s adds +1 damage to your next hit (max +3 at 1.5 s). Lost if you don't hit within 2 s of letting go. |
 | Hook Sword | | **Hook Pull:** use on a target in reach to pull it toward you (1.5 s cooldown, 1 durability). **Hook Leap:** use twice on the same target within 0.3 s to pull yourself toward it, stopping about 1 block short (3 s cooldown, 2 durability). A single use waits out that 0.3 s before pulling. **Wall Brake:** hold use while falling with a block right beside you to hook into it. It slows the fall gradually (0.12 blocks/tick per tick) down to a 4 blocks/s slide, and fall damage follows your speed: from high up you land unhurt, just above the ground you still take most of it. 1 durability per 0.5 s. |
 | Rope Dart | Never dropped: the dart is tied to the rope dart in your hand. Use again to reel it in; sneak + use lets go in any state. Switching items or the rope running out (12 blocks) also reels it in. | **Throw:** hold use (at least 0.5 s) and release; melee damage −1. **Tether:** hitting a living target leashes it for 5 s, holding it within 12 blocks; hold use to drag it in (1 durability per 0.5 s). Iron golems, ravagers and wardens are too heavy, so dragging pulls you to them; the wither and ender dragon shrug the dart off. A tethered player breaks free by hitting you, or when you hit them for 4+; past 16 blocks the rope snaps. **Grapple:** hitting a block anchors the rope (1 durability). You swing on it; hold jump to climb, sneak to lower. No fall protection: climbing up starts a fresh fall like a jump does, but a drop the rope catches still counts when you land. |
@@ -179,8 +181,15 @@ Differences from the `fabric/1.20.1` branch:
   1.20.1 branch can't, as the vanilla attribute only arrives in 1.20.5). Abilities that reach for a target (the
   halberd hook, the hook sword pull, `Abilities.targetInReach`) use the player's reach too, as 1.21.1 does.
 - **Shield breaking** is `IForgeItem.canDisableShield`; **enchanting** is `canApplyAtEnchantingTable` (sword
-  enchantments on every weapon, Efficiency/Fortune/Silk Touch on the hatchet), which covers the table, the anvil
-  and `/enchant`. The hatchet also answers Forge's `AXE_DIG` tool action.
+  enchantments on every weapon, Efficiency/Fortune/Silk Touch on the hatchet and war pick), which covers the table,
+  the anvil and `/enchant`. The hatchet also answers Forge's `AXE_DIG` tool action.
+- **War pick flip.** The flipped state is a `weaponry:flipped` boolean in the stack's NBT (there are no item
+  components), and the client registers the `weaponry:flipped` model property from it in `FMLClientSetupEvent`.
+  Flipped, `getDestroySpeed` uses `#minecraft:mineable/pickaxe` at the tier's speed ×0.8, Forge's stack-aware
+  `isCorrectToolForDrops(ItemStack, BlockState)` applies the `DiggerItem` drop rule with that tag (the Fabric branch
+  needs `ItemStackMixin` for this), and it answers the `PICKAXE_DIG` tool action.
+- **Rapier thrust** adds Sharpness and the like through `EnchantmentHelper.getDamageBonus` and sets Fire Aspect
+  itself, as `Player.attack` does in this version.
 - **Sabre parry** and the rope dart's PvP way out are `LivingAttackEvent`; **two-handed** blocking is `PlayerInteractEvent.RightClickItem` /
   `RightClickBlock` / `EntityInteract`; ticks are `TickEvent`; the test chest is `ServerStartedEvent`.
 - **Registration** goes through `DeferredRegister` (items, creative tab, entity type, effects), so effects and the

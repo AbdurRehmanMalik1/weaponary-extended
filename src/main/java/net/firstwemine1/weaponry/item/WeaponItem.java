@@ -8,10 +8,12 @@ import org.jetbrains.annotations.Nullable;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import net.firstwemine1.weaponry.Weaponry;
+import net.firstwemine1.weaponry.ability.WarPickAbility;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -27,10 +29,11 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.ToolAction;
 import net.minecraftforge.common.ToolActions;
-import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * A melee weapon: one {@link WeaponType} in one {@link WeaponMaterial}. Behaves like a sword minus
@@ -148,7 +151,7 @@ public class WeaponItem extends TieredItem {
 		}
 	}
 
-	// --- Forge hooks: shield breaking, enchanting, axe actions ---
+	// --- Forge hooks: shield breaking, enchanting, axe and pickaxe actions ---
 
 	@Override
 	public boolean canDisableShield(ItemStack stack, ItemStack shield, LivingEntity entity, LivingEntity attacker) {
@@ -157,52 +160,65 @@ public class WeaponItem extends TieredItem {
 
 	/**
 	 * Sword enchantments (category {@code WEAPON}, which only accepts {@code SwordItem}) on every
-	 * weapon, and the {@code DIGGER} ones (Efficiency, Fortune, Silk Touch) on the hatchet. Forge
-	 * routes the table, the anvil and {@code /enchant} through this.
+	 * weapon, and the {@code DIGGER} ones (Efficiency, Fortune, Silk Touch) on the hatchet and war pick.
+	 * Forge routes the table, the anvil and {@code /enchant} through this.
 	 */
 	@Override
 	public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
 		return enchantment.category == EnchantmentCategory.WEAPON
-				|| enchantment.category == EnchantmentCategory.DIGGER && type.ability().choppingTool()
+				|| enchantment.category == EnchantmentCategory.DIGGER && type.ability().diggerEnchantable()
 				|| super.canApplyAtEnchantingTable(stack, enchantment);
 	}
 
 	@Override
 	public boolean canPerformAction(ItemStack stack, ToolAction action) {
-		return action == ToolActions.AXE_DIG && type.ability().choppingTool() || super.canPerformAction(stack, action);
+		return action == ToolActions.AXE_DIG && type.ability().choppingTool()
+				|| action == ToolActions.PICKAXE_DIG && WarPickAbility.isFlipped(stack)
+				|| super.canPerformAction(stack, action);
 	}
 
-	// --- sword-like durability handling, axe mining for the hatchet ---
+	// --- sword-like durability handling, axe mining for the hatchet, pickaxe mining for the flipped war pick ---
 
 	@Override
 	public boolean canAttackBlock(BlockState state, Level level, BlockPos pos, Player player) {
-		return type.ability().choppingTool() || !player.isCreative();
+		return type.ability().choppingTool() || WarPickAbility.isFlipped(player.getMainHandItem()) || !player.isCreative();
 	}
 
 	@Override
 	public float getDestroySpeed(ItemStack stack, BlockState state) {
+		if (WarPickAbility.isFlipped(stack)) {
+			return state.is(BlockTags.MINEABLE_WITH_PICKAXE) ? getTier().getSpeed() * WarPickAbility.MINING_SPEED : 1.0f;
+		}
 		return type.ability().choppingTool() && state.is(BlockTags.MINEABLE_WITH_AXE) ? getTier().getSpeed() : 1.0f;
 	}
 
-	/** Same rule as vanilla {@code DiggerItem} with the axe's block tag. */
+	/** The hatchet; the flipped war pick needs the stack, so it goes through the Forge overload below. */
 	@Override
 	public boolean isCorrectToolForDrops(BlockState state) {
-		if (!type.ability().choppingTool()) {
-			return false;
-		}
+		return type.ability().choppingTool() && isCorrectToolForDrops(state, BlockTags.MINEABLE_WITH_AXE);
+	}
+
+	/** Forge's stack-aware version, which both the drops and the mining speed penalty for the wrong tool use. */
+	@Override
+	public boolean isCorrectToolForDrops(ItemStack stack, BlockState state) {
+		return WarPickAbility.isFlipped(stack) ? isCorrectToolForDrops(state, BlockTags.MINEABLE_WITH_PICKAXE) : isCorrectToolForDrops(state);
+	}
+
+	/** Same rule as vanilla {@code DiggerItem}, with {@code mineable} as its block tag. */
+	public boolean isCorrectToolForDrops(BlockState state, TagKey<Block> mineable) {
 		int level = getTier().getLevel();
 		if (level < 3 && state.is(BlockTags.NEEDS_DIAMOND_TOOL)
 				|| level < 2 && state.is(BlockTags.NEEDS_IRON_TOOL)
 				|| level < 1 && state.is(BlockTags.NEEDS_STONE_TOOL)) {
 			return false;
 		}
-		return state.is(BlockTags.MINEABLE_WITH_AXE);
+		return state.is(mineable);
 	}
 
 	@Override
 	public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity miner) {
 		if (!level.isClientSide() && state.getDestroySpeed(level, pos) != 0.0f) {
-			int cost = type.ability().choppingTool() ? CHOPPING_BLOCK_DAMAGE : BLOCK_DAMAGE;
+			int cost = type.ability().choppingTool() || WarPickAbility.isFlipped(stack) ? CHOPPING_BLOCK_DAMAGE : BLOCK_DAMAGE;
 			stack.hurtAndBreak(cost, miner, entity -> entity.broadcastBreakEvent(EquipmentSlot.MAINHAND));
 		}
 		return true;

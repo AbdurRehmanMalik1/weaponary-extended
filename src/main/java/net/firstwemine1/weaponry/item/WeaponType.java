@@ -9,10 +9,12 @@ import net.firstwemine1.weaponry.ability.HookSwordAbility;
 import net.firstwemine1.weaponry.ability.LanceAbility;
 import net.firstwemine1.weaponry.ability.MorningStarAbility;
 import net.firstwemine1.weaponry.ability.PikeAbility;
+import net.firstwemine1.weaponry.ability.RapierAbility;
 import net.firstwemine1.weaponry.ability.RopeDartAbility;
 import net.firstwemine1.weaponry.ability.SabreAbility;
 import net.firstwemine1.weaponry.ability.ScimitarAbility;
 import net.firstwemine1.weaponry.ability.SpearAbility;
+import net.firstwemine1.weaponry.ability.WarPickAbility;
 import net.firstwemine1.weaponry.ability.WarHammerAbility;
 
 /**
@@ -41,11 +43,11 @@ public enum WeaponType {
 	CLUB("club", "Club", -1, 1.2f, 3.0, 1.5f, false, new ClubAbility()),
 	// Newer weapons: the ones without an ability have stats only for now
 	// (pixel-art/weaponry/docs/new-weapon-abilities.md).
-	RAPIER("rapier", "Rapier", -1, 2.0f, 3.25, 0.8f, false),
+	RAPIER("rapier", "Rapier", -1, 2.0f, 3.25, 0.8f, false, new RapierAbility()),
 	HOOK_SWORD("hook_sword", "Hook Sword", -1, 1.8f, 3.0, 1.0f, false, new HookSwordAbility()),
 	GREATSWORD("greatsword", "Greatsword", 3, 0.9f, 3.5, 1.3f, true),
 	BATTLE_AXE("battle_axe", "Battle Axe", 4, 0.8f, 3.0, 1.2f, true),
-	WAR_PICK("war_pick", "War Pick", 2, 0.9f, 3.0, 1.25f, false),
+	WAR_PICK("war_pick", "War Pick", 2, 0.9f, 3.0, 1.25f, false, new WarPickAbility()),
 	GLAIVE("glaive", "Glaive", 1, 1.0f, 4.5, 1.2f, true),
 	SCYTHE("scythe", "Scythe", 2, 0.8f, 4.0, 1.0f, true),
 	MACE("mace", "Mace", 1, 1.1f, 3.0, 1.5f, false),
