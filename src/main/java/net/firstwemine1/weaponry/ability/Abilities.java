@@ -73,7 +73,12 @@ public final class Abilities {
 	 * no reach attribute in this version, so it uses the weapon's listed reach (halberd 4, hook sword 3).
 	 */
 	static LivingEntity targetInReach(Player player) {
-		double range = player.getMainHandItem().getItem() instanceof WeaponItem weapon ? weapon.type().reach() : 3.0;
+		return targetInReach(player, 0);
+	}
+
+	/** As {@link #targetInReach(Player)}, reaching {@code extraReach} blocks further. */
+	static LivingEntity targetInReach(Player player, double extraReach) {
+		double range = (player.getMainHandItem().getItem() instanceof WeaponItem weapon ? weapon.type().reach() : 3.0) + extraReach;
 		Vec3 eye = player.getEyePosition();
 		Vec3 end = eye.add(player.getViewVector(1.0f).scale(range));
 		HitResult block = player.level().clip(new ClipContext(eye, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
