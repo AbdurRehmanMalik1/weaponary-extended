@@ -35,7 +35,7 @@ public class WarPickAbility implements WeaponAbility {
 
 	@Override
 	public List<String> description() {
-		return ImmutableList.of("Use: flip it to mine like a pickaxe (80% speed)");
+		return ImmutableList.of("Flip (use): turn it round to mine like a pickaxe (80% speed)");
 	}
 
 	@Override

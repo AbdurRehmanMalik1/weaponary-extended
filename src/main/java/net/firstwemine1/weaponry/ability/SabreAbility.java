@@ -41,8 +41,8 @@ public class SabreAbility implements WeaponAbility {
 	@Override
 	public List<String> description() {
 		return ImmutableList.of(
-				"Mounted: +2 damage",
-				"Use: parry melee hits; a parry makes your next hit critical");
+				"Cavalry: +2 damage while mounted",
+				"Riposte (use): parry melee hits; a parry makes your next hit critical");
 	}
 
 	@Override

@@ -92,9 +92,9 @@ public class HookSwordAbility implements WeaponAbility {
 	@Override
 	public List<String> description() {
 		return ImmutableList.of(
-				"Use: hook a target toward you",
-				"Double use: pull yourself toward the target",
-				"Hold use while falling beside a wall: hook in and slow the fall");
+				"Hook Pull (use): pull a target toward you",
+				"Hook Leap (double use): pull yourself toward the target",
+				"Wall Brake (hold use while falling beside a wall): hook in and slow the fall");
 	}
 
 	@Override

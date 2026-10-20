@@ -30,7 +30,7 @@ public class ScimitarAbility implements WeaponAbility {
 
 	@Override
 	public List<String> description() {
-		return ImmutableList.of("Wide sweep on full-charge hits; the sweep causes Bleed");
+		return ImmutableList.of("Draw Cut: wide sweep on full-charge hits; the sweep causes Bleed");
 	}
 
 	@Override

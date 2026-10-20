@@ -31,8 +31,8 @@ public class PikeAbility implements WeaponAbility {
 	@Override
 	public List<String> description() {
 		return ImmutableList.of(
-				"Half damage against targets under 1.5 blocks away",
-				"Sneak still to brace: charging targets take double damage and are dismounted");
+				"Too Close: half damage against targets under 1.5 blocks away",
+				"Brace (sneak still): charging targets take double damage and are dismounted");
 	}
 
 	@Override

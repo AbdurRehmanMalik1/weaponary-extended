@@ -49,9 +49,9 @@ public class FlailAbility implements WeaponAbility {
 	@Override
 	public List<String> description() {
 		return ImmutableList.of(
-				"Full-charge hits swing around shields for half damage",
-				"Hits below half charge do no damage",
-				"Hold use: spin the head; your next hit deals up to +3 damage");
+				"Over the Shield: full-charge hits swing around shields for half damage",
+				"Unwieldy: hits below half charge do no damage",
+				"Wind-up (hold use): spin the head; your next hit deals up to +3 damage");
 	}
 
 	@Override

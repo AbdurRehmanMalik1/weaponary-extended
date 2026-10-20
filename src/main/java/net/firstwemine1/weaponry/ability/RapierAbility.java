@@ -30,7 +30,7 @@ public class RapierAbility implements WeaponAbility {
 
 	@Override
 	public List<String> description() {
-		return ImmutableList.of("Use: thrust at a target up to 1 block past your reach, +2 damage");
+		return ImmutableList.of("Thrust (use): hit a target up to 1 block past your reach, +2 damage");
 	}
 
 	@Override

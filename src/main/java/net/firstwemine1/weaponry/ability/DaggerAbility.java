@@ -32,8 +32,8 @@ public class DaggerAbility extends ThrowAbility {
 	public List<String> description() {
 		return ImmutableList.of(
 				"Backstab: x1.5 damage from behind",
-				"Critical hits cause Bleed",
-				"Hold use to throw: +1 damage, causes Bleed");
+				"Lacerate: critical hits cause Bleed",
+				"Throw (hold use): +1 damage, causes Bleed");
 	}
 
 	@Override
