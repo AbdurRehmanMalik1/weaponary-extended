@@ -20,13 +20,20 @@ public final class ModItems {
 	/** FabricItemGroupBuilder names the tab {@code itemGroup.<namespace>.<path>}. */
 	public static final String CREATIVE_TAB_KEY = "itemGroup." + Weaponry.MOD_ID + ".weapons";
 
+	private static CreativeModeTab tab;
+
 	private ModItems() {
+	}
+
+	/** The mod's creative tab. The bows join it too, so it lists them after the weapons. */
+	public static CreativeModeTab tab() {
+		return tab;
 	}
 
 	public static void register() {
 		// Items join the tab through Item.Properties.tab, so the tab is built first. The icon is
 		// only asked for later, once the items exist.
-		CreativeModeTab tab = FabricItemGroupBuilder.build(Weaponry.id("weapons"),
+		tab = FabricItemGroupBuilder.build(Weaponry.id("weapons"),
 				() -> get(WeaponType.HALBERD, WeaponMaterial.IRON).getDefaultInstance())
 				// Recipe advancements are filed under the tab's folder: recipes/combat/, like vanilla weapons.
 				.setRecipeFolderName("combat");

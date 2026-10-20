@@ -2,7 +2,9 @@ package net.firstwemine1.weaponry.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.firstwemine1.weaponry.ability.SabreAbility;
+import net.firstwemine1.weaponry.bow.HorseBowAbility;
 import net.firstwemine1.weaponry.entity.RopeDart;
 import net.firstwemine1.weaponry.item.WeaponItem;
 import net.minecraft.sounds.SoundEvents;
@@ -14,13 +16,14 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Weapon effects on the entity being hit: the sabre parry, the rope dart's PvP break, some weapons hit through a raised shield
- * (flail), and some wear armor faster (morning star). Shield breaking is in
- * {@code PlayerMixin.blockUsingShield} in this version.
+ * (flail), and some wear armor faster (morning star). Horse bow arrows knock back half as far. Shield
+ * breaking is in {@code PlayerMixin.blockUsingShield} in this version.
  */
 @Mixin(LivingEntity.class)
 abstract class LivingEntityMixin {
@@ -90,6 +93,13 @@ abstract class LivingEntityMixin {
 				? ((WeaponItem) held).type().ability().armorWearMultiplier(((WeaponItem) held).material())
 				: 1;
 		original.call(self, source, damage * wear);
+	}
+
+	/** Light Arrows: a horse bow's arrow knocks its target back half as far. */
+	@ModifyArg(method = "hurt", at = @At(value = "INVOKE",
+			target = "Lnet/minecraft/world/entity/LivingEntity;knockback(FDD)V"), index = 0)
+	private float weaponry$lightArrow(float strength, @Local(argsOnly = true) DamageSource source) {
+		return HorseBowAbility.isLight(source.getDirectEntity()) ? strength * 0.5f : strength;
 	}
 
 	/**

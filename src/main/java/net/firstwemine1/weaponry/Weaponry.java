@@ -1,6 +1,7 @@
 package net.firstwemine1.weaponry;
 
 import net.firstwemine1.weaponry.ability.Abilities;
+import net.firstwemine1.weaponry.bow.ModBows;
 import net.firstwemine1.weaponry.effect.ModEffects;
 import net.firstwemine1.weaponry.entity.ModEntities;
 import net.firstwemine1.weaponry.item.ModItems;
@@ -29,10 +30,11 @@ public class Weaponry implements ModInitializer {
 	public void onInitialize() {
 		config = WeaponryConfig.load();
 		ModItems.register();
+		ModBows.register();
 		ModEntities.register();
 		ModEffects.register();
 		Abilities.register();
-		LOGGER.info("Registered {} weapons", ModItems.all().size());
+		LOGGER.info("Registered {} weapons and {} bows", ModItems.all().size(), ModBows.all().size());
 
 		if (config.testChest) {
 			LOGGER.info("Test mode on (config/weaponry.json \"testChest\"): test chest will be placed at spawn");

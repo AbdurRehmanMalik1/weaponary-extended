@@ -1,6 +1,9 @@
 package net.firstwemine1.weaponry.client;
 
 import net.firstwemine1.weaponry.ability.WarPickAbility;
+import net.firstwemine1.weaponry.bow.BowState;
+import net.firstwemine1.weaponry.bow.ModBows;
+import net.firstwemine1.weaponry.bow.WeaponBowItem;
 import net.firstwemine1.weaponry.client.render.RopeDartRenderer;
 import net.firstwemine1.weaponry.client.render.ThrownWeaponRenderer;
 import net.firstwemine1.weaponry.effect.ModEffects;
@@ -17,12 +20,13 @@ import net.firstwemine1.weaponry.entity.SpawnPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.Projectile;
 
 /**
  * Client-only setup: renderers and the spawn packet for ability entities, the flipped war pick
- * model, and the Stagger and Daze screen wobble.
+ * model, the bows' draw animation, and the Stagger and Daze screen wobble.
  */
 public class WeaponryClient implements ClientModInitializer {
 	/**
@@ -42,11 +46,25 @@ public class WeaponryClient implements ClientModInitializer {
 			FabricModelPredicateProviderRegistry.register(item, WarPickAbility.FLIPPED_ID,
 					(stack, level, entity) -> WarPickAbility.isFlipped(stack) ? 1 : 0);
 		}
+		ModBows.all().forEach(WeaponryClient::registerBowAnimation);
 		ClientPlayNetworking.registerGlobalReceiver(SpawnPacket.ID, (client, handler, buf, sender) -> {
 			SpawnPacket.Data data = SpawnPacket.read(buf);
 			client.execute(() -> spawn(client, data));
 		});
 		ClientTickEvents.END_CLIENT_TICK.register(client -> wobble(client.player));
+	}
+
+	/**
+	 * The {@code pull} and {@code pulling} properties vanilla gives {@code minecraft:bow}, which pick the
+	 * draw frame. {@code pull} is measured against this bow's own draw time (and any Quick Nock head
+	 * start), so every bow reaches its last frame when it's fully drawn.
+	 */
+	private static void registerBowAnimation(WeaponBowItem bow) {
+		FabricModelPredicateProviderRegistry.register(bow, new ResourceLocation("pull"), (stack, level, entity) ->
+				entity == null || entity.getUseItem() != stack ? 0.0f
+						: (entity.getTicksUsingItem() + BowState.headStart(entity)) / (float) bow.drawTicks(entity));
+		FabricModelPredicateProviderRegistry.register(bow, new ResourceLocation("pulling"), (stack, level, entity) ->
+				entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0f : 0.0f);
 	}
 
 	/** What {@code ClientPacketListener.handleAddEntity} does for a vanilla arrow. */
