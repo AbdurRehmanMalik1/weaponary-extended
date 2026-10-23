@@ -15,7 +15,7 @@ import net.firstwemine1.weaponry.effect.ModEffects;
 import net.firstwemine1.weaponry.entity.ModEntities;
 import net.firstwemine1.weaponry.item.ModComponents;
 import net.firstwemine1.weaponry.item.ModItems;
-import net.firstwemine1.weaponry.item.WeaponMaterial;
+import net.firstwemine1.weaponry.item.WeaponItem;
 import net.firstwemine1.weaponry.item.WeaponType;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.item.ItemProperties;
@@ -42,8 +42,8 @@ public final class WeaponryClient {
 		});
 		// The item property map isn't thread-safe, so register on the main thread.
 		modBus.addListener((FMLClientSetupEvent event) -> event.enqueueWork(() -> {
-			for (WeaponMaterial material : WeaponMaterial.values()) {
-				ItemProperties.register(ModItems.get(WeaponType.WAR_PICK, material), ModComponents.FLIPPED_ID,
+			for (WeaponItem item : ModItems.variants(WeaponType.WAR_PICK)) {
+				ItemProperties.register(item, ModComponents.FLIPPED_ID,
 						(stack, level, entity, seed) -> stack.has(ModComponents.FLIPPED.get()) ? 1 : 0);
 			}
 		}));

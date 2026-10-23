@@ -3,7 +3,7 @@
   "category": "equipment",
   "key": {
     "M": {
-      "tag": "minecraft:planks"
+      "item": "minecraft:iron_ingot"
     },
     "X": {
       "item": "minecraft:string"
@@ -16,6 +16,6 @@
   ],
   "result": {
     "count": 1,
-    "id": "weaponry:wooden_rope_dart"
+    "id": "weaponry:rope_dart"
   }
 }
