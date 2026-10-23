@@ -19,8 +19,8 @@ public class SpearAbility extends ThrowAbility {
 	@Override
 	public List<String> description() {
 		return ImmutableList.of(
-				"Sprinting hits: +1 damage",
-				"Hold use to throw: +2 damage");
+				"Charge: +1 damage on sprinting hits",
+				"Throw (hold use): +2 damage");
 	}
 
 	@Override

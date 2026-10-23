@@ -29,7 +29,7 @@ public class ClubAbility implements WeaponAbility {
 
 	@Override
 	public List<String> description() {
-		return ImmutableList.of("+1 knockback; full-charge hits may Daze");
+		return ImmutableList.of("Daze: full-charge hits have a 20% chance to Daze; +1 knockback");
 	}
 
 	@Override

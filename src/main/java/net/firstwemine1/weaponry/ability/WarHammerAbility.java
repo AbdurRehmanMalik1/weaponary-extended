@@ -36,8 +36,9 @@ public class WarHammerAbility implements WeaponAbility {
 	@Override
 	public List<String> description() {
 		return ImmutableList.of(
-				"Ignores half of the target's armor; full-charge hits Stagger",
-				"Sneak + full-charge hit: smash the ground, knocking back and Stunning nearby enemies");
+				"Armor Crush: ignores half of the target's armor",
+				"Stagger: full-charge hits Stagger the target",
+				"Overhead Smash (sneak + full-charge hit): smash the ground, knocking back and Stunning nearby enemies");
 	}
 
 	@Override

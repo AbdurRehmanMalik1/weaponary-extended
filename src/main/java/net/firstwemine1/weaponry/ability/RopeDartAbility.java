@@ -37,10 +37,10 @@ public class RopeDartAbility implements WeaponAbility {
 	@Override
 	public List<String> description() {
 		return ImmutableList.of(
-				"Hold use to throw the dart on a 12-block rope",
-				"Hit a target: tether it for 5 s, hold use to drag it in",
-				"Hit a block: hang on the rope, jump to climb, sneak to lower",
-				"Use again to reel in; sneak + use to let go");
+				"Throw (hold use): throw the dart on a 12-block rope",
+				"Tether: a hit target is held for 5 s; hold use to drag it in",
+				"Grapple: a hit block anchors the rope; jump to climb, sneak to lower",
+				"Reel In (use again): pull the dart back; sneak + use to let go");
 	}
 
 	@Override
