@@ -7,6 +7,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.firstwemine1.weaponry.combat.Motion;
+import net.firstwemine1.weaponry.entity.RopeDart;
 import net.firstwemine1.weaponry.item.ModItems;
 import net.firstwemine1.weaponry.item.WeaponMaterial;
 import net.firstwemine1.weaponry.item.WeaponType;
@@ -39,6 +40,12 @@ public final class Abilities {
 			if (!event.getEntity().level().isClientSide()
 					&& !SabreAbility.allowDamage(event.getEntity(), event.getSource(), event.getAmount())) {
 				event.setCanceled(true);
+			}
+		});
+		// The rope dart's PvP way out. A parried hit doesn't count, as on Fabric (where the parry stops the event).
+		NeoForge.EVENT_BUS.addListener((LivingIncomingDamageEvent event) -> {
+			if (!event.getEntity().level().isClientSide() && !event.isCanceled()) {
+				RopeDart.onDamage(event.getEntity(), event.getSource(), event.getAmount());
 			}
 		});
 
