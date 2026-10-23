@@ -95,7 +95,12 @@ public final class Abilities {
 
 	/** The living entity under the crosshair within the player's reach, not through walls. */
 	static LivingEntity targetInReach(Player player) {
-		double range = player.entityInteractionRange();
+		return targetInReach(player, 0);
+	}
+
+	/** As {@link #targetInReach(Player)}, reaching {@code extraReach} blocks further. */
+	static LivingEntity targetInReach(Player player, double extraReach) {
+		double range = player.entityInteractionRange() + extraReach;
 		Vec3 eye = player.getEyePosition();
 		Vec3 end = eye.add(player.getViewVector(1.0f).scale(range));
 		HitResult block = player.level().clip(new ClipContext(eye, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
