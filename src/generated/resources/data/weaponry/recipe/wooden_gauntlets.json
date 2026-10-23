@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "L": "minecraft:leather",
+    "M": "#minecraft:planks"
+  },
+  "pattern": [
+    "MMM",
+    " L "
+  ],
+  "result": {
+    "count": 1,
+    "id": "weaponry:wooden_gauntlets"
+  }
+}
