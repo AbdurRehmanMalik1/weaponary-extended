@@ -2,8 +2,8 @@
 
 NeoForge mod for Minecraft **1.21.11** (NeoForge 21.11.42, Java 21). It adds 22 melee weapons, 21 of them in
 5 material tiers. The rope dart is a utility weapon, so it comes in one version only (`weaponry:rope_dart`, iron).
-That makes 106 weapon items, plus four bows (see [Bows](#bows)). The original 10 plus the rapier, war pick, flail, morning star, hook sword and rope dart
-have their own abilities (see [Abilities](#abilities)); the other 6 have stats only for now.
+That makes 106 weapon items, plus four bows (see [Bows](#bows)). Every weapon but the gauntlets has its own
+abilities (see [Abilities](#abilities)); the gauntlets are just fast and light.
 
 Ported from the `fabric/1.21.11` branch; the gameplay is the same. See [NeoForge notes](#neoforge-notes) for how the
 Fabric-only parts are done here.
@@ -36,12 +36,11 @@ Fabric-only parts are done here.
 | Mace | +1 | 1.1 | 3.0 | 1.5 | |
 | Morning Star | +2 | 1.0 | 3.0 | 1.25 | |
 | Flail | +3 | 0.8 | 3.0 | 1.0 | |
-| Gauntlets | −3 | 2.6 | 2.5 | 1.0 | |
+| Gauntlets | −3 | 3.0 | 2.5 | 1.0 | |
 | Rope Dart | −2 | 1.6 | 4.5 | 0.75 | |
 
 The last 12 (rapier to rope dart) are newer: their stats are a first pass and their textures are the tentative
-designs from `pixel-art`. Of these, the rapier, war pick, flail, morning star, hook sword and rope dart have abilities so far
-(`../pixel-art/weaponry/docs/new-weapon-abilities.md`).
+designs from `pixel-art`. All but the gauntlets have abilities (`../pixel-art/weaponry/docs/new-weapon-abilities.md`).
 
 Tiers are wooden, stone, iron, golden and diamond (the rope dart is iron only; see `WeaponType.materials()`). Damage bonus, enchantability, repair item and base
 durability all come from the vanilla tool material. Source: `../pixel-art/weaponry/docs/weapon-stats.md`.
@@ -76,13 +75,21 @@ Each ability's name (in bold) is also the first word of its in-game tooltip line
 | Hook Sword | | **Hook Pull:** use on a target in reach to pull it toward you (1.5 s cooldown, 1 durability). **Hook Leap:** use twice on the same target within 0.3 s to pull yourself toward it, stopping about 1 block short (3 s cooldown, 2 durability). A single use waits out that 0.3 s before pulling. **Wall Brake:** hold use while falling with a block right beside you to hook into it. It slows the fall gradually (0.12 blocks/tick per tick) down to a 4 blocks/s slide, and fall damage follows your speed: from high up you land unhurt, just above the ground you still take most of it. 1 durability per 0.5 s. |
 | Rope Dart | Never dropped: the dart is tied to the rope dart in your hand. **Reel In:** use again to reel it in; sneak + use lets go in any state. Switching items or the rope running out (12 blocks) also reels it in. | **Throw:** hold use (at least 0.5 s) and release; melee damage −1. **Tether:** hitting a living target leashes it for 5 s, holding it within 12 blocks; hold use to drag it in (1 durability per 0.5 s). Iron golems, ravagers and wardens are too heavy, so dragging pulls you to them; the wither and ender dragon shrug the dart off. A tethered player breaks free by hitting you, or when you hit them for 4+; past 16 blocks the rope snaps. **Grapple:** hitting a block anchors the rope (1 durability). You swing on it; hold jump to climb, sneak to lower. No fall protection: climbing up starts a fresh fall like a jump does, but a drop the rope catches still counts when you land. |
 | Morning Star | **Puncture:** full-charge hits cause **Bleed**. **Mail-breaker:** hits cost the target's armor twice the durability (only players' armor wears in vanilla). | |
+| Battle Axe | **Heavy Blow:** +2 knockback. | |
+| Greatsword | **Broad Swing:** +1 knockback. Full-charge, grounded, non-sprinting hits make a vanilla-sized sweep (vanilla sweep damage). | |
+| Glaive | **Arc:** full-charge, grounded, non-sprinting hits make a vanilla-sized sweep (vanilla sweep damage). | |
+| Scythe | **Reap:** full-charge, grounded, non-sprinting hits sweep with about 1.5× the vanilla area, dealing half the hit's full-charge damage to everything swept. | |
+| Mace | **Flanged Head:** ignores 25% of the target's armor. **Daze:** full-charge hits have a 15% chance to cause **Daze** for 2 s. | |
+
+The greatsword, glaive and scythe sweeps only reach as far as the weapon does (vanilla: 3 blocks for a sword), so the
+scythe (4) sweeps slightly shorter than the glaive (4.5).
 
 Material twists:
 
-- **Wooden:** half the armor crush; Bleed lasts 2 s.
-- **Stone:** +1 knockback on the club and war hammer.
+- **Wooden:** half the armor crush (war hammer and mace); Bleed lasts 2 s.
+- **Stone:** +1 knockback on the club, war hammer and mace.
 - **Golden:** ability numbers × 1.5 (bonus damage, effect durations, daze chance, hook pull, smash knockback, armor crush,
-  flail shield pass-through 75% and wind-up +1.5 per step, morning star armor wear ×2.5).
+  flail shield pass-through 75% and wind-up +1.5 per step, morning star armor wear ×2.5, sweep damage).
 - **Diamond:** +1 throw damage; Bleed lasts 6 s.
 
 Status effects (`effect/ModEffects`), each with its own icon:
@@ -92,7 +99,7 @@ Status effects (`effect/ModEffects`), each with its own icon:
 | **Bleed** | 1 damage per second per stack for 4 s, ignoring armor and hit cooldown. Each new application adds a stack (max 3, shown as Bleed II/III) and refreshes the duration. Undead and golems are immune. | Dagger crits and throws, scimitar sweeps, morning star |
 | **Stagger** | A short, sharp screen lurch for a staggered player. No slowdown. | War hammer full-charge hits |
 | **Stun** | 90% slower, nearly rooted. | War hammer smash |
-| **Daze** | 15% slower (like Slowness I), and a dazed player's view wobbles like Nausea. | Club |
+| **Daze** | 15% slower (like Slowness I), and a dazed player's view wobbles like Nausea. | Club, mace |
 
 The icons are drawn in `../pixel-art/weaponry/designs/effects/` (16×16). `python scripts/copy_effect_icons.py`
 copies them to `textures/mob_effect/` with a 1 px transparent border, because the game draws effect icons at 18×18.
@@ -300,7 +307,8 @@ Abilities and status effects (ported from the 1.21.1 baseline through 1.21.4, sa
 - The flail recipe's chain is `minecraft:iron_chain` (renamed when copper chains were added).
 - **Crits:** the jump-crit check moved to `Player.canCriticalAttack`, which `PlayerMixin` turns off for the
   lance. It checks `isMobilityRestricted()` instead of Blindness, and `AttackContext.vanillaCrit` follows it.
-- `Player.sweepAttack()` is gone, so the scimitar sends the sweep particle itself, as the vanilla sweep does.
+- `Player.sweepAttack()` is gone, so the sweeps (`Sweep`: scimitar, greatsword, glaive, scythe) send the sweep particle
+  themselves, as the vanilla sweep does.
 - Tooltips use the `appendHoverText(..., TooltipDisplay, Consumer<Component>, ...)` signature; the hatchet's
   `tool` component can break blocks in creative, like an axe.
 - `AbstractArrow` moved to `projectile.arrow`, entities save through `ValueInput`/`ValueOutput`, and a thrown

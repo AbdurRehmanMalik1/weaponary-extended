@@ -36,7 +36,7 @@ public class ClubAbility implements WeaponAbility {
 		addKnockback(builder, KNOCKBACK + (material == WeaponMaterial.STONE ? STONE_KNOCKBACK : 0));
 	}
 
-	/** Shared with the war hammer, the other blunt weapon. */
+	/** Shared with the war hammer and mace, the other blunt weapons. */
 	static void addStoneKnockback(ItemAttributeModifiers.Builder builder, WeaponMaterial material) {
 		if (material == WeaponMaterial.STONE) {
 			addKnockback(builder, STONE_KNOCKBACK);
@@ -51,7 +51,8 @@ public class ClubAbility implements WeaponAbility {
 		}
 	}
 
-	private static void addKnockback(ItemAttributeModifiers.Builder builder, double amount) {
+	/** Shared with the other knockback weapons. */
+	static void addKnockback(ItemAttributeModifiers.Builder builder, double amount) {
 		builder.add(Attributes.ATTACK_KNOCKBACK,
 				new AttributeModifier(KNOCKBACK_ID, amount, AttributeModifier.Operation.ADD_VALUE),
 				EquipmentSlotGroup.MAINHAND);
