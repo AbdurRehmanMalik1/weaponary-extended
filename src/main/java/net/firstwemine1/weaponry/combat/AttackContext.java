@@ -48,6 +48,12 @@ public final class AttackContext {
 		STATES.put(player, new State(player.getAttackStrengthScale(0.5f), player.isSprinting(), target));
 	}
 
+	/** Whether {@code entity} is the target of the attack in progress, before {@link #takeMainHit} uses it up. */
+	static boolean isMainHit(PlayerEntity player, Entity entity) {
+		State state = STATES.get(player);
+		return state != null && state.target == entity;
+	}
+
 	/** True once per attack, for the hurt of the attack's own target (not sweeps or other damage). */
 	static boolean takeMainHit(PlayerEntity player, Entity entity) {
 		State state = STATES.get(player);
