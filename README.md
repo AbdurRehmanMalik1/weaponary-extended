@@ -1,8 +1,8 @@
 # Weaponry (NeoForge 1.21.1)
 
 NeoForge mod for Minecraft **1.21.1** (NeoForge 21.1.238, Java 21). It adds 22 melee weapons in 5 material tiers,
-for 110 items in total. The first 10 have their own abilities (see [Abilities](#abilities)); the other 12 have stats
-only for now.
+for 110 items in total. The original 10 plus the flail and morning star have their own abilities
+(see [Abilities](#abilities)); the other 10 have stats only for now.
 
 Ported from the `fabric/1.21.1` branch; the gameplay is the same. See [NeoForge notes](#neoforge-notes) for how the
 Fabric-only parts are done here.
@@ -38,8 +38,9 @@ Fabric-only parts are done here.
 | Gauntlets | −3 | 2.6 | 2.5 | 1.0 | |
 | Rope Dart | −2 | 1.6 | 4.5 | 0.75 | |
 
-The last 12 (rapier to rope dart) don't have abilities yet; their stats are a first pass and their textures are
-the tentative designs from `pixel-art`.
+The last 12 (rapier to rope dart) are newer: their stats are a first pass and their textures are the tentative
+designs from `pixel-art`. Of these, only the flail and morning star have abilities so far. The hook sword and rope
+dart abilities are planned next (`../pixel-art/weaponry/docs/new-weapon-abilities.md`).
 
 Tiers are wooden, stone, iron, golden and diamond. Damage bonus, enchantability, repair item and base
 durability all come from the vanilla tier. Source: `../pixel-art/weaponry/docs/weapon-stats.md`.
@@ -66,19 +67,22 @@ the same threshold vanilla uses for sweeps and crits.
 | Hatchet | Disables shields. Mines wood at axe speed and takes Efficiency, Fortune and Silk Touch. | **Throw:** like the spear, but short range and spinning. Melee damage +1. |
 | War Hammer | **Armor Crush:** ignores 50% of the target's armor. Full-charge hits cause **Stagger** for 1 s. | **Overhead Smash:** a full-charge hit while sneaking knocks back everything within 2.5 blocks of the target, and everything it hits (target included) gets **Stun** for 0.75 s. |
 | Club | +1 knockback. **Daze:** full-charge hits have a 20% chance to cause **Daze** for 2 s. | |
+| Flail | **Over the Shield:** a full-charge hit on a raised shield isn't blocked; it deals 50% damage, and the shield takes no damage and isn't disabled. **Unwieldy:** hits below 50% charge do nothing. | **Wind-up:** hold use to spin the head. Each 0.5 s adds +1 damage to your next hit (max +3 at 1.5 s). Lost if you don't hit within 2 s of letting go. |
+| Morning Star | **Puncture:** full-charge hits cause **Bleed**. **Mail-breaker:** hits cost the target's armor twice the durability (only players' armor wears in vanilla). | |
 
 Material twists:
 
 - **Wooden:** half the armor crush; Bleed lasts 2 s.
 - **Stone:** +1 knockback on the club and war hammer.
-- **Golden:** ability numbers × 1.5 (bonus damage, effect durations, daze chance, hook pull, smash knockback, armor crush).
+- **Golden:** ability numbers × 1.5 (bonus damage, effect durations, daze chance, hook pull, smash knockback, armor crush,
+  flail shield pass-through 75% and wind-up +1.5 per step, morning star armor wear ×2.5).
 - **Diamond:** +1 throw damage; Bleed lasts 6 s.
 
 Status effects (`effect/ModEffects`), each with its own icon:
 
 | Effect | Does | From |
 |---|---|---|
-| **Bleed** | 1 damage per second per stack for 4 s, ignoring armor and hit cooldown. Each new application adds a stack (max 3, shown as Bleed II/III) and refreshes the duration. Undead and golems are immune. | Dagger crits and throws, scimitar sweeps |
+| **Bleed** | 1 damage per second per stack for 4 s, ignoring armor and hit cooldown. Each new application adds a stack (max 3, shown as Bleed II/III) and refreshes the duration. Undead and golems are immune. | Dagger crits and throws, scimitar sweeps, morning star |
 | **Stagger** | A short, sharp screen lurch for a staggered player. No slowdown. | War hammer full-charge hits |
 | **Stun** | 90% slower, nearly rooted. | War hammer smash |
 | **Daze** | 15% slower (like Slowness I), and a dazed player's view wobbles like Nausea. | Club |
@@ -111,8 +115,9 @@ MS.      S.          .S.         .S.         .S.       S..     ..S     S..   S..
 - `item/WeaponType` holds the per-weapon stats and abilities, `item/WeaponMaterial` the tiers. `item/WeaponItem` is the
   single item class; `item/ModItems` registers the items and the creative tab through `DeferredRegister`.
 - `ability/` holds one class per weapon; `ability/Abilities` registers their NeoForge event listeners.
-- `mixin/PlayerMixin` is the same as on Fabric: attack charge capture, crits and armor crush (`weaponry.mixins.json`,
-  declared in `neoforge.mods.toml`).
+- The mixins are the same as on Fabric (`weaponry.mixins.json`, declared in `neoforge.mods.toml`): `mixin/PlayerMixin`
+  captures the attack charge, turns off crits for the lance, cancels hits below a weapon's minimum charge (flail) and
+  applies armor crush; `mixin/LivingEntityMixin` lets the flail hit through shields and makes the morning star wear armor.
 - `effect/` holds the status effects, `entity/` the thrown weapon, `client/` its renderer and the screen wobble
   (`WeaponryClient` is the client-only `@Mod` entry point).
 - `src/generated/resources` holds the models, lang, recipes, advancements and tags: the `fabric/1.21.1` branch's
@@ -162,5 +167,5 @@ Differences from the `fabric/1.21.1` branch:
 - **Config:** `config/weaponry.json` lives in `FMLPaths.CONFIGDIR`; the test chest defaults to on outside production.
 - **Build:** ModDevGradle from `server-vein-miner`'s NeoForge branch. There is no datagen; the generated JSON comes from
   the Fabric branch (see Layout).
-- **Shield breaking** uses NeoForge's `IItemExtension.canDisableShield` (vanilla `LivingEntity.canDisableShield` asks the item), so the Fabric `LivingEntityMixin` isn't needed.
+- **Shield breaking** uses NeoForge's `IItemExtension.canDisableShield` (vanilla `LivingEntity.canDisableShield` asks the item), so `LivingEntityMixin` leaves out the Fabric shield-breaker hook. Its flail hook wraps the `isDamageSourceBlocked` call that NeoForge passes to `LivingShieldBlockEvent`, so a hit over the shield is simply not blocked.
 
