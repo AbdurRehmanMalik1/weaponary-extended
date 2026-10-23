@@ -6,10 +6,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import net.firstwemine1.weaponry.combat.Motion;
 import net.firstwemine1.weaponry.item.WeaponAbility;
 import net.firstwemine1.weaponry.item.WeaponItem;
 import net.firstwemine1.weaponry.item.WeaponType;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.Direction;
+import net.minecraft.particles.BlockParticleData;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
@@ -19,11 +25,13 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+import net.minecraft.block.BlockState;
 import net.minecraft.util.math.vector.Vector3d;
 
 /**
  * Hook Pull: use on a target in reach to pull it toward you. Hook Leap: use twice on the same
- * target within 0.3 s to pull yourself toward it instead.
+ * target within 0.3 s to pull yourself toward it instead. Wall Brake: hold use while falling next
+ * to a wall to hook into it and slow down gradually.
  *
  * <p>The first click can't know whether a second one follows, so the server holds it for the
  * double-click window and only then pulls. Holding use down repeats it every 4 ticks, which also
@@ -42,6 +50,17 @@ public class HookSwordAbility implements WeaponAbility {
 	private static final double LEAP_TRAVEL_PER_SPEED = 6.0;
 	private static final double LEAP_MAX_SPEED = 0.9;
 	private static final double LEAP_LIFT = 0.3;
+
+	private static final int BRAKE_TICKS = 72000;
+	/** How far past the player's side a block still counts as the wall. */
+	private static final double WALL_DISTANCE = 0.5;
+	/** Speed taken off per tick, on top of cancelling gravity. Blocks per tick. */
+	private static final double BRAKE = 0.12;
+	/** The brake never slows a fall below this, so you slide down instead of hanging. 4 blocks/s. */
+	private static final double SLIDE_SPEED = 0.2;
+	private static final double GRAVITY = 0.08;
+	private static final double AIR_DRAG = 0.98;
+	private static final int TICKS_PER_DURABILITY = 10;
 
 	private static final class Pending {
 		private final LivingEntity target;
@@ -74,20 +93,120 @@ public class HookSwordAbility implements WeaponAbility {
 	public List<String> description() {
 		return ImmutableList.of(
 				"Use: hook a target toward you",
-				"Double use: pull yourself toward the target");
+				"Double use: pull yourself toward the target",
+				"Hold use while falling beside a wall: hook in and slow the fall");
 	}
 
 	@Override
 	public ActionResult<ItemStack> onUse(World level, PlayerEntity player, Hand hand) {
 		ItemStack stack = player.getItemInHand(hand);
 		LivingEntity target = Abilities.targetInReach(player);
-		if (target == null) {
-			return ActionResult.pass(stack);
+		if (target != null) {
+			if (!level.isClientSide()) {
+				click(player, target, hand);
+			}
+			return ActionResult.sidedSuccess(stack, level.isClientSide());
 		}
-		if (!level.isClientSide()) {
-			click(player, target, hand);
+		if (airborne(player) && wallBeside(player) != null) {
+			player.startUsingItem(hand);
+			return ActionResult.consume(stack);
 		}
-		return ActionResult.sidedSuccess(stack, level.isClientSide());
+		return ActionResult.pass(stack);
+	}
+
+	@Override
+	public int useDuration() {
+		return BRAKE_TICKS;
+	}
+
+	/**
+	 * Wall brake, every tick use is held. The player moves itself, so the slowdown runs on its own
+	 * client; fall damage is worked out on the server, so that side lowers the stored fall distance
+	 * to match the current speed.
+	 */
+	@Override
+	public void onUseTick(ItemStack stack, World level, LivingEntity user, int remainingTicks) {
+		if (!(user instanceof PlayerEntity)) {
+			return;
+		}
+		PlayerEntity player = (PlayerEntity) user;
+		if (!airborne(player)) {
+			player.stopUsingItem();
+			return;
+		}
+		BlockPos wall = wallBeside(player);
+		if (wall == null) {
+			return;
+		}
+		if (level.isClientSide()) {
+			// isControlledByLocalInstance() is false for the client's own player in this version.
+			if (player.isLocalPlayer()) {
+				brake(player);
+			}
+			return;
+		}
+
+		double down = Math.max(0, -Motion.velocity(player).y);
+		// The height a fall from rest needs to reach this speed (ignoring drag, so slightly lenient).
+		player.fallDistance = Math.min(player.fallDistance, (float) (down * down / (2 * GRAVITY)));
+		if (down <= SLIDE_SPEED * 0.5) {
+			return;
+		}
+		int braked = BRAKE_TICKS - remainingTicks;
+		if (braked % TICKS_PER_DURABILITY == 0) {
+			stack.hurtAndBreak(1, player, broken -> broken.broadcastBreakEvent(player.getUsedItemHand()));
+		}
+		if (braked % 2 == 0 && level instanceof ServerWorld) {
+			scrape((ServerWorld) level, player, wall, braked);
+		}
+	}
+
+	private static void brake(PlayerEntity player) {
+		Vector3d motion = player.getDeltaMovement();
+		if (motion.y >= -SLIDE_SPEED) {
+			return;
+		}
+		// Gravity and drag are applied after this tick's use; this floor leaves exactly the slide speed.
+		double floor = -SLIDE_SPEED / AIR_DRAG + GRAVITY;
+		player.setDeltaMovement(motion.x, Math.min(motion.y + BRAKE + GRAVITY, floor), motion.z);
+	}
+
+	private static void scrape(ServerWorld level, PlayerEntity player, BlockPos wall, int braked) {
+		BlockState state = level.getBlockState(wall);
+		Vector3d contact = new Vector3d(
+				MathHelper.clamp(player.getX(), wall.getX(), wall.getX() + 1.0),
+				player.getY() + 1.0,
+				MathHelper.clamp(player.getZ(), wall.getZ(), wall.getZ() + 1.0));
+		level.sendParticles(new BlockParticleData(ParticleTypes.BLOCK, state),
+				contact.x, contact.y, contact.z, 4, 0.05, 0.2, 0.05, 0.05);
+		if (braked % 4 == 0) {
+			// getHitSound() is client-only in this version, so a dedicated server scrapes with the step sound.
+			level.playSound(null, contact.x, contact.y, contact.z,
+					state.getSoundType().getStepSound(), SoundCategory.PLAYERS, 0.8f, 0.7f);
+		}
+	}
+
+	/** In the air, not swimming, gliding, flying or climbing: the brake has something to stop. */
+	private static boolean airborne(PlayerEntity player) {
+		return !player.isOnGround() && !player.isInWater() && !player.isInLava() && !player.isFallFlying()
+				&& !player.abilities.flying && !player.onClimbable() && !player.isPassenger();
+	}
+
+	/** A solid block right beside the player, at leg or chest height, or {@code null}. */
+	private static BlockPos wallBeside(PlayerEntity player) {
+		double reach = player.getBbWidth() / 2 + WALL_DISTANCE;
+		for (double height : new double[] {0.2, 1.2}) {
+			for (Direction direction : Direction.Plane.HORIZONTAL) {
+				BlockPos pos = new BlockPos(
+						player.getX() + direction.getStepX() * reach,
+						player.getY() + height,
+						player.getZ() + direction.getStepZ() * reach);
+				if (!player.level.getBlockState(pos).getCollisionShape(player.level, pos).isEmpty()) {
+					return pos;
+				}
+			}
+		}
+		return null;
 	}
 
 	private static void click(PlayerEntity player, LivingEntity target, Hand hand) {
