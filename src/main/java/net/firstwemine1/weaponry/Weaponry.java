@@ -1,6 +1,7 @@
 package net.firstwemine1.weaponry;
 
 import net.firstwemine1.weaponry.ability.Abilities;
+import net.firstwemine1.weaponry.bow.ModBows;
 import net.firstwemine1.weaponry.client.WeaponryClient;
 import net.firstwemine1.weaponry.combat.CombatEvents;
 import net.firstwemine1.weaponry.effect.ModEffects;
@@ -39,6 +40,7 @@ public final class Weaponry {
 		config = WeaponryConfig.load();
 
 		ModItems.register(modBus);
+		ModBows.register(modBus);
 		ModEntities.register(modBus);
 		ModEffects.register(modBus);
 		Abilities.register();

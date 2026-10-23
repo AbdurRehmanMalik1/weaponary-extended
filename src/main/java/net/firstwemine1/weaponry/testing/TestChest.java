@@ -1,11 +1,12 @@
 package net.firstwemine1.weaponry.testing;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import net.firstwemine1.weaponry.Weaponry;
+import net.firstwemine1.weaponry.bow.ModBows;
 import net.firstwemine1.weaponry.item.ModItems;
-import net.firstwemine1.weaponry.item.WeaponItem;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.Direction;
 import net.minecraft.util.text.StringTextComponent;
@@ -13,6 +14,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.ChestBlock;
 import net.minecraft.tileentity.TileEntity;
@@ -23,12 +25,14 @@ import net.minecraft.world.gen.Heightmap;
 
 /**
  * Testing aid (config {@code testChest}): a row of double chests east of world spawn holding one
- * of every weapon. Refilled on every server start; anything else put in them is cleared.
- * Weapons have durability, so they stack to 1: each double chest holds 54 of them, and as many
- * chests are placed as the weapon count needs. The first keeps its old name so existing worlds reuse it.
+ * of every weapon and bow, then one chest full of arrows for the bows. Refilled on every server start;
+ * anything else put in them is cleared. Weapons have durability, so they stack to 1: each double chest
+ * holds 54 of them, and as many chests are placed as the weapon count needs. The first keeps its old
+ * name so existing worlds reuse it.
  */
 public final class TestChest {
 	private static final String NAME = "Weaponry Test Chest";
+	private static final String ARROW_CHEST = "Weaponry Arrow Chest";
 	private static final int OFFSET_EAST = 2;
 	/** UPDATE_ALL in later versions: notify neighbours and send to clients. */
 	private static final int UPDATE_ALL = 3;
@@ -43,26 +47,39 @@ public final class TestChest {
 		BlockPos spawn = level.getSharedSpawnPos();
 		int z = spawn.getZ();
 
-		List<WeaponItem> weapons = ModItems.all();
+		List<ItemStack> weapons = new ArrayList<>();
+		ModItems.all().forEach(item -> weapons.add(new ItemStack(item)));
+		ModBows.all().forEach(bow -> weapons.add(new ItemStack(bow)));
 		int next = 0;
-		for (int index = 0; next < weapons.size(); index++) {
-			int x = spawn.getX() + OFFSET_EAST + index * SPACING;
-			String name = name(index);
-			BlockPos pos = findExisting(level, x, z, name);
-			if (pos == null) {
-				pos = place(level, x, z, name);
-			}
-
-			BlockState state = level.getBlockState(pos);
-			IInventory container = ChestBlock.getContainer((ChestBlock) state.getBlock(), state, level, pos, true);
-			container.clearContent();
+		int index = 0;
+		for (; next < weapons.size(); index++) {
+			IInventory container = chest(level, spawn.getX() + OFFSET_EAST + index * SPACING, z, name(index));
 			for (int slot = 0; next < weapons.size() && slot < container.getContainerSize(); slot++) {
-				container.setItem(slot, new ItemStack(weapons.get(next++)));
+				container.setItem(slot, weapons.get(next++));
 			}
 			container.setChanged();
-			Weaponry.LOGGER.info("{} filled at {} {} {}", name, pos.getX(), pos.getY(), pos.getZ());
 		}
 		Weaponry.LOGGER.info("Test chests hold {} weapons", weapons.size());
+
+		// The next chest along: every slot a full stack of arrows.
+		IInventory arrows = chest(level, spawn.getX() + OFFSET_EAST + index * SPACING, z, ARROW_CHEST);
+		for (int slot = 0; slot < arrows.getContainerSize(); slot++) {
+			arrows.setItem(slot, new ItemStack(Items.ARROW, Items.ARROW.getMaxStackSize()));
+		}
+		arrows.setChanged();
+	}
+
+	/** The named double chest at {@code x, z} (placed if it isn't there yet), emptied. */
+	private static IInventory chest(ServerWorld level, int x, int z, String name) {
+		BlockPos pos = findExisting(level, x, z, name);
+		if (pos == null) {
+			pos = place(level, x, z, name);
+		}
+		BlockState state = level.getBlockState(pos);
+		IInventory container = ChestBlock.getContainer((ChestBlock) state.getBlock(), state, level, pos, true);
+		container.clearContent();
+		Weaponry.LOGGER.info("{} filled at {} {} {}", name, pos.getX(), pos.getY(), pos.getZ());
+		return container;
 	}
 
 	private static String name(int index) {

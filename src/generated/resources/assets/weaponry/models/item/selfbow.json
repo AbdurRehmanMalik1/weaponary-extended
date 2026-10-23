@@ -1,0 +1,28 @@
+{
+  "parent": "minecraft:item/bow",
+  "overrides": [
+    {
+      "model": "weaponry:item/selfbow_pulling_0",
+      "predicate": {
+        "pulling": 1
+      }
+    },
+    {
+      "model": "weaponry:item/selfbow_pulling_1",
+      "predicate": {
+        "pull": 0.65,
+        "pulling": 1
+      }
+    },
+    {
+      "model": "weaponry:item/selfbow_pulling_2",
+      "predicate": {
+        "pull": 0.9,
+        "pulling": 1
+      }
+    }
+  ],
+  "textures": {
+    "layer0": "weaponry:item/selfbow"
+  }
+}
