@@ -140,6 +140,7 @@
   "tooltip.weaponry.morning_star.0": "Full-charge hits cause Bleed; wears armor twice as fast",
   "tooltip.weaponry.pike.0": "Half damage against targets under 1.5 blocks away",
   "tooltip.weaponry.pike.1": "Sneak still to brace: charging targets take double damage and are dismounted",
+  "tooltip.weaponry.rapier.0": "Use: thrust at a target up to 1 block past your reach, +2 damage",
   "tooltip.weaponry.rope_dart.0": "Hold use to throw the dart on a 12-block rope",
   "tooltip.weaponry.rope_dart.1": "Hit a target: tether it for 5 s, hold use to drag it in",
   "tooltip.weaponry.rope_dart.2": "Hit a block: hang on the rope, jump to climb, sneak to lower",
@@ -151,5 +152,6 @@
   "tooltip.weaponry.spear.1": "Hold use to throw: +2 damage",
   "tooltip.weaponry.two_handed": "Two-handed: needs both hands",
   "tooltip.weaponry.war_hammer.0": "Ignores half of the target's armor; full-charge hits Stagger",
-  "tooltip.weaponry.war_hammer.1": "Sneak + full-charge hit: smash the ground, knocking back and Stunning nearby enemies"
+  "tooltip.weaponry.war_hammer.1": "Sneak + full-charge hit: smash the ground, knocking back and Stunning nearby enemies",
+  "tooltip.weaponry.war_pick.0": "Use: flip it to mine like a pickaxe (80% speed)"
 }
