@@ -1,8 +1,8 @@
 # Weaponry (Forge 1.16.5)
 
 Forge mod for Minecraft **1.16.5** (Forge 36.2.42, Java 8, official mappings: Mojang method and field names, MCP class names). It adds 22 melee weapons in
-5 material tiers, for 110 items in total. The original 10 plus the flail and morning star have their own abilities
-(see [Abilities](#abilities)); the other 10 have stats only for now.
+5 material tiers, for 110 items in total. The original 10 plus the flail, morning star and hook sword have their
+own abilities (see [Abilities](#abilities)); the other 9 have stats only for now.
 
 Ported from the `fabric/1.16.5` branch, with the Forge layer from `forge/1.18.2`; the gameplay is the same. See [Forge notes](#forge-notes) for how the
 Fabric-only parts are done here.
@@ -40,8 +40,8 @@ installed on the server and on every client, with the same version.
 | Rope Dart | −2 | 1.6 | 4.5 | 0.75 | |
 
 The last 12 (rapier to rope dart) are newer: their stats are a first pass and their textures are the tentative
-designs from `pixel-art`. Of these, only the flail and morning star have abilities so far. The hook sword and rope
-dart abilities are planned next (`../pixel-art/weaponry/docs/new-weapon-abilities.md`).
+designs from `pixel-art`. Of these, only the flail, morning star and hook sword have abilities so far. The hook sword's
+wall brake and the rope dart are planned next (`../pixel-art/weaponry/docs/new-weapon-abilities.md`).
 
 Tiers are wooden, stone, iron, golden and diamond. Damage bonus, enchantability, repair item and base
 durability all come from the vanilla tier. Source: `../pixel-art/weaponry/docs/weapon-stats.md`.
@@ -69,6 +69,7 @@ the same threshold vanilla uses for sweeps and crits.
 | War Hammer | **Armor Crush:** ignores 50% of the target's armor. Full-charge hits cause **Stagger** for 1 s. | **Overhead Smash:** a full-charge hit while sneaking knocks back everything within 2.5 blocks of the target, and everything it hits (target included) gets **Stun** for 0.75 s. |
 | Club | +1 knockback. **Daze:** full-charge hits have a 20% chance to cause **Daze** for 2 s. | |
 | Flail | **Over the Shield:** a full-charge hit on a raised shield isn't blocked; it deals 50% damage, and the shield takes no damage and isn't disabled. **Unwieldy:** hits below 50% charge do nothing. | **Wind-up:** hold use to spin the head. Each 0.5 s adds +1 damage to your next hit (max +3 at 1.5 s). Lost if you don't hit within 2 s of letting go. |
+| Hook Sword | | **Hook Pull:** use on a target in reach to pull it toward you (1.5 s cooldown, 1 durability). **Hook Leap:** use twice on the same target within 0.3 s to pull yourself toward it, stopping about 1 block short (3 s cooldown, 2 durability). A single use waits out that 0.3 s before pulling. |
 | Morning Star | **Puncture:** full-charge hits cause **Bleed**. **Mail-breaker:** hits cost the target's armor twice the durability (only players' armor wears in vanilla). | |
 
 Material twists:
@@ -174,7 +175,7 @@ Differences from the `fabric/1.16.5` branch:
   so flat bonuses (mounted sabre +2, sprinting spear +1, the lance charge, the flail wind-up) apply in full; proportional ones
   (backstab, pike brace) scale the whole hit.
 - **No reach.** Forge 1.16 has no entity reach attribute (only block reach), so melee reach is vanilla's 3
-  blocks, as on the Fabric 1.16.5 branch; the halberd hook uses the halberd's listed 4 blocks.
+  blocks, as on the Fabric 1.16.5 branch; the halberd hook uses the halberd's listed 4 blocks and the hook sword pull 3 (`Abilities.targetInReach`).
 - **Shield breaking** is `IForgeItem.canDisableShield`; **enchanting** is `canApplyAtEnchantingTable` (sword
   enchantments on every weapon, Efficiency/Fortune/Silk Touch on the hatchet), which covers the table, the anvil
   and `/enchant`. The hatchet also answers Forge's `AXE_DIG` tool action.

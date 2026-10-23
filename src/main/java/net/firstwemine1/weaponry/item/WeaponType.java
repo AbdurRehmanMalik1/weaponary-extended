@@ -5,6 +5,7 @@ import net.firstwemine1.weaponry.ability.DaggerAbility;
 import net.firstwemine1.weaponry.ability.FlailAbility;
 import net.firstwemine1.weaponry.ability.HalberdAbility;
 import net.firstwemine1.weaponry.ability.HatchetAbility;
+import net.firstwemine1.weaponry.ability.HookSwordAbility;
 import net.firstwemine1.weaponry.ability.LanceAbility;
 import net.firstwemine1.weaponry.ability.MorningStarAbility;
 import net.firstwemine1.weaponry.ability.PikeAbility;
@@ -37,10 +38,10 @@ public enum WeaponType {
 	HATCHET("hatchet", "Hatchet", 1, 1.1f, 2.75, 1.0f, false, new HatchetAbility()),
 	WAR_HAMMER("war_hammer", "War Hammer", 3, 0.7f, 3.0, 1.5f, true, new WarHammerAbility()),
 	CLUB("club", "Club", -1, 1.2f, 3.0, 1.5f, false, new ClubAbility()),
-	// Stats only for now; abilities still to come. The hook sword and rope dart abilities are
-	// planned for milestone 2 (pixel-art/weaponry/docs/new-weapon-abilities.md).
+	// Newer weapons: the ones without an ability have stats only for now. The hook sword's wall brake
+	// and the rope dart are still to come (pixel-art/weaponry/docs/new-weapon-abilities.md).
 	RAPIER("rapier", "Rapier", -1, 2.0f, 3.25, 0.8f, false),
-	HOOK_SWORD("hook_sword", "Hook Sword", -1, 1.8f, 3.0, 1.0f, false),
+	HOOK_SWORD("hook_sword", "Hook Sword", -1, 1.8f, 3.0, 1.0f, false, new HookSwordAbility()),
 	GREATSWORD("greatsword", "Greatsword", 3, 0.9f, 3.5, 1.3f, true),
 	BATTLE_AXE("battle_axe", "Battle Axe", 4, 0.8f, 3.0, 1.2f, true),
 	WAR_PICK("war_pick", "War Pick", 2, 0.9f, 3.0, 1.25f, false),
