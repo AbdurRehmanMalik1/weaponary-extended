@@ -39,8 +39,8 @@ Fabric-only parts are done here.
 | Rope Dart | −2 | 1.6 | 4.5 | 0.75 | |
 
 The last 12 (rapier to rope dart) are newer: their stats are a first pass and their textures are the tentative
-designs from `pixel-art`. Of these, only the flail, morning star and hook sword have abilities so far. The hook sword's
-wall brake and the rope dart are planned next (`../pixel-art/weaponry/docs/new-weapon-abilities.md`).
+designs from `pixel-art`. Of these, only the flail, morning star and hook sword have abilities so far. The rope dart is
+planned next (`../pixel-art/weaponry/docs/new-weapon-abilities.md`).
 
 Tiers are wooden, stone, iron, golden and diamond. Damage bonus, enchantability, repair item and base
 durability all come from the vanilla tier. Source: `../pixel-art/weaponry/docs/weapon-stats.md`.
@@ -68,7 +68,7 @@ the same threshold vanilla uses for sweeps and crits.
 | War Hammer | **Armor Crush:** ignores 50% of the target's armor. Full-charge hits cause **Stagger** for 1 s. | **Overhead Smash:** a full-charge hit while sneaking knocks back everything within 2.5 blocks of the target, and everything it hits (target included) gets **Stun** for 0.75 s. |
 | Club | +1 knockback. **Daze:** full-charge hits have a 20% chance to cause **Daze** for 2 s. | |
 | Flail | **Over the Shield:** a full-charge hit on a raised shield isn't blocked; it deals 50% damage, and the shield takes no damage and isn't disabled. **Unwieldy:** hits below 50% charge do nothing. | **Wind-up:** hold use to spin the head. Each 0.5 s adds +1 damage to your next hit (max +3 at 1.5 s). Lost if you don't hit within 2 s of letting go. |
-| Hook Sword | | **Hook Pull:** use on a target in reach to pull it toward you (1.5 s cooldown, 1 durability). **Hook Leap:** use twice on the same target within 0.3 s to pull yourself toward it, stopping about 1 block short (3 s cooldown, 2 durability). A single use waits out that 0.3 s before pulling. |
+| Hook Sword | | **Hook Pull:** use on a target in reach to pull it toward you (1.5 s cooldown, 1 durability). **Hook Leap:** use twice on the same target within 0.3 s to pull yourself toward it, stopping about 1 block short (3 s cooldown, 2 durability). A single use waits out that 0.3 s before pulling. **Wall Brake:** hold use while falling with a block right beside you to hook into it. It slows the fall gradually (0.12 blocks/tick per tick) down to a 4 blocks/s slide, and fall damage follows your speed: from high up you land unhurt, just above the ground you still take most of it. 1 durability per 0.5 s. |
 | Morning Star | **Puncture:** full-charge hits cause **Bleed**. **Mail-breaker:** hits cost the target's armor twice the durability (only players' armor wears in vanilla). | |
 
 Material twists:
@@ -227,6 +227,8 @@ Abilities and status effects (ported from the 1.21.1 baseline through 1.21.11 an
   through a `SubmitNodeCollector`.
 - The nausea-style wobble field is `portalEffectIntensity`; `AbstractGolem` is in `animal.golem`; hands map
   to slots with `InteractionHand.asEquipmentSlot()`; the server comes from `level().getServer()`.
+- `isControlledByLocalInstance()` is now `isLocalInstanceAuthoritative()` (the hook sword wall brake runs where that
+  is true), and `fallDistance` is a `double`.
 - 26.1.2 on top of 1.21.11: action-bar messages use `Player.sendOverlayMessage`, entity tags are checked
   with `Entity.is(TagKey)` (bleed's undead immunity), and `CameraRenderState` is in `state.level`.
 - 26.2: `LivingEntity.knockback` also takes the damage source and damage, so ability knockback (scimitar sweep,
