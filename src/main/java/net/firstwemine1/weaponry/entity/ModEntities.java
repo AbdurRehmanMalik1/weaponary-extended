@@ -10,6 +10,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 public final class ModEntities {
 	public static final String THROWN_WEAPON_ID = "thrown_weapon";
+	public static final String ROPE_DART_ID = "rope_dart";
 
 	private static final DeferredRegister<EntityType<?>> ENTITY_TYPES =
 			DeferredRegister.create(ForgeRegistries.ENTITIES, Weaponry.MOD_ID);
@@ -21,6 +22,18 @@ public final class ModEntities {
 					.clientTrackingRange(4)
 					.updateInterval(20)
 					.build(THROWN_WEAPON_ID));
+
+	/**
+	 * Small and tracked every tick: its position matters for the rope while it is anchored or tethered.
+	 * A dart is only ever out while its thrower holds the rope, so it isn't saved with the chunk.
+	 */
+	public static final RegistryObject<EntityType<RopeDart>> ROPE_DART = ENTITY_TYPES.register(ROPE_DART_ID,
+			() -> EntityType.Builder.<RopeDart>of(RopeDart::new, EntityClassification.MISC)
+					.sized(0.25f, 0.25f)
+					.clientTrackingRange(4)
+					.updateInterval(1)
+					.noSave()
+					.build(ROPE_DART_ID));
 
 	private ModEntities() {
 	}

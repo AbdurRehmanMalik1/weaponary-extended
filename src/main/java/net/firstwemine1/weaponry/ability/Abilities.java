@@ -3,6 +3,7 @@ package net.firstwemine1.weaponry.ability;
 import java.util.Optional;
 
 import net.firstwemine1.weaponry.combat.Motion;
+import net.firstwemine1.weaponry.entity.RopeDart;
 import net.firstwemine1.weaponry.item.ModItems;
 import net.firstwemine1.weaponry.item.WeaponItem;
 import net.firstwemine1.weaponry.item.WeaponMaterial;
@@ -22,6 +23,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 /** Event wiring for abilities, plus small helpers they share. */
@@ -43,6 +45,12 @@ public final class Abilities {
 			if (!event.getEntityLiving().level.isClientSide()
 					&& !SabreAbility.allowDamage(event.getEntityLiving(), event.getSource(), event.getAmount())) {
 				event.setCanceled(true);
+			}
+		});
+		// The rope dart's PvP break, last, so a parried or otherwise cancelled hit doesn't reach it.
+		MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, (LivingAttackEvent event) -> {
+			if (!event.getEntityLiving().level.isClientSide()) {
+				RopeDart.onDamage(event.getEntityLiving(), event.getSource(), event.getAmount());
 			}
 		});
 
