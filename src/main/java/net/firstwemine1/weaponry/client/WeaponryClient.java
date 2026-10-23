@@ -1,18 +1,27 @@
 package net.firstwemine1.weaponry.client;
 
+import net.firstwemine1.weaponry.ability.WarPickAbility;
+import net.firstwemine1.weaponry.ability.WarPickAbility;
 import net.firstwemine1.weaponry.client.render.RopeDartRenderer;
 import net.firstwemine1.weaponry.client.render.ThrownWeaponRenderer;
 import net.firstwemine1.weaponry.effect.ModEffects;
 import net.firstwemine1.weaponry.entity.ModEntities;
+import net.firstwemine1.weaponry.item.ModItems;
+import net.firstwemine1.weaponry.item.WeaponMaterial;
+import net.firstwemine1.weaponry.item.WeaponType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.item.ItemModelsProperties;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
-/** Client-only setup: renderers for ability entities, and the Stagger and Daze screen wobble. */
+/**
+ * Client-only setup: renderers for ability entities, the flipped war pick model, and the Stagger and
+ * Daze screen wobble.
+ */
 public final class WeaponryClient {
 	/**
 	 * Both effects use the nausea-style view wobble (vanilla Nausea winds it up to 1.0). Stagger is a
@@ -30,6 +39,13 @@ public final class WeaponryClient {
 		modBus.addListener((FMLClientSetupEvent event) -> {
 			RenderingRegistry.registerEntityRenderingHandler(ModEntities.THROWN_WEAPON.get(), ThrownWeaponRenderer::new);
 			RenderingRegistry.registerEntityRenderingHandler(ModEntities.ROPE_DART.get(), RopeDartRenderer::new);
+			// The property registry is a plain map, so it is filled on the main thread.
+			event.enqueueWork(() -> {
+				for (WeaponMaterial material : WeaponMaterial.values()) {
+					ItemModelsProperties.register(ModItems.get(WeaponType.WAR_PICK, material), WarPickAbility.FLIPPED_ID,
+							(stack, level, entity) -> WarPickAbility.isFlipped(stack) ? 1 : 0);
+				}
+			});
 		});
 		MinecraftForge.EVENT_BUS.addListener((TickEvent.ClientTickEvent event) -> {
 			if (event.phase == TickEvent.Phase.END) {
