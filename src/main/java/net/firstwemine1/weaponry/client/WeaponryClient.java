@@ -1,6 +1,9 @@
 package net.firstwemine1.weaponry.client;
 
 import net.firstwemine1.weaponry.Weaponry;
+import net.firstwemine1.weaponry.bow.BowState;
+import net.firstwemine1.weaponry.bow.ModBows;
+import net.firstwemine1.weaponry.bow.WeaponBowItem;
 import net.firstwemine1.weaponry.client.render.RopeDartRenderer;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
@@ -19,10 +22,11 @@ import net.firstwemine1.weaponry.item.WeaponItem;
 import net.firstwemine1.weaponry.item.WeaponType;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.resources.ResourceLocation;
 
 /**
- * Client-only setup: renderers for ability entities, the flipped war pick model, and the Stagger and
- * Daze screen wobble.
+ * Client-only setup: renderers for ability entities, the flipped war pick model, the bows' draw
+ * animation, and the Stagger and Daze screen wobble.
  */
 @Mod(value = Weaponry.MOD_ID, dist = Dist.CLIENT)
 public final class WeaponryClient {
@@ -46,8 +50,22 @@ public final class WeaponryClient {
 				ItemProperties.register(item, ModComponents.FLIPPED_ID,
 						(stack, level, entity, seed) -> stack.has(ModComponents.FLIPPED.get()) ? 1 : 0);
 			}
+			ModBows.all().forEach(WeaponryClient::registerBowAnimation);
 		}));
 		NeoForge.EVENT_BUS.addListener((ClientTickEvent.Post event) -> wobble(Minecraft.getInstance().player));
+	}
+
+	/**
+	 * The {@code pull} and {@code pulling} properties vanilla gives {@code minecraft:bow}, which pick the
+	 * draw frame. {@code pull} is measured against this bow's own draw time (and any Quick Nock head
+	 * start), so every bow reaches its last frame when it's fully drawn.
+	 */
+	private static void registerBowAnimation(WeaponBowItem bow) {
+		ItemProperties.register(bow, ResourceLocation.withDefaultNamespace("pull"), (stack, level, entity, seed) ->
+				entity == null || entity.getUseItem() != stack ? 0.0f
+						: (entity.getTicksUsingItem() + BowState.headStart(entity)) / (float) bow.drawTicks(entity));
+		ItemProperties.register(bow, ResourceLocation.withDefaultNamespace("pulling"), (stack, level, entity, seed) ->
+				entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0f : 0.0f);
 	}
 
 	/**
