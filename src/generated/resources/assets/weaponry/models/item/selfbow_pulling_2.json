@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/bow",
+  "textures": {
+    "layer0": "weaponry:item/selfbow_pulling_2"
+  }
+}
