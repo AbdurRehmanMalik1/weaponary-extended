@@ -14,7 +14,10 @@ import net.firstwemine1.weaponry.effect.ModEffects;
 import net.firstwemine1.weaponry.entity.ModEntities;
 import net.minecraft.client.player.LocalPlayer;
 
-/** Client-only setup: renderers for ability entities, and the Stagger and Daze screen wobble. */
+/**
+ * Client-only setup: renderers for ability entities, the bows' draw frame property, and the Stagger and Daze
+ * screen wobble.
+ */
 @Mod(value = Weaponry.MOD_ID, dist = Dist.CLIENT)
 public final class WeaponryClient {
 	/**
@@ -31,6 +34,7 @@ public final class WeaponryClient {
 			event.registerEntityRenderer(ModEntities.THROWN_WEAPON.get(), ThrownWeaponRenderer::new);
 			event.registerEntityRenderer(ModEntities.ROPE_DART.get(), RopeDartRenderer::new);
 		});
+		modBus.addListener(BowPull::register);
 		NeoForge.EVENT_BUS.addListener((ClientTickEvent.Post event) -> wobble(Minecraft.getInstance().player));
 	}
 
