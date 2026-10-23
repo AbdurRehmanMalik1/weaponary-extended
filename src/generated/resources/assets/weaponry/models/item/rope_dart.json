@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/handheld",
   "textures": {
-    "layer0": "weaponry:item/stone_rope_dart"
+    "layer0": "weaponry:item/rope_dart"
   }
 }
