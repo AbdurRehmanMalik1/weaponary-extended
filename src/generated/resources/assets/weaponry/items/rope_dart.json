@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "weaponry:item/stone_rope_dart"
+    "model": "weaponry:item/rope_dart"
   }
 }
