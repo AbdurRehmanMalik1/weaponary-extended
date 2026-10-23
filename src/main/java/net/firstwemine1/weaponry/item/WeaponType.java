@@ -3,19 +3,24 @@ package net.firstwemine1.weaponry.item;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 
+import net.firstwemine1.weaponry.ability.BattleAxeAbility;
 import net.firstwemine1.weaponry.ability.ClubAbility;
 import net.firstwemine1.weaponry.ability.DaggerAbility;
 import net.firstwemine1.weaponry.ability.FlailAbility;
+import net.firstwemine1.weaponry.ability.GlaiveAbility;
+import net.firstwemine1.weaponry.ability.GreatswordAbility;
 import net.firstwemine1.weaponry.ability.HalberdAbility;
 import net.firstwemine1.weaponry.ability.HatchetAbility;
 import net.firstwemine1.weaponry.ability.HookSwordAbility;
 import net.firstwemine1.weaponry.ability.LanceAbility;
+import net.firstwemine1.weaponry.ability.MaceAbility;
 import net.firstwemine1.weaponry.ability.MorningStarAbility;
 import net.firstwemine1.weaponry.ability.PikeAbility;
 import net.firstwemine1.weaponry.ability.RapierAbility;
 import net.firstwemine1.weaponry.ability.RopeDartAbility;
 import net.firstwemine1.weaponry.ability.SabreAbility;
 import net.firstwemine1.weaponry.ability.ScimitarAbility;
+import net.firstwemine1.weaponry.ability.ScytheAbility;
 import net.firstwemine1.weaponry.ability.SpearAbility;
 import net.firstwemine1.weaponry.ability.WarPickAbility;
 import net.firstwemine1.weaponry.ability.WarHammerAbility;
@@ -45,19 +50,18 @@ public enum WeaponType {
 	HATCHET("hatchet", "Hatchet", 1, 1.1f, 2.75, 1.0f, false, new HatchetAbility()),
 	WAR_HAMMER("war_hammer", "War Hammer", 3, 0.7f, 3.0, 1.5f, true, new WarHammerAbility()),
 	CLUB("club", "Club", -1, 1.2f, 3.0, 1.5f, false, new ClubAbility()),
-	// Newer weapons: the ones without an ability have stats only for now
-	// (pixel-art/weaponry/docs/new-weapon-abilities.md).
+	// Newer weapons (pixel-art/weaponry/docs/new-weapon-abilities.md). The gauntlets have stats only.
 	RAPIER("rapier", "Rapier", -1, 2.0f, 3.25, 0.8f, false, new RapierAbility()),
 	HOOK_SWORD("hook_sword", "Hook Sword", -1, 1.8f, 3.0, 1.0f, false, new HookSwordAbility()),
-	GREATSWORD("greatsword", "Greatsword", 3, 0.9f, 3.5, 1.3f, true),
-	BATTLE_AXE("battle_axe", "Battle Axe", 4, 0.8f, 3.0, 1.2f, true),
+	GREATSWORD("greatsword", "Greatsword", 3, 0.9f, 3.5, 1.3f, true, new GreatswordAbility()),
+	BATTLE_AXE("battle_axe", "Battle Axe", 4, 0.8f, 3.0, 1.2f, true, new BattleAxeAbility()),
 	WAR_PICK("war_pick", "War Pick", 2, 0.9f, 3.0, 1.25f, false, new WarPickAbility()),
-	GLAIVE("glaive", "Glaive", 1, 1.0f, 4.5, 1.2f, true),
-	SCYTHE("scythe", "Scythe", 2, 0.8f, 4.0, 1.0f, true),
-	MACE("mace", "Mace", 1, 1.1f, 3.0, 1.5f, false),
+	GLAIVE("glaive", "Glaive", 1, 1.0f, 4.5, 1.2f, true, new GlaiveAbility()),
+	SCYTHE("scythe", "Scythe", 2, 0.8f, 4.0, 1.0f, true, new ScytheAbility()),
+	MACE("mace", "Mace", 1, 1.1f, 3.0, 1.5f, false, new MaceAbility()),
 	MORNING_STAR("morning_star", "Morning Star", 2, 1.0f, 3.0, 1.25f, false, new MorningStarAbility()),
 	FLAIL("flail", "Flail", 3, 0.8f, 3.0, 1.0f, false, new FlailAbility()),
-	GAUNTLETS("gauntlets", "Gauntlets", -3, 2.6f, 2.5, 1.0f, false),
+	GAUNTLETS("gauntlets", "Gauntlets", -3, 3.0f, 2.5, 1.0f, false),
 	ROPE_DART("rope_dart", "Rope Dart", -2, 1.6f, 4.5, 0.75f, false, new RopeDartAbility());
 
 	private static final List<WeaponMaterial> EVERY_TIER = ImmutableList.copyOf(WeaponMaterial.values());
