@@ -9,7 +9,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.firstwemine1.weaponry.combat.Motion;
 import net.firstwemine1.weaponry.entity.RopeDart;
 import net.firstwemine1.weaponry.item.ModItems;
-import net.firstwemine1.weaponry.item.WeaponMaterial;
+import net.firstwemine1.weaponry.item.WeaponItem;
 import net.firstwemine1.weaponry.item.WeaponType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
@@ -72,8 +72,8 @@ public final class Abilities {
 
 	/** Puts every material of a weapon type on cooldown, so swapping tiers doesn't skip it. */
 	static void cooldown(Player player, WeaponType type, int ticks) {
-		for (WeaponMaterial material : WeaponMaterial.values()) {
-			player.getCooldowns().addCooldown(ModItems.get(type, material).getDefaultInstance(), ticks);
+		for (WeaponItem item : ModItems.variants(type)) {
+			player.getCooldowns().addCooldown(item.getDefaultInstance(), ticks);
 		}
 	}
 
