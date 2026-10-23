@@ -1,5 +1,7 @@
 package net.firstwemine1.weaponry.item;
 
+import java.util.List;
+
 import net.firstwemine1.weaponry.ability.ClubAbility;
 import net.firstwemine1.weaponry.ability.DaggerAbility;
 import net.firstwemine1.weaponry.ability.FlailAbility;
@@ -28,6 +30,7 @@ import net.firstwemine1.weaponry.ability.WarHammerAbility;
  *   <li>{@code durabilityMultiplier}: applied to the tier's sword durability, rounded down.</li>
  *   <li>{@code twoHanded}: blocks the off hand while held, and can't be used from the off hand.</li>
  *   <li>{@code ability}: passive and active abilities, see {@link WeaponAbility}.</li>
+ *   <li>{@link #materials()}: the tiers it comes in. Utility weapons come in one version only.</li>
  * </ul>
  */
 public enum WeaponType {
@@ -55,6 +58,10 @@ public enum WeaponType {
 	FLAIL("flail", "Flail", 3, 0.8f, 3.0, 1.0f, false, new FlailAbility()),
 	GAUNTLETS("gauntlets", "Gauntlets", -3, 2.6f, 2.5, 1.0f, false),
 	ROPE_DART("rope_dart", "Rope Dart", -2, 1.6f, 4.5, 0.75f, false, new RopeDartAbility());
+
+	private static final List<WeaponMaterial> EVERY_TIER = List.of(WeaponMaterial.values());
+	/** The rope dart is a utility weapon, so there's only an iron one. */
+	private static final List<WeaponMaterial> IRON_ONLY = List.of(WeaponMaterial.IRON);
 
 	private final String id;
 	private final String displayName;
@@ -112,5 +119,14 @@ public enum WeaponType {
 
 	public WeaponAbility ability() {
 		return ability;
+	}
+
+	public List<WeaponMaterial> materials() {
+		return this == ROPE_DART ? IRON_ONLY : EVERY_TIER;
+	}
+
+	/** One version only: its item id and name leave out the material ({@code weaponry:rope_dart}). */
+	public boolean singleVersion() {
+		return materials().size() == 1;
 	}
 }

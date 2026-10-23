@@ -1,6 +1,7 @@
 package net.firstwemine1.weaponry.item;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,7 @@ public final class ModItems {
 	static {
 		for (WeaponType type : WeaponType.values()) {
 			Map<WeaponMaterial, DeferredItem<WeaponItem>> byMaterial = new EnumMap<>(WeaponMaterial.class);
-			for (WeaponMaterial material : WeaponMaterial.values()) {
+			for (WeaponMaterial material : type.materials()) {
 				// registerItem gives the properties their registry id, which items need from 1.21.2.
 				DeferredItem<WeaponItem> item = ITEMS.registerItem(itemId(type, material),
 						properties -> new WeaponItem(type, material, properties), new Item.Properties());
@@ -51,11 +52,18 @@ public final class ModItems {
 	}
 
 	public static String itemId(WeaponType type, WeaponMaterial material) {
-		return material.id() + "_" + type.id();
+		return type.singleVersion() ? type.id() : material.id() + "_" + type.id();
 	}
 
+	/** The weapon of {@code type} in {@code material}, or {@code null} if the type doesn't come in it. */
 	public static WeaponItem get(WeaponType type, WeaponMaterial material) {
-		return WEAPONS.get(type).get(material).get();
+		DeferredItem<WeaponItem> item = WEAPONS.get(type).get(material);
+		return item != null ? item.get() : null;
+	}
+
+	/** Every version of {@code type}, one per material it comes in. Only valid once items are registered. */
+	public static Collection<WeaponItem> variants(WeaponType type) {
+		return WEAPONS.get(type).values().stream().map(DeferredItem::get).toList();
 	}
 
 	/** Every weapon, ordered by type then material. Only valid once items are registered. */
