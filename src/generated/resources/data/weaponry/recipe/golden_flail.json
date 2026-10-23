@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "C": "minecraft:iron_chain",
+    "M": "minecraft:gold_ingot",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "  M",
+    " C ",
+    "S  "
+  ],
+  "result": {
+    "id": "weaponry:golden_flail"
+  }
+}
