@@ -29,3 +29,7 @@ side="${neoforge_minecraft_side}"
 
 [[mixins]]
 config="weaponry.mixins.json"
+
+# Client-only targets; the config lists them under "client", so they only load there.
+[[mixins]]
+config="weaponry.client.mixins.json"
