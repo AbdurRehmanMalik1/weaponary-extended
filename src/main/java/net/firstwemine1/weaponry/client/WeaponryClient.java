@@ -1,6 +1,7 @@
 package net.firstwemine1.weaponry.client;
 
 import net.firstwemine1.weaponry.Weaponry;
+import net.firstwemine1.weaponry.client.render.RopeDartRenderer;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -26,8 +27,10 @@ public final class WeaponryClient {
 	private static final float DAZE_WOBBLE_PER_TICK = 0.04f;
 
 	public WeaponryClient(IEventBus modBus) {
-		modBus.addListener((EntityRenderersEvent.RegisterRenderers event) ->
-				event.registerEntityRenderer(ModEntities.THROWN_WEAPON.get(), ThrownWeaponRenderer::new));
+		modBus.addListener((EntityRenderersEvent.RegisterRenderers event) -> {
+			event.registerEntityRenderer(ModEntities.THROWN_WEAPON.get(), ThrownWeaponRenderer::new);
+			event.registerEntityRenderer(ModEntities.ROPE_DART.get(), RopeDartRenderer::new);
+		});
 		NeoForge.EVENT_BUS.addListener((ClientTickEvent.Post event) -> wobble(Minecraft.getInstance().player));
 	}
 
