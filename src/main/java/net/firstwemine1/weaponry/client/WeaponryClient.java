@@ -7,7 +7,7 @@ import net.firstwemine1.weaponry.client.render.ThrownWeaponRenderer;
 import net.firstwemine1.weaponry.effect.ModEffects;
 import net.firstwemine1.weaponry.entity.ModEntities;
 import net.firstwemine1.weaponry.item.ModItems;
-import net.firstwemine1.weaponry.item.WeaponMaterial;
+import net.firstwemine1.weaponry.item.WeaponItem;
 import net.firstwemine1.weaponry.item.WeaponType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
@@ -41,8 +41,8 @@ public final class WeaponryClient {
 			RenderingRegistry.registerEntityRenderingHandler(ModEntities.ROPE_DART.get(), RopeDartRenderer::new);
 			// The property registry is a plain map, so it is filled on the main thread.
 			event.enqueueWork(() -> {
-				for (WeaponMaterial material : WeaponMaterial.values()) {
-					ItemModelsProperties.register(ModItems.get(WeaponType.WAR_PICK, material), WarPickAbility.FLIPPED_ID,
+				for (WeaponItem item : ModItems.variants(WeaponType.WAR_PICK)) {
+					ItemModelsProperties.register(item, WarPickAbility.FLIPPED_ID,
 							(stack, level, entity) -> WarPickAbility.isFlipped(stack) ? 1 : 0);
 				}
 			});
