@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import net.firstwemine1.weaponry.ability.Abilities;
 import net.firstwemine1.weaponry.effect.ModEffects;
 import net.firstwemine1.weaponry.entity.ModEntities;
+import net.firstwemine1.weaponry.item.ModComponents;
 import net.firstwemine1.weaponry.item.ModItems;
 import net.firstwemine1.weaponry.testing.TestChest;
 import net.minecraft.resources.ResourceLocation;
@@ -34,7 +35,7 @@ public final class Weaponry {
 
 	public Weaponry(IEventBus modBus) {
 		config = WeaponryConfig.load();
-
+		ModComponents.register(modBus);
 		ModItems.register(modBus);
 		ModEntities.register(modBus);
 		ModEffects.register(modBus);

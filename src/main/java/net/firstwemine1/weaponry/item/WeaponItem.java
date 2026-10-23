@@ -48,7 +48,6 @@ public class WeaponItem extends Item {
 	private final WeaponType type;
 	private final WeaponMaterial material;
 	private final float attackDamage;
-	private final boolean tool;
 
 	public WeaponItem(WeaponType type, WeaponMaterial material, Properties properties) {
 		this(type, material, new WeaponTier(material.tier(), type.durabilityMultiplier()), properties);
@@ -61,7 +60,6 @@ public class WeaponItem extends Item {
 		this.type = type;
 		this.material = material;
 		this.attackDamage = PLAYER_BASE_DAMAGE + damageModifier(type, tier);
-		this.tool = type.ability().tool(tier) != null;
 	}
 
 	/** Modifier on top of the player's base 1 damage; never below 0 so a hit always does >= 1. */
@@ -138,7 +136,8 @@ public class WeaponItem extends Item {
 
 	@Override
 	public boolean canAttackBlock(BlockState state, Level level, BlockPos pos, Player player) {
-		return tool || !player.isCreative();
+		// The stack's tool, not the item's: a flipped war pick mines.
+		return !TOOL.equals(player.getMainHandItem().get(DataComponents.TOOL)) || !player.isCreative();
 	}
 
 	@Override
