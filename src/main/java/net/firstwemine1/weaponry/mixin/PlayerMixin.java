@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Hooks into the player's melee attack: charge capture, crit suppression and armor crush. */
+/** Hooks into the player's melee attack: charge capture, crit suppression, minimum charge and armor crush. */
 @Mixin(Player.class)
 abstract class PlayerMixin implements AttackContext {
 	@Unique
@@ -51,11 +51,17 @@ abstract class PlayerMixin implements AttackContext {
 		return passenger || !WeaponItem.abilityOf(((Player) (Object) this).getMainHandItem()).allowsCrits();
 	}
 
-	/** Armor crush: the target loses part of its armor for the main hit only. */
+	/**
+	 * Minimum charge: a weak hit with some weapons does nothing (vanilla then plays the no-damage sound).
+	 * Armor crush: the target loses part of its armor for the main hit only.
+	 */
 	@WrapOperation(method = "attack",
 			at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;hurtOrSimulate(Lnet/minecraft/world/damagesource/DamageSource;F)Z"))
 	private boolean weaponry$armorCrush(Entity target, DamageSource source, float amount, Operation<Boolean> original) {
 		Player self = (Player) (Object) this;
+		if (weaponry$charge < WeaponItem.abilityOf(self.getMainHandItem()).minimumCharge()) {
+			return false;
+		}
 		float pierce = self.getMainHandItem().getItem() instanceof WeaponItem weapon
 				? weapon.type().ability().armorPierce(weapon.material())
 				: 0;
