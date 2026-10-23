@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "G": "minecraft:gold_ingot",
+    "S": "minecraft:stick",
+    "X": "minecraft:string"
+  },
+  "pattern": [
+    "GSX",
+    "S X",
+    "GSX"
+  ],
+  "result": {
+    "count": 1,
+    "id": "weaponry:horse_bow"
+  }
+}

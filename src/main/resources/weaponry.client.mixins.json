@@ -1,0 +1,11 @@
+{
+	"required": true,
+	"package": "net.firstwemine1.weaponry.client.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"client": [
+		"AbstractClientPlayerMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

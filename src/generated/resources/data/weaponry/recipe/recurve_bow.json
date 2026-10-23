@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "S": "minecraft:stick",
+    "X": "minecraft:string"
+  },
+  "pattern": [
+    " SX",
+    "I X",
+    " SX"
+  ],
+  "result": {
+    "count": 1,
+    "id": "weaponry:recurve_bow"
+  }
+}
