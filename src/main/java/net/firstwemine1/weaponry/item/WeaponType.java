@@ -9,6 +9,7 @@ import net.firstwemine1.weaponry.ability.HookSwordAbility;
 import net.firstwemine1.weaponry.ability.LanceAbility;
 import net.firstwemine1.weaponry.ability.MorningStarAbility;
 import net.firstwemine1.weaponry.ability.PikeAbility;
+import net.firstwemine1.weaponry.ability.RopeDartAbility;
 import net.firstwemine1.weaponry.ability.SabreAbility;
 import net.firstwemine1.weaponry.ability.ScimitarAbility;
 import net.firstwemine1.weaponry.ability.SpearAbility;
@@ -38,8 +39,8 @@ public enum WeaponType {
 	HATCHET("hatchet", "Hatchet", 1, 1.1f, 2.75, 1.0f, false, new HatchetAbility()),
 	WAR_HAMMER("war_hammer", "War Hammer", 3, 0.7f, 3.0, 1.5f, true, new WarHammerAbility()),
 	CLUB("club", "Club", -1, 1.2f, 3.0, 1.5f, false, new ClubAbility()),
-	// Newer weapons: the ones without an ability have stats only for now. The rope dart is still to
-	// come (pixel-art/weaponry/docs/new-weapon-abilities.md).
+	// Newer weapons: the ones without an ability have stats only for now
+	// (pixel-art/weaponry/docs/new-weapon-abilities.md).
 	RAPIER("rapier", "Rapier", -1, 2.0f, 3.25, 0.8f, false),
 	HOOK_SWORD("hook_sword", "Hook Sword", -1, 1.8f, 3.0, 1.0f, false, new HookSwordAbility()),
 	GREATSWORD("greatsword", "Greatsword", 3, 0.9f, 3.5, 1.3f, true),
@@ -51,7 +52,7 @@ public enum WeaponType {
 	MORNING_STAR("morning_star", "Morning Star", 2, 1.0f, 3.0, 1.25f, false, new MorningStarAbility()),
 	FLAIL("flail", "Flail", 3, 0.8f, 3.0, 1.0f, false, new FlailAbility()),
 	GAUNTLETS("gauntlets", "Gauntlets", -3, 2.6f, 2.5, 1.0f, false),
-	ROPE_DART("rope_dart", "Rope Dart", -2, 1.6f, 4.5, 0.75f, false);
+	ROPE_DART("rope_dart", "Rope Dart", -2, 1.6f, 4.5, 0.75f, false, new RopeDartAbility());
 
 	private final String id;
 	private final String displayName;
