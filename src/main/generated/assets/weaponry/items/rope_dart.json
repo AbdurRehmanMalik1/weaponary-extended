@@ -1,6 +1,19 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "weaponry:item/rope_dart"
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "weaponry:item/rope_dart_head"
+        },
+        "when": "none"
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "weaponry:item/rope_dart"
+    },
+    "property": "minecraft:display_context"
   }
 }

@@ -1,6 +1,34 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "weaponry:item/wooden_flail"
+    "type": "minecraft:condition",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "weaponry:item/wooden_flail"
+    },
+    "on_true": {
+      "type": "minecraft:range_dispatch",
+      "entries": [
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "weaponry:item/wooden_flail_spin_1"
+          },
+          "threshold": 1.0
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "weaponry:item/wooden_flail_spin_2"
+          },
+          "threshold": 2.0
+        }
+      ],
+      "fallback": {
+        "type": "minecraft:model",
+        "model": "weaponry:item/wooden_flail_spin_0"
+      },
+      "property": "weaponry:flail/spin"
+    },
+    "property": "minecraft:using_item"
   }
 }
