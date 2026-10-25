@@ -1,5 +1,7 @@
 package net.firstwemine1.weaponry.client;
 
+import com.mojang.authlib.minecraft.OfflineSocialInteractions;
+import net.firstwemine1.weaponry.ability.FlailAbility;
 import net.firstwemine1.weaponry.ability.WarPickAbility;
 import net.firstwemine1.weaponry.bow.BowAbility;
 import net.firstwemine1.weaponry.bow.BowState;
@@ -20,15 +22,21 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.item.ItemModelsProperties;
 import net.minecraftforge.client.event.FOVUpdateEvent;
 import net.minecraftforge.client.event.InputUpdateEvent;
+import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 
 /**
- * Client-only setup: renderers for ability entities, the flipped war pick model, the bows' draw
- * animation, zoom and walk speed, and the Stagger and Daze screen wobble.
+ * Client-only setup: renderers for ability entities, the flipped war pick model, the flail's wind-up
+ * frames, the bows' draw animation, zoom and walk speed, wrapped tooltips, and the Stagger and Daze
+ * screen wobble.
  */
 public final class WeaponryClient {
 	/**
@@ -46,12 +54,20 @@ public final class WeaponryClient {
 	}
 
 	public static void init(IEventBus modBus) {
+		// Dev runs only: runClient's offline account fails Mojang's social-interactions check, which turns off
+		// multiplayer and chat ("Multiplayer is disabled"). Use the offline service, as an offline launch would.
+		if (!FMLEnvironment.production) {
+			modBus.addListener((FMLClientSetupEvent event) -> ObfuscationReflectionHelper.setPrivateValue(
+					Minecraft.class, Minecraft.getInstance(), new OfflineSocialInteractions(), "field_244734_au"));
+		}
 		modBus.addListener((FMLClientSetupEvent event) -> {
 			RenderingRegistry.registerEntityRenderingHandler(ModEntities.THROWN_WEAPON.get(), ThrownWeaponRenderer::new);
 			RenderingRegistry.registerEntityRenderingHandler(ModEntities.ROPE_DART.get(), RopeDartRenderer::new);
 			// The property registry is a plain map, so it is filled on the main thread.
 			event.enqueueWork(WeaponryClient::registerItemProperties);
 		});
+		modBus.addListener((ModelRegistryEvent event) -> ModelLoader.addSpecialModel(RopeDartRenderer.HEAD_MODEL));
+		MinecraftForge.EVENT_BUS.addListener((ItemTooltipEvent event) -> TooltipLines.wrap(event.getItemStack(), event.getToolTip()));
 		MinecraftForge.EVENT_BUS.addListener((TickEvent.ClientTickEvent event) -> {
 			if (event.phase == TickEvent.Phase.END) {
 				wobble(Minecraft.getInstance().player);
@@ -65,6 +81,10 @@ public final class WeaponryClient {
 		for (WeaponItem item : ModItems.variants(WeaponType.WAR_PICK)) {
 			ItemModelsProperties.register(item, WarPickAbility.FLIPPED_ID,
 					(stack, level, entity) -> WarPickAbility.isFlipped(stack) ? 1 : 0);
+		}
+		for (WeaponItem item : ModItems.variants(WeaponType.FLAIL)) {
+			ItemModelsProperties.register(item, FlailAbility.SPIN_ID,
+					(stack, level, entity) -> FlailAbility.spinFrame(stack, entity));
 		}
 		ModBows.all().forEach(WeaponryClient::registerBowAnimation);
 	}

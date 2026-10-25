@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import net.firstwemine1.weaponry.Weaponry;
 import net.firstwemine1.weaponry.combat.AttackContext;
 import net.firstwemine1.weaponry.item.WeaponAbility;
 import net.firstwemine1.weaponry.item.WeaponItem;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ActionResult;
@@ -18,12 +20,18 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.UseAction;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
+
 /**
  * Over the Shield: full-charge hits swing around a raised shield and deal half damage through it.
  * Unwieldy: hits below half charge do nothing, because a slack chain doesn't strike. Wind-up: hold
  * use to spin the head; every 0.5 s adds +1 damage to the next hit, up to +3.
  */
 public class FlailAbility implements WeaponAbility {
+	/** Item model property: which wind-up frame to show (0 = not spinning, then 1/3, 2/3, 1). */
+	public static final ResourceLocation SPIN_ID = Weaponry.id("spin");
+	private static final int SPIN_FRAMES = 3;
+	private static final int TICKS_PER_FRAME = 2;
 	private static final float SHIELD_PASS = 0.5f;
 	private static final float MIN_CHARGE = 0.5f;
 	private static final int TICKS_PER_LEVEL = 10;
@@ -104,6 +112,14 @@ public class FlailAbility implements WeaponAbility {
 	@Override
 	public int useDuration() {
 		return SPIN_TICKS;
+	}
+
+	/** The {@link #SPIN_ID} value: cycles through the spin frames while {@code entity} winds up this flail. */
+	public static float spinFrame(ItemStack stack, @Nullable LivingEntity entity) {
+		if (entity == null || !entity.isUsingItem() || entity.getUseItem() != stack) {
+			return 0;
+		}
+		return (entity.getTicksUsingItem() / TICKS_PER_FRAME % SPIN_FRAMES + 1) / (float) SPIN_FRAMES;
 	}
 
 	@Override

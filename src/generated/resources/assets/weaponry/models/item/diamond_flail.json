@@ -1,5 +1,25 @@
 {
   "parent": "minecraft:item/handheld",
+  "overrides": [
+    {
+      "model": "weaponry:item/diamond_flail_spin_0",
+      "predicate": {
+        "weaponry:spin": 0.33
+      }
+    },
+    {
+      "model": "weaponry:item/diamond_flail_spin_1",
+      "predicate": {
+        "weaponry:spin": 0.66
+      }
+    },
+    {
+      "model": "weaponry:item/diamond_flail_spin_2",
+      "predicate": {
+        "weaponry:spin": 1
+      }
+    }
+  ],
   "textures": {
     "layer0": "weaponry:item/diamond_flail"
   }
