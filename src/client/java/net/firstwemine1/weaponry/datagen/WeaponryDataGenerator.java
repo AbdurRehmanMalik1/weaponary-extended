@@ -1,6 +1,7 @@
 package net.firstwemine1.weaponry.datagen;
 
 import net.firstwemine1.weaponry.client.BowPull;
+import net.firstwemine1.weaponry.client.FlailSpin;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 
@@ -9,6 +10,7 @@ public class WeaponryDataGenerator implements DataGeneratorEntrypoint {
 	public void onInitializeDataGenerator(FabricDataGenerator generator) {
 		// The bow item models use it; the client initializer may not have run here.
 		BowPull.register();
+		FlailSpin.register();
 		FabricDataGenerator.Pack pack = generator.createPack();
 		pack.addProvider(WeaponModelProvider::new);
 		pack.addProvider(WeaponLanguageProvider::new);

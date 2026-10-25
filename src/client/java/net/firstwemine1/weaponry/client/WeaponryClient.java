@@ -10,8 +10,8 @@ import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.player.LocalPlayer;
 
 /**
- * Client-only setup: renderers for ability entities, the bows' draw frame property, and the Stagger and Daze
- * screen wobble.
+ * Client-only setup: renderers for ability entities, the bows' draw frame and flail wind-up properties,
+ * wrapped tooltips, and the Stagger and Daze screen wobble.
  */
 public class WeaponryClient implements ClientModInitializer {
 	/**
@@ -28,6 +28,8 @@ public class WeaponryClient implements ClientModInitializer {
 		EntityRendererRegistry.register(ModEntities.THROWN_WEAPON, ThrownWeaponRenderer::new);
 		EntityRendererRegistry.register(ModEntities.ROPE_DART, RopeDartRenderer::new);
 		BowPull.register();
+		FlailSpin.register();
+		TooltipLines.register();
 		ClientTickEvents.END_CLIENT_TICK.register(client -> wobble(client.player));
 	}
 
