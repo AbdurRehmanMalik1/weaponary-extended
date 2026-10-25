@@ -5,6 +5,7 @@ import java.util.Optional;
 import net.firstwemine1.weaponry.Weaponry;
 import net.firstwemine1.weaponry.bow.ModBows;
 import net.firstwemine1.weaponry.client.BowPull;
+import net.firstwemine1.weaponry.client.FlailSpin;
 import net.firstwemine1.weaponry.item.ModComponents;
 import net.firstwemine1.weaponry.item.ModItems;
 import net.firstwemine1.weaponry.item.WeaponType;
@@ -17,7 +18,9 @@ import net.minecraft.client.data.models.model.ModelTemplate;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.renderer.item.ItemModel;
+import net.minecraft.client.renderer.item.properties.select.DisplayContext;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
 
 public class WeaponModelProvider extends FabricModelProvider {
 	/**
@@ -45,6 +48,10 @@ public class WeaponModelProvider extends FabricModelProvider {
 		ModItems.all().forEach(item -> {
 			if (item.type() == WeaponType.WAR_PICK) {
 				flippable(generator, item);
+			} else if (item.type() == WeaponType.FLAIL) {
+				spinning(generator, item);
+			} else if (item.type() == WeaponType.ROPE_DART) {
+				ropeDart(generator, item);
 			} else {
 				generator.generateFlatItem(item, mirrored(item.type()) ? HANDHELD_MIRRORED : ModelTemplates.FLAT_HANDHELD_ITEM);
 			}
@@ -76,6 +83,33 @@ public class WeaponModelProvider extends FabricModelProvider {
 		ItemModel.Unbaked flipped = ItemModelUtils.plainModel(
 				generator.createFlatItemModel(item, "_flipped", ModelTemplates.FLAT_HANDHELD_ITEM));
 		generator.itemModelOutput.accept(item, ItemModelUtils.conditional(ItemModelUtils.hasComponent(ModComponents.FLIPPED), flipped, normal));
+	}
+
+	/**
+	 * A handheld flail whose item definition cycles through its wind-up frames ({@code <flail>_spin_0..2},
+	 * textures of the same name) on {@link FlailSpin} while it's in use.
+	 */
+	private static void spinning(ItemModelGenerators generator, Item item) {
+		ItemModel.Unbaked normal = ItemModelUtils.plainModel(generator.createFlatItemModel(item, ModelTemplates.FLAT_HANDHELD_ITEM));
+		ItemModel.Unbaked[] frames = new ItemModel.Unbaked[FlailSpin.FRAMES];
+		for (int frame = 0; frame < frames.length; frame++) {
+			frames[frame] = ItemModelUtils.plainModel(generator.createFlatItemModel(item, "_spin_" + frame, ModelTemplates.FLAT_HANDHELD_ITEM));
+		}
+		generator.itemModelOutput.accept(item, ItemModelUtils.conditional(ItemModelUtils.isUsingItem(),
+				ItemModelUtils.rangeSelect(new FlailSpin(), frames[0],
+						ItemModelUtils.override(frames[1], 1), ItemModelUtils.override(frames[2], 2)),
+				normal));
+	}
+
+	/**
+	 * The rope dart, plus {@code rope_dart_head} (the dart without its rope coil) for the thrown dart, which
+	 * {@code RopeDartRenderer} draws with the {@code none} display context.
+	 */
+	private static void ropeDart(ItemModelGenerators generator, Item item) {
+		ItemModel.Unbaked normal = ItemModelUtils.plainModel(generator.createFlatItemModel(item, ModelTemplates.FLAT_HANDHELD_ITEM));
+		ItemModel.Unbaked head = ItemModelUtils.plainModel(generator.createFlatItemModel(item, "_head", ModelTemplates.FLAT_ITEM));
+		generator.itemModelOutput.accept(item, ItemModelUtils.select(new DisplayContext(), normal,
+				ItemModelUtils.when(ItemDisplayContext.NONE, head)));
 	}
 
 	/** Weapons whose texture is mirrored left-right (pixel-art/weaponry/docs/rule.md, Rule 2 exceptions). */
