@@ -2,6 +2,8 @@ package net.firstwemine1.weaponry.client;
 
 import java.util.List;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -24,6 +26,12 @@ public final class TooltipLines {
 
 	/** Adds {@code line} to {@code tooltip}, split to fit; lines after the first are indented. */
 	public static void add(List<Component> tooltip, Component line, ChatFormatting color) {
+		// Search builds its index from tooltips and may do so off the render thread, where Font must not be
+		// used. Search doesn't need the wrapping, so add the line whole.
+		if (!RenderSystem.isOnRenderThread()) {
+			tooltip.add(line.copy().withStyle(color));
+			return;
+		}
 		List<FormattedText> parts = Minecraft.getInstance().font.getSplitter()
 				.splitLines(line, MAX_WIDTH, Style.EMPTY);
 		for (int i = 0; i < parts.size(); i++) {
