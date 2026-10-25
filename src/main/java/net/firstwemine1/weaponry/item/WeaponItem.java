@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import net.firstwemine1.weaponry.Weaponry;
 import net.firstwemine1.weaponry.ability.WarPickAbility;
+import net.firstwemine1.weaponry.client.TooltipLines;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -122,7 +123,7 @@ public class WeaponItem extends TieredItem {
 	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
 		int lines = type.ability().description().size();
 		for (int i = 0; i < lines; i++) {
-			tooltip.add(new TranslatableComponent(tooltipKey(type, i)).withStyle(ChatFormatting.GRAY));
+			TooltipLines.add(tooltip, new TranslatableComponent(tooltipKey(type, i)), ChatFormatting.GRAY);
 		}
 		if (type.twoHanded()) {
 			tooltip.add(new TranslatableComponent(TWO_HANDED_TOOLTIP_KEY).withStyle(ChatFormatting.DARK_GRAY));

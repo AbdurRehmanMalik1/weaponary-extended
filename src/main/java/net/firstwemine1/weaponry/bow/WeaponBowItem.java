@@ -5,6 +5,7 @@ import java.util.List;
 import org.jetbrains.annotations.Nullable;
 
 import net.firstwemine1.weaponry.Weaponry;
+import net.firstwemine1.weaponry.client.TooltipLines;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -88,7 +89,7 @@ public class WeaponBowItem extends BowItem {
 	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
 		int lines = type.ability().description().size();
 		for (int i = 0; i < lines; i++) {
-			tooltip.add(new TranslatableComponent(tooltipKey(type, i)).withStyle(ChatFormatting.GRAY));
+			TooltipLines.add(tooltip, new TranslatableComponent(tooltipKey(type, i)), ChatFormatting.GRAY);
 		}
 	}
 

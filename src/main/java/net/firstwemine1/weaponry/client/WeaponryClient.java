@@ -1,5 +1,6 @@
 package net.firstwemine1.weaponry.client;
 
+import net.firstwemine1.weaponry.ability.FlailAbility;
 import net.firstwemine1.weaponry.ability.WarPickAbility;
 import net.firstwemine1.weaponry.bow.BowState;
 import net.firstwemine1.weaponry.bow.ModBows;
@@ -13,6 +14,7 @@ import net.firstwemine1.weaponry.item.WeaponItem;
 import net.firstwemine1.weaponry.item.WeaponType;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
@@ -26,7 +28,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 
 /**
  * Client-only setup: renderers and the spawn packet for ability entities, the flipped war pick
- * model, the bows' draw animation, and the Stagger and Daze screen wobble.
+ * model, the flail's wind-up frames, the bows' draw animation, and the Stagger and Daze screen wobble.
  */
 public class WeaponryClient implements ClientModInitializer {
 	/**
@@ -46,6 +48,11 @@ public class WeaponryClient implements ClientModInitializer {
 			FabricModelPredicateProviderRegistry.register(item, WarPickAbility.FLIPPED_ID,
 					(stack, level, entity) -> WarPickAbility.isFlipped(stack) ? 1 : 0);
 		}
+		for (WeaponItem item : ModItems.variants(WeaponType.FLAIL)) {
+			FabricModelPredicateProviderRegistry.register(item, FlailAbility.SPIN_ID,
+					(stack, level, entity) -> FlailAbility.spinFrame(stack, entity));
+		}
+		ModelLoadingRegistry.INSTANCE.registerModelProvider((manager, out) -> out.accept(RopeDartRenderer.HEAD_MODEL));
 		ModBows.all().forEach(WeaponryClient::registerBowAnimation);
 		ClientPlayNetworking.registerGlobalReceiver(SpawnPacket.ID, (client, handler, buf, sender) -> {
 			SpawnPacket.Data data = SpawnPacket.read(buf);
