@@ -1,6 +1,7 @@
 package net.firstwemine1.weaponry.client;
 
 import net.firstwemine1.weaponry.Weaponry;
+import net.firstwemine1.weaponry.ability.FlailAbility;
 import net.firstwemine1.weaponry.bow.BowState;
 import net.firstwemine1.weaponry.bow.ModBows;
 import net.firstwemine1.weaponry.bow.WeaponBowItem;
@@ -12,7 +13,9 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.firstwemine1.weaponry.client.render.ThrownWeaponRenderer;
 import net.firstwemine1.weaponry.effect.ModEffects;
 import net.firstwemine1.weaponry.entity.ModEntities;
@@ -25,8 +28,8 @@ import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * Client-only setup: renderers for ability entities, the flipped war pick model, the bows' draw
- * animation, and the Stagger and Daze screen wobble.
+ * Client-only setup: renderers for ability entities, the flipped war pick model, the flail's wind-up frames, the bows' draw
+ * animation, wrapped tooltips, and the Stagger and Daze screen wobble.
  */
 @Mod(value = Weaponry.MOD_ID, dist = Dist.CLIENT)
 public final class WeaponryClient {
@@ -50,8 +53,14 @@ public final class WeaponryClient {
 				ItemProperties.register(item, ModComponents.FLIPPED_ID,
 						(stack, level, entity, seed) -> stack.has(ModComponents.FLIPPED.get()) ? 1 : 0);
 			}
+			for (WeaponItem item : ModItems.variants(WeaponType.FLAIL)) {
+				ItemProperties.register(item, FlailAbility.SPIN_ID,
+						(stack, level, entity, seed) -> FlailAbility.spinFrame(stack, entity));
+			}
 			ModBows.all().forEach(WeaponryClient::registerBowAnimation);
 		}));
+		modBus.addListener((ModelEvent.RegisterAdditional event) -> event.register(RopeDartRenderer.HEAD_MODEL));
+		NeoForge.EVENT_BUS.addListener((ItemTooltipEvent event) -> TooltipLines.wrap(event.getItemStack(), event.getToolTip()));
 		NeoForge.EVENT_BUS.addListener((ClientTickEvent.Post event) -> wobble(Minecraft.getInstance().player));
 	}
 
