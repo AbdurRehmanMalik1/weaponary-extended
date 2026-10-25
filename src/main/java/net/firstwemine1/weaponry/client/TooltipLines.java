@@ -3,6 +3,8 @@ package net.firstwemine1.weaponry.client;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+
 import net.firstwemine1.weaponry.bow.WeaponBowItem;
 import net.firstwemine1.weaponry.item.WeaponItem;
 import net.minecraft.client.Minecraft;
@@ -27,6 +29,11 @@ public final class TooltipLines {
 	/** Splits every line of a weapon's or bow's tooltip that is too wide; lines after the first are indented. */
 	public static void wrap(ItemStack stack, List<Component> lines) {
 		if (!(stack.getItem() instanceof WeaponItem) && !(stack.getItem() instanceof WeaponBowItem)) {
+			return;
+		}
+		// Creative and recipe book search build their index from tooltips on worker threads, and Font may
+		// only be used on the render thread. Search doesn't need the wrapping, so leave those lines alone.
+		if (!RenderSystem.isOnRenderThread()) {
 			return;
 		}
 		Font font = Minecraft.getInstance().font;
