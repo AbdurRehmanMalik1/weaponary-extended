@@ -3,6 +3,7 @@ package net.firstwemine1.weaponry.client.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import net.firstwemine1.weaponry.Weaponry;
 import net.firstwemine1.weaponry.entity.RopeDart;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -11,6 +12,7 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
@@ -21,10 +23,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Draws the dart's item model and the rope back to the thrower's hand. The hand position follows
- * vanilla's fishing line ({@code FishingHookRenderer}).
+ * Draws the dart on its own ({@link #HEAD_MODEL}, the icon without its rope coil) and the rope back
+ * to the thrower's hand. The hand position follows vanilla's fishing line ({@code FishingHookRenderer}).
  */
 public class RopeDartRenderer extends EntityRenderer<RopeDart> {
+	/** {@code models/item/rope_dart_head.json}: not an item, loaded by {@code WeaponryClient}. */
+	public static final ResourceLocation HEAD_MODEL = Weaponry.id("item/rope_dart_head");
 	private static final float TEXTURE_TILT = -45.0f;
 	private static final float DART_SCALE = 0.6f;
 	private static final int SEGMENTS = 16;
@@ -49,8 +53,10 @@ public class RopeDartRenderer extends EntityRenderer<RopeDart> {
 			poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTick, entity.xRotO, entity.getXRot())));
 			poseStack.scale(DART_SCALE, DART_SCALE, DART_SCALE);
 			poseStack.mulPose(Axis.ZP.rotationDegrees(TEXTURE_TILT));
-			itemRenderer.renderStatic(stack, ItemDisplayContext.NONE, light, OverlayTexture.NO_OVERLAY,
-					poseStack, buffers, entity.level(), entity.getId());
+			// The rope dart's stack still picks the render type and the enchantment glint.
+			BakedModel head = Minecraft.getInstance().getModelManager().getModel(HEAD_MODEL);
+			itemRenderer.render(stack, ItemDisplayContext.NONE, false, poseStack, buffers, light,
+					OverlayTexture.NO_OVERLAY, head);
 			poseStack.popPose();
 		}
 

@@ -6,6 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import net.firstwemine1.weaponry.Weaponry;
+import net.firstwemine1.weaponry.ability.FlailAbility;
 import net.firstwemine1.weaponry.ability.WarPickAbility;
 import net.firstwemine1.weaponry.bow.ModBows;
 import net.firstwemine1.weaponry.item.ModItems;
@@ -35,6 +36,8 @@ public class WeaponModelProvider extends FabricModelProvider {
 			Optional.of(new ResourceLocation("item/bow")), Optional.empty(), TextureSlot.LAYER0);
 	/** Vanilla's draw frames: shown while drawing, from 0.65 of a full draw, and from 0.9. */
 	private static final float[] PULL = {0, 0.65f, 0.9f};
+	/** The flail's wind-up frames: {@code weaponry:spin} is 1/3, 2/3 or 1 while spinning, 0 otherwise. */
+	private static final float[] SPIN = {0.33f, 0.66f, 1};
 
 	public WeaponModelProvider(FabricDataOutput output) {
 		super(output);
@@ -50,11 +53,40 @@ public class WeaponModelProvider extends FabricModelProvider {
 		ModItems.all().forEach(item -> {
 			if (item.type() == WeaponType.WAR_PICK) {
 				flippable(generator, item);
+			} else if (item.type() == WeaponType.FLAIL) {
+				spinning(generator, item);
 			} else {
 				generator.generateFlatItem(item, mirrored(item.type()) ? HANDHELD_MIRRORED : ModelTemplates.FLAT_HANDHELD_ITEM);
 			}
 		});
 		ModBows.all().forEach(bow -> bow(generator, bow));
+		// The thrown rope dart: the dart without its rope coil. Not an item; the client loads it by name.
+		ModelTemplates.FLAT_ITEM.create(Weaponry.id("item/rope_dart_head"),
+				TextureMapping.layer0(Weaponry.id("item/rope_dart_head")), generator.output);
+	}
+
+	/**
+	 * A handheld flail and its three wind-up frames ({@code <flail>_spin_0..2}), switched by the
+	 * {@code weaponry:spin} item property. The client registers that property.
+	 */
+	private static void spinning(ItemModelGenerators generator, Item item) {
+		JsonArray overrides = new JsonArray();
+		for (int frame = 0; frame < SPIN.length; frame++) {
+			ResourceLocation model = ModelTemplates.FLAT_HANDHELD_ITEM.create(ModelLocationUtils.getModelLocation(item, "_spin_" + frame),
+					TextureMapping.layer0(TextureMapping.getItemTexture(item, "_spin_" + frame)), generator.output);
+			JsonObject predicate = new JsonObject();
+			predicate.addProperty(FlailAbility.SPIN_ID.toString(), SPIN[frame]);
+			JsonObject override = new JsonObject();
+			override.add("predicate", predicate);
+			override.addProperty("model", model.toString());
+			overrides.add(override);
+		}
+		ModelTemplates.FLAT_HANDHELD_ITEM.create(ModelLocationUtils.getModelLocation(item), TextureMapping.layer0(item),
+				generator.output, (id, textures) -> {
+					JsonObject json = ModelTemplates.FLAT_HANDHELD_ITEM.createBaseTemplate(id, textures);
+					json.add("overrides", overrides);
+					return json;
+				});
 	}
 
 	/** A bow and its three draw frames ({@code <bow>_pulling_0..2}), switched like vanilla's bow model. */
