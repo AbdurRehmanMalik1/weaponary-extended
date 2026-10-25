@@ -1,5 +1,6 @@
 package net.firstwemine1.weaponry.client;
 
+import net.firstwemine1.weaponry.ability.FlailAbility;
 import net.firstwemine1.weaponry.bow.BowState;
 import net.firstwemine1.weaponry.bow.ModBows;
 import net.firstwemine1.weaponry.bow.WeaponBowItem;
@@ -17,6 +18,7 @@ import net.firstwemine1.weaponry.item.WeaponItem;
 import net.firstwemine1.weaponry.item.WeaponType;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.item.ItemProperties;
@@ -27,8 +29,9 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ChargedProjectiles;
 
 /**
- * Client-only setup: renderers for ability entities, the flipped war pick model, the bows' and
- * crossbows' animations, the rapid crossbow's firing, and the Stagger and Daze screen wobble.
+ * Client-only setup: renderers for ability entities, the flipped war pick model, the flail's wind-up
+ * frames, the bows' and crossbows' animations, the rapid crossbow's firing, wrapped tooltips, and the
+ * Stagger and Daze screen wobble.
  */
 public class WeaponryClient implements ClientModInitializer {
 	/**
@@ -48,7 +51,13 @@ public class WeaponryClient implements ClientModInitializer {
 			ItemProperties.register(item, ModComponents.FLIPPED_ID,
 					(stack, level, entity, seed) -> stack.has(ModComponents.FLIPPED) ? 1 : 0);
 		}
+		for (WeaponItem item : ModItems.variants(WeaponType.FLAIL)) {
+			ItemProperties.register(item, FlailAbility.SPIN_ID,
+					(stack, level, entity, seed) -> FlailAbility.spinFrame(stack, entity));
+		}
+		ModelLoadingPlugin.register(context -> context.addModels(RopeDartRenderer.HEAD_MODEL));
 		ModBows.all().forEach(WeaponryClient::registerBowAnimation);
+		TooltipLines.register();
 		registerHeavyCrossbowAnimation();
 		registerRapidCrossbowAnimation();
 		ClientTickEvents.END_CLIENT_TICK.register(client -> wobble(client.player));
