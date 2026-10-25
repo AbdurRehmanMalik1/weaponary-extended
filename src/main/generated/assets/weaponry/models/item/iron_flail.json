@@ -2,5 +2,25 @@
   "parent": "minecraft:item/handheld",
   "textures": {
     "layer0": "weaponry:item/iron_flail"
-  }
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "weaponry:spin": 0.33
+      },
+      "model": "weaponry:item/iron_flail_spin_0"
+    },
+    {
+      "predicate": {
+        "weaponry:spin": 0.66
+      },
+      "model": "weaponry:item/iron_flail_spin_1"
+    },
+    {
+      "predicate": {
+        "weaponry:spin": 1.0
+      },
+      "model": "weaponry:item/iron_flail_spin_2"
+    }
+  ]
 }

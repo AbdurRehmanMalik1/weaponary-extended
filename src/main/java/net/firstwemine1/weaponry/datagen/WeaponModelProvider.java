@@ -9,6 +9,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import net.firstwemine1.weaponry.Weaponry;
+import net.firstwemine1.weaponry.ability.FlailAbility;
 import net.firstwemine1.weaponry.ability.WarPickAbility;
 import net.firstwemine1.weaponry.bow.ModBows;
 import net.firstwemine1.weaponry.item.ModItems;
@@ -37,6 +38,8 @@ public class WeaponModelProvider extends FabricModelProvider {
 	private static final ModelTemplate BOW = new ModelTemplate(Optional.of(BOW_PARENT), Optional.empty(), TextureSlot.LAYER0);
 	/** Vanilla's draw frames: shown while drawing, from 0.65 of a full draw, and from 0.9. */
 	private static final float[] PULL = {0, 0.65f, 0.9f};
+	/** The flail's wind-up frames: {@code weaponry:spin} is 1/3, 2/3 or 1 while spinning, 0 otherwise. */
+	private static final float[] SPIN = {0.33f, 0.66f, 1};
 
 	public WeaponModelProvider(FabricDataGenerator generator) {
 		super(generator);
@@ -52,6 +55,8 @@ public class WeaponModelProvider extends FabricModelProvider {
 		ModItems.all().forEach(item -> {
 			if (item.type() == WeaponType.WAR_PICK) {
 				generator.generateFlatItem(item, flippable(item));
+			} else if (item.type() == WeaponType.FLAIL) {
+				generator.generateFlatItem(item, spinning(item));
 			} else {
 				generator.generateFlatItem(item, mirrored(item.type()) ? HANDHELD_MIRRORED : ModelTemplates.FLAT_HANDHELD_ITEM);
 			}
@@ -73,6 +78,27 @@ public class WeaponModelProvider extends FabricModelProvider {
 				predicate.addProperty(WarPickAbility.FLIPPED_ID.toString(), 1);
 				JsonArray overrides = new JsonArray();
 				overrides.add(override(predicate, flipped));
+				return overrides;
+			}
+		};
+	}
+
+	/**
+	 * A handheld flail and its three wind-up frames ({@code <flail>_spin_0..2}), switched by the
+	 * {@code weaponry:spin} item property. The client registers that property.
+	 */
+	private static ModelTemplate spinning(Item item) {
+		return new OverridingTemplate(new ResourceLocation("item/handheld")) {
+			@Override
+			JsonArray overrides(BiConsumer<ResourceLocation, Supplier<JsonElement>> output) {
+				JsonArray overrides = new JsonArray();
+				for (int frame = 0; frame < SPIN.length; frame++) {
+					ResourceLocation model = ModelTemplates.FLAT_HANDHELD_ITEM.create(ModelLocationUtils.getModelLocation(item, "_spin_" + frame),
+							TextureMapping.layer0(TextureMapping.getItemTexture(item, "_spin_" + frame)), output);
+					JsonObject predicate = new JsonObject();
+					predicate.addProperty(FlailAbility.SPIN_ID.toString(), SPIN[frame]);
+					overrides.add(override(predicate, model));
+				}
 				return overrides;
 			}
 		};
