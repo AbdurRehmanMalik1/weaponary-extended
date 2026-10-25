@@ -9,14 +9,15 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.firstwemine1.weaponry.client.render.ThrownWeaponRenderer;
 import net.firstwemine1.weaponry.effect.ModEffects;
 import net.firstwemine1.weaponry.entity.ModEntities;
 import net.minecraft.client.player.LocalPlayer;
 
 /**
- * Client-only setup: renderers for ability entities, the bows' draw frame property, and the Stagger and Daze
- * screen wobble.
+ * Client-only setup: renderers for ability entities, the bows' draw frame and flail wind-up properties,
+ * wrapped tooltips, and the Stagger and Daze screen wobble.
  */
 @Mod(value = Weaponry.MOD_ID, dist = Dist.CLIENT)
 public final class WeaponryClient {
@@ -35,6 +36,8 @@ public final class WeaponryClient {
 			event.registerEntityRenderer(ModEntities.ROPE_DART.get(), RopeDartRenderer::new);
 		});
 		modBus.addListener(BowPull::register);
+		modBus.addListener(FlailSpin::register);
+		NeoForge.EVENT_BUS.addListener((ItemTooltipEvent event) -> TooltipLines.wrap(event.getItemStack(), event.getToolTip()));
 		NeoForge.EVENT_BUS.addListener((ClientTickEvent.Post event) -> wobble(Minecraft.getInstance().player));
 	}
 

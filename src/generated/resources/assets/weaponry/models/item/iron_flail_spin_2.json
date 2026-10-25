@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "weaponry:item/iron_flail_spin_2"
+  }
+}
