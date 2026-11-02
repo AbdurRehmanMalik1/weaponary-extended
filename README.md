@@ -140,6 +140,19 @@ S..       L.X       I.X           S.X
 .SX       SSX       .SX           GSX
 ```
 
+## Credits and inspiration
+
+Not every weapon in Weaponry is an original idea, and the ones that aren't are credited here.
+
+- **Heavy Crossbow** and **Rapid Crossbow** (planned, not in the mod yet) are inspired by the crossbows of the same
+  names in *Minecraft Dungeons* by Mojang Studios. The idea, the names and the way they play (a slow crossbow that hits
+  hard, and a fast one that fires a stream of weak arrows) come from that game; they are not my own ideas. Their
+  textures are custom 16×16 pixel art drawn for this mod on vanilla's crossbow shape, but their colour schemes and look
+  are taken from the *Minecraft Dungeons* designs (see `../pixel-art/weaponry/designs/ranged/`).
+- Any other weapon inspired by another game or mod gets listed here too, with where it came from.
+
+Weaponry is a fan-made mod. It is not affiliated with or endorsed by Mojang Studios or Microsoft.
+
 ## Recipes (M = material, S = stick, C = chain, X = string, L = leather)
 
 The material is planks, stone tool materials, iron ingot, gold ingot or diamond. The wooden club uses a **log**, and the
