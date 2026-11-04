@@ -1,5 +1,13 @@
 package net.firstwemine1.weaponry.client;
 
+import net.minecraft.item.Items;
+import net.minecraft.item.Item;
+import net.minecraft.item.CrossbowItem;
+import net.firstwemine1.weaponry.crossbow.RapidCrossbowItem;
+import net.firstwemine1.weaponry.crossbow.ModCrossbows;
+import net.firstwemine1.weaponry.crossbow.Magazine;
+import net.firstwemine1.weaponry.crossbow.HeavyCrossbowItem;
+import net.firstwemine1.weaponry.client.crossbow.RapidCrossbowClient;
 import com.mojang.authlib.minecraft.OfflineSocialInteractions;
 import net.firstwemine1.weaponry.ability.FlailAbility;
 import net.firstwemine1.weaponry.ability.WarPickAbility;
@@ -73,6 +81,12 @@ public final class WeaponryClient {
 				wobble(Minecraft.getInstance().player);
 			}
 		});
+		MinecraftForge.EVENT_BUS.addListener((TickEvent.ClientTickEvent event) -> {
+			if (event.phase == TickEvent.Phase.END) {
+				RapidCrossbowClient.tick(Minecraft.getInstance());
+			}
+		});
+		MinecraftForge.EVENT_BUS.addListener(RapidCrossbowClient::onClick);
 		MinecraftForge.EVENT_BUS.addListener(WeaponryClient::bowZoom);
 		MinecraftForge.EVENT_BUS.addListener(WeaponryClient::bowWalkSpeed);
 	}
@@ -87,6 +101,33 @@ public final class WeaponryClient {
 					(stack, level, entity) -> FlailAbility.spinFrame(stack, entity));
 		}
 		ModBows.all().forEach(WeaponryClient::registerBowAnimation);
+		registerHeavyCrossbowAnimation();
+		registerRapidCrossbowAnimation();
+	}
+
+	/** The properties vanilla gives {@code minecraft:crossbow}, on this crossbow's own load time. */
+	private static void registerHeavyCrossbowAnimation() {
+		Item heavy = ModCrossbows.HEAVY.get();
+		ItemModelsProperties.register(heavy, new ResourceLocation("pull"), (stack, level, entity) ->
+				entity == null || CrossbowItem.isCharged(stack) ? 0.0f
+						: (stack.getUseDuration() - entity.getUseItemRemainingTicks()) / (float) HeavyCrossbowItem.chargeTicks(stack));
+		ItemModelsProperties.register(heavy, new ResourceLocation("pulling"), (stack, level, entity) ->
+				entity != null && entity.isUsingItem() && entity.getUseItem() == stack && !CrossbowItem.isCharged(stack) ? 1.0f : 0.0f);
+		ItemModelsProperties.register(heavy, new ResourceLocation("charged"), (stack, level, entity) ->
+				CrossbowItem.isCharged(stack) ? 1.0f : 0.0f);
+		ItemModelsProperties.register(heavy, new ResourceLocation("firework"), (stack, level, entity) ->
+				CrossbowItem.containsChargedProjectile(stack, Items.FIREWORK_ROCKET) ? 1.0f : 0.0f);
+	}
+
+	/** While reloading, {@code pull} shows how full the magazine is, so the string draws back as it fills. */
+	private static void registerRapidCrossbowAnimation() {
+		Item rapid = ModCrossbows.RAPID.get();
+		ItemModelsProperties.register(rapid, new ResourceLocation("pull"), (stack, level, entity) ->
+				RapidCrossbowItem.magazine(stack).count() / (float) Magazine.CAPACITY);
+		ItemModelsProperties.register(rapid, new ResourceLocation("pulling"), (stack, level, entity) ->
+				entity != null && entity.isUsingItem() && entity.getUseItem().getItem() == rapid ? 1.0f : 0.0f);
+		ItemModelsProperties.register(rapid, new ResourceLocation("charged"), (stack, level, entity) ->
+				RapidCrossbowItem.looksLoaded(stack, entity) ? 1.0f : 0.0f);
 	}
 
 	/**
