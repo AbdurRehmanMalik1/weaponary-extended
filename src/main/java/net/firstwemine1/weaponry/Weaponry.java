@@ -3,6 +3,7 @@ package net.firstwemine1.weaponry;
 import com.mojang.logging.LogUtils;
 import net.firstwemine1.weaponry.ability.Abilities;
 import net.firstwemine1.weaponry.bow.ModBows;
+import net.firstwemine1.weaponry.crossbow.ModCrossbows;
 import net.firstwemine1.weaponry.client.WeaponryClient;
 import net.firstwemine1.weaponry.combat.CombatEvents;
 import net.firstwemine1.weaponry.effect.ModEffects;
@@ -41,6 +42,7 @@ public final class Weaponry {
 
 		ModItems.register(modBus);
 		ModBows.register(modBus);
+		ModCrossbows.register(modBus);
 		ModEntities.register(modBus);
 		ModEffects.register(modBus);
 		Abilities.register();
