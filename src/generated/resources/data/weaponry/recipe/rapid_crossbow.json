@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "D": "minecraft:dispenser",
+    "H": "minecraft:tripwire_hook",
+    "I": "minecraft:iron_ingot",
+    "L": "minecraft:lapis_lazuli",
+    "X": "minecraft:string"
+  },
+  "pattern": [
+    "LIL",
+    "XHX",
+    " D "
+  ],
+  "result": {
+    "count": 1,
+    "id": "weaponry:rapid_crossbow"
+  }
+}

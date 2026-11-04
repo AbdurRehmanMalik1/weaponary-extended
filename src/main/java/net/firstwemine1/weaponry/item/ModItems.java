@@ -8,6 +8,7 @@ import java.util.Map;
 
 import net.firstwemine1.weaponry.Weaponry;
 import net.firstwemine1.weaponry.bow.ModBows;
+import net.firstwemine1.weaponry.crossbow.ModCrossbows;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -43,6 +44,7 @@ public final class ModItems {
 				.displayItems((parameters, output) -> {
 					all().forEach(output::accept);
 					ModBows.all().forEach(output::accept);
+					ModCrossbows.all().forEach(output::accept);
 				})
 				.build());
 	}
