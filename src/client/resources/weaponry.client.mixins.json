@@ -4,7 +4,10 @@
 	"compatibilityLevel": "JAVA_17",
 	"client": [
 		"AbstractClientPlayerMixin",
-		"LocalPlayerMixin"
+		"ItemInHandRendererMixin",
+		"LocalPlayerMixin",
+		"MinecraftMixin",
+		"PlayerRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

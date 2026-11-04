@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 
 import net.firstwemine1.weaponry.bow.BowType;
 import net.firstwemine1.weaponry.bow.ModBows;
+import net.firstwemine1.weaponry.crossbow.ModCrossbows;
 import net.firstwemine1.weaponry.item.ModItems;
 import net.firstwemine1.weaponry.item.WeaponItem;
 import net.firstwemine1.weaponry.item.WeaponType;
@@ -58,6 +59,19 @@ public class WeaponRecipeProvider extends FabricRecipeProvider {
 					.save(output);
 		}
 		bows(output);
+		crossbows(output);
+	}
+
+	private static void crossbows(Consumer<FinishedRecipe> output) {
+		ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModCrossbows.HEAVY)
+				.pattern("SIS").pattern("XHX").pattern("ISI")
+				.define('S', Items.STICK).define('I', Items.IRON_INGOT).define('X', Items.STRING).define('H', Items.TRIPWIRE_HOOK)
+				.unlockedBy(getHasName(Items.TRIPWIRE_HOOK), has(Items.TRIPWIRE_HOOK)).save(output);
+		ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModCrossbows.RAPID)
+				.pattern("LIL").pattern("XHX").pattern(" D ")
+				.define('L', Items.LAPIS_LAZULI).define('I', Items.IRON_INGOT).define('X', Items.STRING).define('H', Items.TRIPWIRE_HOOK)
+				.define('D', Items.DISPENSER)
+				.unlockedBy(getHasName(Items.TRIPWIRE_HOOK), has(Items.TRIPWIRE_HOOK)).save(output);
 	}
 
 	private static void bows(Consumer<FinishedRecipe> output) {

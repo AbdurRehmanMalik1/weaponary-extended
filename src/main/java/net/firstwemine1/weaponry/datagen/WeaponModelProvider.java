@@ -1,5 +1,6 @@
 package net.firstwemine1.weaponry.datagen;
 
+import net.firstwemine1.weaponry.crossbow.ModCrossbows;
 import java.util.Optional;
 
 import com.google.gson.JsonArray;
@@ -39,6 +40,12 @@ public class WeaponModelProvider extends FabricModelProvider {
 	/** The flail's wind-up frames: {@code weaponry:spin} is 1/3, 2/3 or 1 while spinning, 0 otherwise. */
 	private static final float[] SPIN = {0.33f, 0.66f, 1};
 
+	/** Crossbows: vanilla's crossbow model (its in-hand pose) with our texture. */
+	private static final ModelTemplate CROSSBOW = new ModelTemplate(
+			Optional.of(new ResourceLocation("item/crossbow")), Optional.empty(), TextureSlot.LAYER0);
+	/** Vanilla's load frames: shown while loading, from 0.58 of a full load, and when it's done. */
+	private static final float[] CROSSBOW_PULL = {0, 0.58f, 1.0f};
+
 	public WeaponModelProvider(FabricDataOutput output) {
 		super(output);
 	}
@@ -63,6 +70,9 @@ public class WeaponModelProvider extends FabricModelProvider {
 		// The thrown rope dart: the dart without its rope coil. Not an item; the client loads it by name.
 		ModelTemplates.FLAT_ITEM.create(Weaponry.id("item/rope_dart_head"),
 				TextureMapping.layer0(Weaponry.id("item/rope_dart_head")), generator.output);
+		crossbow(generator, ModCrossbows.HEAVY, true);
+		// The rapid crossbow doesn't take rockets, so it has no firework frame.
+		crossbow(generator, ModCrossbows.RAPID, false);
 	}
 
 	/**
@@ -87,6 +97,42 @@ public class WeaponModelProvider extends FabricModelProvider {
 					json.add("overrides", overrides);
 					return json;
 				});
+	}
+
+	/** A crossbow, its three load frames and its loaded frames, switched like vanilla's crossbow model. */
+	private static void crossbow(ItemModelGenerators generator, Item item, boolean firework) {
+		JsonArray overrides = new JsonArray();
+		for (int frame = 0; frame < CROSSBOW_PULL.length; frame++) {
+			JsonObject predicate = new JsonObject();
+			predicate.addProperty("pulling", 1);
+			if (CROSSBOW_PULL[frame] > 0) {
+				predicate.addProperty("pull", CROSSBOW_PULL[frame]);
+			}
+			overrides.add(crossbowOverride(generator, item, "_pulling_" + frame, predicate));
+		}
+		JsonObject charged = new JsonObject();
+		charged.addProperty("charged", 1);
+		overrides.add(crossbowOverride(generator, item, "_arrow", charged));
+		if (firework) {
+			JsonObject rocket = new JsonObject();
+			rocket.addProperty("charged", 1);
+			rocket.addProperty("firework", 1);
+			overrides.add(crossbowOverride(generator, item, "_firework", rocket));
+		}
+		CROSSBOW.create(ModelLocationUtils.getModelLocation(item), TextureMapping.layer0(item), generator.output, (id, textures) -> {
+			JsonObject json = CROSSBOW.createBaseTemplate(id, textures);
+			json.add("overrides", overrides);
+			return json;
+		});
+	}
+
+	private static JsonObject crossbowOverride(ItemModelGenerators generator, Item item, String suffix, JsonObject predicate) {
+		ResourceLocation model = CROSSBOW.create(ModelLocationUtils.getModelLocation(item, suffix),
+				TextureMapping.layer0(TextureMapping.getItemTexture(item, suffix)), generator.output);
+		JsonObject override = new JsonObject();
+		override.add("predicate", predicate);
+		override.addProperty("model", model.toString());
+		return override;
 	}
 
 	/** A bow and its three draw frames ({@code <bow>_pulling_0..2}), switched like vanilla's bow model. */
