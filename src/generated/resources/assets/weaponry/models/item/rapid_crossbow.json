@@ -1,0 +1,34 @@
+{
+  "parent": "minecraft:item/crossbow",
+  "overrides": [
+    {
+      "model": "weaponry:item/rapid_crossbow_pulling_0",
+      "predicate": {
+        "pulling": 1
+      }
+    },
+    {
+      "model": "weaponry:item/rapid_crossbow_pulling_1",
+      "predicate": {
+        "pull": 0.58,
+        "pulling": 1
+      }
+    },
+    {
+      "model": "weaponry:item/rapid_crossbow_pulling_2",
+      "predicate": {
+        "pull": 1.0,
+        "pulling": 1
+      }
+    },
+    {
+      "model": "weaponry:item/rapid_crossbow_arrow",
+      "predicate": {
+        "charged": 1
+      }
+    }
+  ],
+  "textures": {
+    "layer0": "weaponry:item/rapid_crossbow"
+  }
+}
