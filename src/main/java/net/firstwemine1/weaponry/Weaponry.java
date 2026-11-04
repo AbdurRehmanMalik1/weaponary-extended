@@ -2,6 +2,7 @@ package net.firstwemine1.weaponry;
 
 import net.firstwemine1.weaponry.ability.Abilities;
 import net.firstwemine1.weaponry.bow.ModBows;
+import net.firstwemine1.weaponry.crossbow.ModCrossbows;
 import net.firstwemine1.weaponry.effect.ModEffects;
 import net.firstwemine1.weaponry.entity.ModEntities;
 import net.firstwemine1.weaponry.item.ModItems;
@@ -31,6 +32,7 @@ public class Weaponry implements ModInitializer {
 		config = WeaponryConfig.load();
 		ModItems.register();
 		ModBows.register();
+		ModCrossbows.register();
 		ModEntities.register();
 		ModEffects.register();
 		Abilities.register();

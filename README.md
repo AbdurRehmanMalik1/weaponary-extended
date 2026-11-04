@@ -140,11 +140,34 @@ S..       L.X       I.X           S.X
 .SX       SSX       .SX           GSX
 ```
 
+## Crossbows
+
+Two crossbows, one version each: `weaponry:heavy_crossbow` and `weaponry:rapid_crossbow`. Stats, abilities and the reasoning
+are in `../pixel-art/weaponry/docs/crossbow-stats.md`.
+
+| Crossbow | Load | Damage | Knockback | Spread | Durability | Abilities |
+|---|---:|---:|---:|---:|---:|---|
+| *Vanilla crossbow* | *1.25 s* | *7-11* | | *1.0* | *465* | |
+| Heavy Crossbow | 1.6 s | 9-14 | Punch II | 1.0 | 520 | **Heavy Bolt:** x1.4 base damage and built-in Punch II, on arrows only. **Slow Crank:** slower to load, with lower-pitched load sounds. |
+| Rapid Crossbow | 3.2 s per full magazine | 1 | half | 2.0 | 1600 | **Gatling (hold attack):** 5 arrows per second from a 64-arrow magazine; never crits, and doesn't hit or break blocks. **Crank Reload (hold use):** loads 1 arrow per tick; let go to keep what's loaded. Each arrow clears the target's hurt cooldown, so all of them land. |
+
+The rapid crossbow's magazine takes normal or spectral arrows, one type until it's empty, and no tipped arrows. It takes Quick
+Charge (20% shorter reload per level) and Piercing, but not Multishot or Infinity. The heavy crossbow takes vanilla's crossbow enchantments.
+
+Recipes (S = stick, I = iron ingot, X = string, H = tripwire hook, L = lapis lazuli, D = dispenser):
+
+```
+Heavy Crossbow   Rapid Crossbow
+S I S            L I L
+X H X            X H X
+I S I              D
+```
+
 ## Credits and inspiration
 
 Not every weapon in Weaponry is an original idea, and the ones that aren't are credited here.
 
-- **Heavy Crossbow** and **Rapid Crossbow** (planned, not in the mod yet) are inspired by the crossbows of the same
+- **Heavy Crossbow** and **Rapid Crossbow** are inspired by the crossbows of the same
   names in *Minecraft Dungeons* by Mojang Studios. The idea, the names and the way they play (a slow crossbow that hits
   hard, and a fast one that fires a stream of weak arrows) come from that game; they are not my own ideas. Their
   textures are custom 16×16 pixel art drawn for this mod on vanilla's crossbow shape, but their colour schemes and look
@@ -188,6 +211,10 @@ MS.      S.          .S.         .S.         .S.       S..     ..S     S..   S..
   lets halberds and hatchets disable shields. `mixin/LivingEntityMixin` runs the sabre parry, lets the flail hit
   through shields and makes the morning star wear armor.
 - `effect/` holds the status effects; `BleedEffect.apply` handles stacking, immunity and the material durations.
+- `crossbow/` holds the crossbows: `HeavyCrossbowItem` (extends vanilla's `CrossbowItem`; `CrossbowItemMixin` sets its load time
+  and sounds), `RapidCrossbowItem` with its `Magazine` component, and `RapidFiring` (the server's fire timer, started and
+  stopped by `RapidFiringPayload`). On the client, `MinecraftMixin` stops attack from hitting or breaking blocks with a rapid
+  crossbow, and `ItemInHandRendererMixin` and `PlayerRendererMixin` give both crossbows vanilla's poses.
 - `combat/Motion` tracks player and mount speed on the server (for the brace, the couched charge and the wall brake).
 - `entity/ThrownWeapon` is the thrown spear or hatchet; `ThrownWeaponRenderer` (client) draws its item model.
 - `entity/RopeDart` is the rope dart's dart (flying, tethered or anchored); `RopeDartRenderer` (client) draws it and
@@ -197,14 +224,24 @@ MS.      S.          .S.         .S.         .S.       S..     ..S     S..   S..
 
 ## Testing
 
-`config/weaponry.json` (written on first launch):
+Two automated checks cover the crossbows:
+
+```
+./gradlew runGameTest    # server game tests (src/gametest, CrossbowGameTest); also part of ./gradlew build
+./gradlew runClientE2E   # scripts a real client through the keys, frames and tooltips (CrossbowClientE2E)
+```
+
+`runClientE2E` opens a game window for about a minute, so it isn't part of `build`. It saves a screenshot of each pose to
+`build/run/clientE2E/screenshots`, since the pose itself is only checked by looking at it.
+
+For playing by hand, `config/weaponry.json` (written on first launch):
 
 ```json
 { "testChest": true }
 ```
 
 When `testChest` is on, every world load places a row of named double chests ("Weaponry Test Chest",
-"Weaponry Test Chest 2", ...) starting 2 blocks east of world spawn, holding one of each of the 106 weapons (54 per chest).
+"Weaponry Test Chest 2", ...) starting 2 blocks east of world spawn, holding one of each of the 106 weapons, 4 bows and 2 crossbows (54 per chest), then a chest of arrows.
 Later launches refill those same chests and clear anything else in them. It defaults
 to **on in the dev environment** (`runClient`/`runServer`, config in `run/config/`) and **off** in a normally
 installed jar, so the code can stay in releases. Weapons have durability, so they stack to 1 and each chest slot holds one weapon.

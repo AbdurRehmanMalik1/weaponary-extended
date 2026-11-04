@@ -1,5 +1,6 @@
 package net.firstwemine1.weaponry.datagen;
 
+import net.firstwemine1.weaponry.crossbow.ModCrossbows;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -35,6 +36,12 @@ public class WeaponModelProvider extends FabricModelProvider {
 			Optional.of(Weaponry.id("item/handheld_mirrored")), Optional.empty(), TextureSlot.LAYER0);
 	/** Bows: vanilla's bow model (its in-hand pose) with our texture. */
 	private static final ResourceLocation BOW_PARENT = new ResourceLocation("item/bow");
+	/** Crossbows: vanilla's crossbow model (its in-hand pose) with our texture. */
+	private static final ResourceLocation CROSSBOW_PARENT = new ResourceLocation("item/crossbow");
+	private static final ModelTemplate CROSSBOW = new ModelTemplate(Optional.of(CROSSBOW_PARENT), Optional.empty(), TextureSlot.LAYER0);
+	/** Vanilla's load frames: shown while loading, from 0.58 of a full load, and when it's done. */
+	private static final float[] CROSSBOW_PULL = {0, 0.58f, 1.0f};
+
 	private static final ModelTemplate BOW = new ModelTemplate(Optional.of(BOW_PARENT), Optional.empty(), TextureSlot.LAYER0);
 	/** Vanilla's draw frames: shown while drawing, from 0.65 of a full draw, and from 0.9. */
 	private static final float[] PULL = {0, 0.65f, 0.9f};
@@ -62,6 +69,42 @@ public class WeaponModelProvider extends FabricModelProvider {
 			}
 		});
 		ModBows.all().forEach(bow -> generator.generateFlatItem(bow, bow(bow)));
+		generator.generateFlatItem(ModCrossbows.HEAVY, crossbow(ModCrossbows.HEAVY, true));
+		// The rapid crossbow doesn't take rockets, so it has no firework frame.
+		generator.generateFlatItem(ModCrossbows.RAPID, crossbow(ModCrossbows.RAPID, false));
+	}
+
+	/** A crossbow, its three load frames and its loaded frames, switched like vanilla's crossbow model. */
+	private static ModelTemplate crossbow(Item item, boolean firework) {
+		return new OverridingTemplate(CROSSBOW_PARENT) {
+			@Override
+			JsonArray overrides(BiConsumer<ResourceLocation, Supplier<JsonElement>> output) {
+				JsonArray overrides = new JsonArray();
+				for (int frame = 0; frame < CROSSBOW_PULL.length; frame++) {
+					JsonObject predicate = new JsonObject();
+					predicate.addProperty("pulling", 1);
+					if (CROSSBOW_PULL[frame] > 0) {
+						predicate.addProperty("pull", CROSSBOW_PULL[frame]);
+					}
+					overrides.add(override(predicate, crossbowFrame(item, "_pulling_" + frame, output)));
+				}
+				JsonObject charged = new JsonObject();
+				charged.addProperty("charged", 1);
+				overrides.add(override(charged, crossbowFrame(item, "_arrow", output)));
+				if (firework) {
+					JsonObject rocket = new JsonObject();
+					rocket.addProperty("charged", 1);
+					rocket.addProperty("firework", 1);
+					overrides.add(override(rocket, crossbowFrame(item, "_firework", output)));
+				}
+				return overrides;
+			}
+		};
+	}
+
+	private static ResourceLocation crossbowFrame(Item item, String suffix, BiConsumer<ResourceLocation, Supplier<JsonElement>> output) {
+		return CROSSBOW.create(ModelLocationUtils.getModelLocation(item, suffix),
+				TextureMapping.layer0(TextureMapping.getItemTexture(item, suffix)), output);
 	}
 
 	/**
