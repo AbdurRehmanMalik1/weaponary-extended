@@ -4,6 +4,7 @@ import java.util.concurrent.CompletableFuture;
 
 import net.firstwemine1.weaponry.bow.BowType;
 import net.firstwemine1.weaponry.bow.ModBows;
+import net.firstwemine1.weaponry.crossbow.ModCrossbows;
 import net.firstwemine1.weaponry.item.ModItems;
 import net.firstwemine1.weaponry.item.WeaponItem;
 import net.firstwemine1.weaponry.item.WeaponType;
@@ -28,6 +29,9 @@ import net.minecraft.world.item.crafting.Ingredient;
  *
  * <p>Bows follow vanilla's bow layout (the bow on the left, string down the right), from
  * {@code pixel-art/weaponry/docs/bow-stats.md} §6: S = stick, X = string, L = leather, I = iron ingot, G = gold ingot.
+ *
+ * <p>Crossbows follow vanilla's crossbow layout, from {@code crossbow-stats.md} §6: S = stick, I = iron ingot,
+ * X = string, H = tripwire hook, L = lapis lazuli, D = dispenser.
  */
 public class WeaponRecipeProvider extends FabricRecipeProvider {
 	public WeaponRecipeProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
@@ -69,6 +73,7 @@ public class WeaponRecipeProvider extends FabricRecipeProvider {
 							.save(output);
 				}
 				bows();
+				crossbows();
 			}
 
 			private void bows() {
@@ -91,6 +96,18 @@ public class WeaponRecipeProvider extends FabricRecipeProvider {
 					}
 					builder.unlockedBy(getHasName(Items.STRING), has(Items.STRING)).save(output);
 				}
+			}
+
+			private void crossbows() {
+				shaped(RecipeCategory.COMBAT, ModCrossbows.HEAVY)
+						.pattern("SIS").pattern("XHX").pattern("ISI")
+						.define('S', Items.STICK).define('I', Items.IRON_INGOT).define('X', Items.STRING).define('H', Items.TRIPWIRE_HOOK)
+						.unlockedBy(getHasName(Items.TRIPWIRE_HOOK), has(Items.TRIPWIRE_HOOK)).save(output);
+				shaped(RecipeCategory.COMBAT, ModCrossbows.RAPID)
+						.pattern("LIL").pattern("XHX").pattern(" D ")
+						.define('L', Items.LAPIS_LAZULI).define('I', Items.IRON_INGOT).define('X', Items.STRING).define('H', Items.TRIPWIRE_HOOK)
+						.define('D', Items.DISPENSER)
+						.unlockedBy(getHasName(Items.TRIPWIRE_HOOK), has(Items.TRIPWIRE_HOOK)).save(output);
 			}
 
 			private MaterialInput of(TagKey<Item> tag, String name) {
