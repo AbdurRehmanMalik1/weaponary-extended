@@ -1,0 +1,20 @@
+{
+	"item.heavy_crossbow.loading_start": {
+		"sounds": [
+			{ "name": "minecraft:item/crossbow/loading_start", "pitch": 0.8 }
+		]
+	},
+	"item.heavy_crossbow.loading_middle": {
+		"sounds": [
+			{ "name": "minecraft:item/crossbow/loading_middle1", "pitch": 0.8 },
+			{ "name": "minecraft:item/crossbow/loading_middle2", "pitch": 0.8 },
+			{ "name": "minecraft:item/crossbow/loading_middle3", "pitch": 0.8 },
+			{ "name": "minecraft:item/crossbow/loading_middle4", "pitch": 0.8 }
+		]
+	},
+	"item.heavy_crossbow.loading_end": {
+		"sounds": [
+			{ "name": "minecraft:item/crossbow/loading_end", "pitch": 0.8 }
+		]
+	}
+}
