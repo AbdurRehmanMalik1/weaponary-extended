@@ -35,6 +35,16 @@ loom {
 			runDir "run/client2"
 			programArgs "--username", "Player2"
 		}
+		// Scripted client check of the keys, frames and tooltips: ./gradlew runClientE2E. Opens a game window,
+		// so it isn't part of ./gradlew build. Source in src/gametest (CrossbowClientE2E).
+		clientE2E {
+			client()
+			source sourceSets.client
+			name "Client E2E"
+			runDir "build/run/clientE2E"
+			programArgs "--username", "Player1"
+			vmArg "-Dweaponry.clientE2E=true"
+		}
 	}
 }
 
@@ -44,6 +54,28 @@ fabricApi {
 	// Item models are client classes since 1.21.4, so datagen lives in the client source set.
 	configureDataGeneration {
 		client = true
+	}
+
+	// Automated checks: ./gradlew runGameTest runs src/gametest in a real server (also part of ./gradlew build).
+	configureTests {
+		createSourceSet = true
+		modId = "weaponry-test"
+		enableClientGameTests = false
+		eula = true
+	}
+}
+
+// The client check needs the client classes, and to be on that run's classpath along with them.
+afterEvaluate {
+	sourceSets.gametest.compileClasspath += sourceSets.client.compileClasspath + sourceSets.client.output
+	tasks.named("runClientE2E") {
+		classpath += sourceSets.gametest.runtimeClasspath
+		def options = file("build/run/clientE2E/options.txt")
+		doFirst {
+			// Quiet, no first-launch screen, and a window in the background doesn't pause the game.
+			options.parentFile.mkdirs()
+			options.text = "onboardAccessibility:false\npauseOnLostFocus:false\nsoundCategory_master:0.0\ntutorialStep:none\n"
+		}
 	}
 }
 

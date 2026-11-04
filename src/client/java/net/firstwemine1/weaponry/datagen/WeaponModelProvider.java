@@ -1,5 +1,11 @@
 package net.firstwemine1.weaponry.datagen;
 
+import net.firstwemine1.weaponry.client.crossbow.RapidFill;
+import net.firstwemine1.weaponry.client.crossbow.RapidLoaded;
+import net.firstwemine1.weaponry.crossbow.ModCrossbows;
+import net.minecraft.client.renderer.item.properties.numeric.CrossbowPull;
+import net.minecraft.client.renderer.item.properties.select.Charge;
+import net.minecraft.world.item.CrossbowItem;
 import java.util.Optional;
 
 import net.firstwemine1.weaponry.Weaponry;
@@ -31,6 +37,9 @@ public class WeaponModelProvider extends FabricModelProvider {
 			Optional.of(Weaponry.id("item/handheld_mirrored")), Optional.empty(), TextureSlot.LAYER0);
 
 	/** Vanilla's draw frames: the first while drawing, the second from 0.65 of a full draw, the third from 0.9. */
+	/** Vanilla crossbow load frames: from 0.58 of a full load, and when it's done. */
+	private static final float CROSSBOW_PULL_1 = 0.58f;
+	private static final float CROSSBOW_PULL_2 = 1.0f;
 	private static final float PULL_1 = 0.65f;
 	private static final float PULL_2 = 0.9f;
 
@@ -57,6 +66,35 @@ public class WeaponModelProvider extends FabricModelProvider {
 			}
 		});
 		ModBows.all().forEach(bow -> bow(generator, bow));
+		heavyCrossbow(generator);
+		rapidCrossbow(generator);
+	}
+
+	private static ItemModel.Unbaked crossbowFrame(ItemModelGenerators generator, Item item, String suffix) {
+		return ItemModelUtils.plainModel(suffix.isEmpty() ? generator.createFlatItemModel(item, ModelTemplates.CROSSBOW)
+				: generator.createFlatItemModel(item, suffix, ModelTemplates.CROSSBOW));
+	}
+
+	/** Switched like vanilla's crossbow. {@code getChargeDuration} gives its own load time, so the frames keep time. */
+	private static void heavyCrossbow(ItemModelGenerators generator) {
+		Item item = ModCrossbows.HEAVY;
+		generator.itemModelOutput.accept(item, ItemModelUtils.conditional(ItemModelUtils.isUsingItem(),
+				ItemModelUtils.rangeSelect(new CrossbowPull(), crossbowFrame(generator, item, "_pulling_0"),
+						ItemModelUtils.override(crossbowFrame(generator, item, "_pulling_1"), CROSSBOW_PULL_1),
+						ItemModelUtils.override(crossbowFrame(generator, item, "_pulling_2"), CROSSBOW_PULL_2)),
+				ItemModelUtils.select(new Charge(), crossbowFrame(generator, item, ""),
+						ItemModelUtils.when(CrossbowItem.ChargeType.ARROW, crossbowFrame(generator, item, "_arrow")),
+						ItemModelUtils.when(CrossbowItem.ChargeType.ROCKET, crossbowFrame(generator, item, "_firework")))));
+	}
+
+	/** While reloading, the frames follow how full the magazine is. It takes no rockets, so has no firework frame. */
+	private static void rapidCrossbow(ItemModelGenerators generator) {
+		Item item = ModCrossbows.RAPID;
+		generator.itemModelOutput.accept(item, ItemModelUtils.conditional(ItemModelUtils.isUsingItem(),
+				ItemModelUtils.rangeSelect(new RapidFill(), crossbowFrame(generator, item, "_pulling_0"),
+						ItemModelUtils.override(crossbowFrame(generator, item, "_pulling_1"), CROSSBOW_PULL_1),
+						ItemModelUtils.override(crossbowFrame(generator, item, "_pulling_2"), CROSSBOW_PULL_2)),
+				ItemModelUtils.conditional(new RapidLoaded(), crossbowFrame(generator, item, "_arrow"), crossbowFrame(generator, item, ""))));
 	}
 
 	/**
