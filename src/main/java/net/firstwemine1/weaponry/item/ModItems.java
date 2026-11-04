@@ -9,6 +9,7 @@ import java.util.Map;
 
 import net.firstwemine1.weaponry.Weaponry;
 import net.firstwemine1.weaponry.bow.ModBows;
+import net.firstwemine1.weaponry.crossbow.ModCrossbows;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -43,6 +44,7 @@ public final class ModItems {
 				.displayItems((parameters, output) -> {
 					ALL.forEach(output::accept);
 					ModBows.all().forEach(output::accept);
+					ModCrossbows.all().forEach(output::accept);
 				})
 				.build();
 		Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, Weaponry.id("weapons"), tab);
