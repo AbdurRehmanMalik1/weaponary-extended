@@ -1,5 +1,6 @@
 package net.firstwemine1.weaponry.item;
 
+import net.firstwemine1.weaponry.crossbow.Magazine;
 import net.firstwemine1.weaponry.Weaponry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
@@ -22,6 +23,10 @@ public final class ModComponents {
 			FLIPPED_ID.getPath(), builder -> builder
 					.persistent(Unit.CODEC)
 					.networkSynchronized(StreamCodec.unit(Unit.INSTANCE)));
+
+	/** The arrows in a rapid crossbow. */
+	public static final DeferredHolder<DataComponentType<?>, DataComponentType<Magazine>> MAGAZINE = COMPONENTS.registerComponentType(
+			"magazine", builder -> builder.persistent(Magazine.CODEC).networkSynchronized(Magazine.STREAM_CODEC));
 
 	private ModComponents() {
 	}
