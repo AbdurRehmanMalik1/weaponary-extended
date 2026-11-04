@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "LIL",
+    "XHX",
+    " D "
+  ],
+  "key": {
+    "L": {
+      "item": "minecraft:lapis_lazuli"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "X": {
+      "item": "minecraft:string"
+    },
+    "H": {
+      "item": "minecraft:tripwire_hook"
+    },
+    "D": {
+      "item": "minecraft:dispenser"
+    }
+  },
+  "result": {
+    "item": "weaponry:rapid_crossbow"
+  }
+}
