@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import net.firstwemine1.weaponry.bow.ModBows;
+import net.firstwemine1.weaponry.crossbow.ModCrossbows;
 import net.firstwemine1.weaponry.item.ModItems;
 import net.firstwemine1.weaponry.item.WeaponType;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
@@ -33,6 +34,11 @@ public class WeaponItemTagProvider extends FabricTagProvider.ItemTagProvider {
 		addBows(ItemTags.DURABILITY_ENCHANTABLE);
 		addBows(ItemTags.VANISHING_ENCHANTABLE);
 
+		// The crossbows take vanilla's crossbow enchantments, except that RapidCrossbowItem refuses Multishot.
+		addCrossbows(ItemTags.CROSSBOW_ENCHANTABLE);
+		addCrossbows(ItemTags.DURABILITY_ENCHANTABLE);
+		addCrossbows(ItemTags.VANISHING_ENCHANTABLE);
+
 		// The hatchet chops wood and the flipped war pick mines, so they take Efficiency, Fortune and
 		// Silk Touch like an axe or pickaxe.
 		for (TagKey<Item> tag : List.of(ItemTags.MINING_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE)) {
@@ -46,6 +52,11 @@ public class WeaponItemTagProvider extends FabricTagProvider.ItemTagProvider {
 	private void addBows(TagKey<Item> tag) {
 		var builder = getOrCreateTagBuilder(tag);
 		ModBows.all().forEach(builder::add);
+	}
+
+	private void addCrossbows(TagKey<Item> tag) {
+		var builder = getOrCreateTagBuilder(tag);
+		ModCrossbows.all().forEach(builder::add);
 	}
 
 	private void addAll(TagKey<Item> tag) {
