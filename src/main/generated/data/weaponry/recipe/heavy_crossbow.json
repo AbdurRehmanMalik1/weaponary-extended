@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "H": "minecraft:tripwire_hook",
+    "I": "minecraft:iron_ingot",
+    "S": "minecraft:stick",
+    "X": "minecraft:string"
+  },
+  "pattern": [
+    "SIS",
+    "XHX",
+    "ISI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "weaponry:heavy_crossbow"
+  }
+}

@@ -1,5 +1,8 @@
 package net.firstwemine1.weaponry.client;
 
+import net.firstwemine1.weaponry.client.crossbow.RapidCrossbowClient;
+import net.firstwemine1.weaponry.client.crossbow.RapidFill;
+import net.firstwemine1.weaponry.client.crossbow.RapidLoaded;
 import net.firstwemine1.weaponry.client.render.RopeDartRenderer;
 import net.firstwemine1.weaponry.client.render.ThrownWeaponRenderer;
 import net.firstwemine1.weaponry.effect.ModEffects;
@@ -10,8 +13,8 @@ import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.player.LocalPlayer;
 
 /**
- * Client-only setup: renderers for ability entities, the bows' draw frame and flail wind-up properties,
- * wrapped tooltips, and the Stagger and Daze screen wobble.
+ * Client-only setup: renderers for ability entities, the bows' draw frame, the flail's wind-up and the
+ * rapid crossbow's model properties, the rapid crossbow's firing, wrapped tooltips, and the Stagger and Daze screen wobble.
  */
 public class WeaponryClient implements ClientModInitializer {
 	/**
@@ -29,8 +32,11 @@ public class WeaponryClient implements ClientModInitializer {
 		EntityRendererRegistry.register(ModEntities.ROPE_DART, RopeDartRenderer::new);
 		BowPull.register();
 		FlailSpin.register();
+		RapidFill.register();
+		RapidLoaded.register();
 		TooltipLines.register();
 		ClientTickEvents.END_CLIENT_TICK.register(client -> wobble(client.player));
+		ClientTickEvents.END_CLIENT_TICK.register(RapidCrossbowClient::tick);
 	}
 
 	/**

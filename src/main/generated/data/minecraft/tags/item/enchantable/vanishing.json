@@ -3,6 +3,8 @@
     "weaponry:selfbow",
     "weaponry:longbow",
     "weaponry:recurve_bow",
-    "weaponry:horse_bow"
+    "weaponry:horse_bow",
+    "weaponry:heavy_crossbow",
+    "weaponry:rapid_crossbow"
   ]
 }

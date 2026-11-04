@@ -6,6 +6,9 @@ import java.util.concurrent.CompletableFuture;
 import net.firstwemine1.weaponry.bow.BowType;
 import net.firstwemine1.weaponry.bow.ModBows;
 import net.firstwemine1.weaponry.bow.WeaponBowItem;
+import net.firstwemine1.weaponry.crossbow.ModCrossbows;
+import net.firstwemine1.weaponry.crossbow.RapidCrossbowItem;
+import net.firstwemine1.weaponry.crossbow.WeaponCrossbow;
 import net.firstwemine1.weaponry.effect.ModEffects;
 import net.firstwemine1.weaponry.entity.ModEntities;
 import net.firstwemine1.weaponry.item.ModItems;
@@ -14,6 +17,7 @@ import net.firstwemine1.weaponry.item.WeaponType;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.world.item.Item;
 
 public class WeaponLanguageProvider extends FabricLanguageProvider {
 	public WeaponLanguageProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registries) {
@@ -33,6 +37,15 @@ public class WeaponLanguageProvider extends FabricLanguageProvider {
 				builder.add(WeaponBowItem.tooltipKey(type, i), lines.get(i));
 			}
 		}
+		for (Item item : ModCrossbows.all()) {
+			WeaponCrossbow crossbow = (WeaponCrossbow) item;
+			builder.add(item, crossbow.displayName());
+			List<String> lines = crossbow.description();
+			for (int i = 0; i < lines.size(); i++) {
+				builder.add(ModCrossbows.tooltipKey(crossbow, i), lines.get(i));
+			}
+		}
+		builder.add(RapidCrossbowItem.ARROWS_TOOLTIP_KEY, "Arrows: %s / %s");
 		builder.add(ModEntities.THROWN_WEAPON, "Thrown Weapon");
 		builder.add(ModEntities.ROPE_DART, "Rope Dart");
 

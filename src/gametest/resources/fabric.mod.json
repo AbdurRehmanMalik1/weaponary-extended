@@ -1,0 +1,19 @@
+{
+	"schemaVersion": 1,
+	"id": "weaponry-test",
+	"version": "1.0.0",
+	"name": "Weaponry Tests",
+	"environment": "*",
+	"entrypoints": {
+		"fabric-gametest": [
+			"net.firstwemine1.weaponry.test.CrossbowGameTest",
+			"net.firstwemine1.weaponry.test.TwoHandedGameTest"
+		],
+		"client": [
+			"net.firstwemine1.weaponry.test.CrossbowClientE2E"
+		]
+	},
+	"depends": {
+		"weaponry": "*"
+	}
+}
