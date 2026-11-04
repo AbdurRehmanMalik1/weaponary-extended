@@ -3,7 +3,7 @@
 	"id": "weaponry",
 	"version": "${version}",
 	"name": "Weaponry",
-	"description": "Daggers, sabres, scimitars, spears, pikes, lances, halberds, hatchets, war hammers, clubs and more in every vanilla material tier, plus four bows.",
+	"description": "Daggers, sabres, scimitars, spears, pikes, lances, halberds, hatchets, war hammers, clubs and more in every vanilla material tier, plus four bows and two crossbows.",
 	"authors": [
 		"firstwemine1-mc-dev"
 	],
