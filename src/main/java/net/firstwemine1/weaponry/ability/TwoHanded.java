@@ -5,8 +5,8 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.Hand;
-import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 
 /**
@@ -18,6 +18,8 @@ import net.minecraft.item.ItemStack;
 final class TwoHanded {
 	/** Ticks between "inventory full" reminders, so the action bar isn't refreshed every tick. */
 	private static final int FULL_WARNING_INTERVAL = 40;
+
+	private static final int OFF_HAND_SLOT = 40;
 
 	private TwoHanded() {
 	}
@@ -59,17 +61,47 @@ final class TwoHanded {
 				|| !(isTwoHanded(player.getMainHandItem()) || isTwoHanded(offHand))) {
 			return;
 		}
-		ItemStack weapon = isTwoHanded(player.getMainHandItem()) ? player.getMainHandItem() : offHand;
+		// Copies: the off hand empties below, and either may be what it held.
+		ItemStack weapon = (isTwoHanded(player.getMainHandItem()) ? player.getMainHandItem() : offHand).copy();
 		ItemStack moving = offHand.copy();
-		// add() only fills the 36 main slots and shrinks the stack by what fit.
-		player.inventory.add(offHand);
+		// Out of the slot first: the inventory looks for room in the off hand too, and a stack merged
+		// into itself is lost.
+		PlayerInventory inventory = player.inventory;
+		inventory.setItem(OFF_HAND_SLOT, ItemStack.EMPTY);
+		moveToMainSlots(inventory, offHand);
 		if (offHand.isEmpty()) {
-			player.setItemSlot(EquipmentSlotType.OFFHAND, ItemStack.EMPTY);
 			player.displayClientMessage(new TranslationTextComponent(WeaponItem.TWO_HANDED_MOVED_KEY,
 					weapon.getHoverName(), moving.getHoverName()).withStyle(TextFormatting.YELLOW), true);
-		} else if (player.tickCount % FULL_WARNING_INTERVAL == 0) {
+			return;
+		}
+		inventory.setItem(OFF_HAND_SLOT, offHand);
+		if (player.tickCount % FULL_WARNING_INTERVAL == 0) {
 			player.displayClientMessage(new TranslationTextComponent(WeaponItem.TWO_HANDED_FULL_KEY,
 					weapon.getHoverName(), offHand.getHoverName()).withStyle(TextFormatting.RED), true);
+		}
+	}
+
+	/**
+	 * Moves what fits, shrinking the stack. Not {@code Inventory.add}: for a player with infinite
+	 * materials, that deletes whatever doesn't fit.
+	 */
+	private static void moveToMainSlots(PlayerInventory inventory, ItemStack stack) {
+		while (!stack.isEmpty()) {
+			int slot = inventory.getSlotWithRemainingSpace(stack);
+			if (slot < 0) {
+				slot = inventory.getFreeSlot();
+			}
+			if (slot < 0) {
+				return;
+			}
+			ItemStack there = inventory.getItem(slot);
+			if (there.isEmpty()) {
+				inventory.setItem(slot, stack.split(stack.getCount()));
+			} else {
+				int moved = Math.min(stack.getCount(), there.getMaxStackSize() - there.getCount());
+				there.grow(moved);
+				stack.shrink(moved);
+			}
 		}
 	}
 }
