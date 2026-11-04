@@ -1,6 +1,9 @@
 package net.firstwemine1.weaponry.client;
 
 import net.firstwemine1.weaponry.Weaponry;
+import net.firstwemine1.weaponry.client.crossbow.RapidCrossbowClient;
+import net.firstwemine1.weaponry.client.crossbow.RapidFill;
+import net.firstwemine1.weaponry.client.crossbow.RapidLoaded;
 import net.firstwemine1.weaponry.client.render.RopeDartRenderer;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
@@ -37,8 +40,11 @@ public final class WeaponryClient {
 		});
 		modBus.addListener(BowPull::register);
 		modBus.addListener(FlailSpin::register);
+		modBus.addListener(RapidFill::register);
+		modBus.addListener(RapidLoaded::register);
 		NeoForge.EVENT_BUS.addListener((ItemTooltipEvent event) -> TooltipLines.wrap(event.getItemStack(), event.getToolTip()));
 		NeoForge.EVENT_BUS.addListener((ClientTickEvent.Post event) -> wobble(Minecraft.getInstance().player));
+		NeoForge.EVENT_BUS.addListener((ClientTickEvent.Post event) -> RapidCrossbowClient.tick(Minecraft.getInstance()));
 	}
 
 	/**
