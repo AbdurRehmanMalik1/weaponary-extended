@@ -1,5 +1,11 @@
 package net.firstwemine1.weaponry.client;
 
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.CrossbowItem;
+import net.firstwemine1.weaponry.crossbow.RapidCrossbowItem;
+import net.firstwemine1.weaponry.crossbow.ModCrossbows;
+import net.firstwemine1.weaponry.crossbow.Magazine;
+import net.firstwemine1.weaponry.client.crossbow.RapidCrossbowClient;
 import net.firstwemine1.weaponry.ability.WarPickAbility;
 import net.firstwemine1.weaponry.ability.FlailAbility;
 import net.firstwemine1.weaponry.bow.BowState;
@@ -48,8 +54,37 @@ public class WeaponryClient implements ClientModInitializer {
 		}
 		ModelLoadingRegistry.INSTANCE.registerModelProvider((manager, out) -> out.accept(RopeDartRenderer.HEAD_MODEL));
 		ModBows.all().forEach(WeaponryClient::registerBowAnimation);
+		registerHeavyCrossbowAnimation();
+		registerRapidCrossbowAnimation();
+		ClientTickEvents.END_CLIENT_TICK.register(RapidCrossbowClient::tick);
 		TooltipLines.register();
 		ClientTickEvents.END_CLIENT_TICK.register(client -> wobble(client.player));
+	}
+
+	/**
+	 * The properties vanilla gives {@code minecraft:crossbow}. {@code getChargeDuration} already gives
+	 * this crossbow's own load time, so the frames switch at the right moments.
+	 */
+	private static void registerHeavyCrossbowAnimation() {
+		FabricModelPredicateProviderRegistry.register(ModCrossbows.HEAVY, new ResourceLocation("pull"), (stack, level, entity, seed) ->
+				entity == null || CrossbowItem.isCharged(stack) ? 0.0f
+						: (stack.getUseDuration() - entity.getUseItemRemainingTicks()) / (float) CrossbowItem.getChargeDuration(stack));
+		FabricModelPredicateProviderRegistry.register(ModCrossbows.HEAVY, new ResourceLocation("pulling"), (stack, level, entity, seed) ->
+				entity != null && entity.isUsingItem() && entity.getUseItem() == stack && !CrossbowItem.isCharged(stack) ? 1.0f : 0.0f);
+		FabricModelPredicateProviderRegistry.register(ModCrossbows.HEAVY, new ResourceLocation("charged"), (stack, level, entity, seed) ->
+				CrossbowItem.isCharged(stack) ? 1.0f : 0.0f);
+		FabricModelPredicateProviderRegistry.register(ModCrossbows.HEAVY, new ResourceLocation("firework"), (stack, level, entity, seed) ->
+				CrossbowItem.containsChargedProjectile(stack, Items.FIREWORK_ROCKET) ? 1.0f : 0.0f);
+	}
+
+	/** While reloading, {@code pull} shows how full the magazine is, so the string draws back as it fills. */
+	private static void registerRapidCrossbowAnimation() {
+		FabricModelPredicateProviderRegistry.register(ModCrossbows.RAPID, new ResourceLocation("pull"), (stack, level, entity, seed) ->
+				RapidCrossbowItem.magazine(stack).count() / (float) Magazine.CAPACITY);
+		FabricModelPredicateProviderRegistry.register(ModCrossbows.RAPID, new ResourceLocation("pulling"), (stack, level, entity, seed) ->
+				entity != null && entity.isUsingItem() && entity.getUseItem().is(ModCrossbows.RAPID) ? 1.0f : 0.0f);
+		FabricModelPredicateProviderRegistry.register(ModCrossbows.RAPID, new ResourceLocation("charged"), (stack, level, entity, seed) ->
+				RapidCrossbowItem.looksLoaded(stack, entity) ? 1.0f : 0.0f);
 	}
 
 	/**
