@@ -3,7 +3,11 @@
 	"package": "net.firstwemine1.weaponry.client.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"client": [
-		"AbstractClientPlayerMixin"
+		"AbstractClientPlayerMixin",
+		"FirstPersonHandsAndItemsMixin",
+		"FirstPersonHandsAndItemsRendererMixin",
+		"MinecraftMixin",
+		"PlayerRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
