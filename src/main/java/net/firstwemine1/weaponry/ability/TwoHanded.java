@@ -5,9 +5,9 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -72,16 +72,46 @@ final class TwoHanded {
 			return;
 		}
 		ItemStack weapon = isTwoHanded(player.getMainHandItem()) ? player.getMainHandItem() : offHand;
-		ItemStack moving = offHand.copy();
-		// add() only fills the 36 main slots and shrinks the stack by what fit.
-		player.getInventory().add(offHand);
+		Component weaponName = weapon.getHoverName();
+		Component offHandName = offHand.getHoverName();
+		Inventory inventory = player.getInventory();
+		// Out of the slot first: the inventory looks for room in the off hand too, and a stack merged
+		// into itself is lost.
+		inventory.setItem(Inventory.SLOT_OFFHAND, ItemStack.EMPTY);
+		moveToMainSlots(inventory, offHand);
 		if (offHand.isEmpty()) {
-			player.setItemSlot(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
 			player.displayClientMessage(Component.translatable(WeaponItem.TWO_HANDED_MOVED_KEY,
-					weapon.getHoverName(), moving.getHoverName()).withStyle(ChatFormatting.YELLOW), true);
-		} else if (player.tickCount % FULL_WARNING_INTERVAL == 0) {
+					weaponName, offHandName).withStyle(ChatFormatting.YELLOW), true);
+			return;
+		}
+		inventory.setItem(Inventory.SLOT_OFFHAND, offHand);
+		if (player.tickCount % FULL_WARNING_INTERVAL == 0) {
 			player.displayClientMessage(Component.translatable(WeaponItem.TWO_HANDED_FULL_KEY,
-					weapon.getHoverName(), offHand.getHoverName()).withStyle(ChatFormatting.RED), true);
+					weaponName, offHandName).withStyle(ChatFormatting.RED), true);
+		}
+	}
+
+	/**
+	 * Moves what fits, shrinking the stack. Not {@code Inventory.add}: for a player with infinite
+	 * materials, that deletes whatever doesn't fit.
+	 */
+	private static void moveToMainSlots(Inventory inventory, ItemStack stack) {
+		while (!stack.isEmpty()) {
+			int slot = inventory.getSlotWithRemainingSpace(stack);
+			if (slot < 0) {
+				slot = inventory.getFreeSlot();
+			}
+			if (slot < 0) {
+				return;
+			}
+			ItemStack there = inventory.getItem(slot);
+			if (there.isEmpty()) {
+				inventory.setItem(slot, stack.split(stack.getCount()));
+			} else {
+				int moved = Math.min(stack.getCount(), there.getMaxStackSize() - there.getCount());
+				there.grow(moved);
+				stack.shrink(moved);
+			}
 		}
 	}
 }
