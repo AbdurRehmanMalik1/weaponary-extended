@@ -4,17 +4,24 @@
 	"compatibilityLevel": "JAVA_8",
 	"mixins": [
 		"AbstractArrowMixin",
+		"CrossbowCategoryMixin",
+		"CrossbowItemMixin",
 		"ItemStackMixin",
 		"LivingEntityAccessor",
 		"LivingEntityMixin",
+		"MultishotMixin",
 		"PlayerMixin",
+		"RapidEnchantmentMixin",
 		"WeaponDiggerCategoryMixin",
 		"WeaponEnchantmentCategoryMixin"
 	],
 	"client": [
 		"client.AbstractClientPlayerMixin",
 		"client.DevMultiplayerMixin",
-		"client.LocalPlayerMixin"
+		"client.ItemInHandRendererMixin",
+		"client.LocalPlayerMixin",
+		"client.MinecraftMixin",
+		"client.PlayerRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

@@ -6,6 +6,7 @@ import java.util.List;
 
 import net.firstwemine1.weaponry.Weaponry;
 import net.firstwemine1.weaponry.bow.ModBows;
+import net.firstwemine1.weaponry.crossbow.ModCrossbows;
 import net.firstwemine1.weaponry.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -25,7 +26,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 
 /**
  * Testing aid (config {@code testChest}): a row of double chests east of world spawn holding one
- * of every weapon and bow, then one chest full of arrows for the bows. Refilled on every server start;
+ * of every weapon, bow and crossbow, then one chest full of arrows for them. Refilled on every server start;
  * anything else put in them is cleared. Weapons have durability, so they stack to 1: each double chest
  * holds 54 of them, and as many chests are placed as the weapon count needs. The first keeps its old
  * name so existing worlds reuse it.
@@ -50,6 +51,7 @@ public final class TestChest {
 		List<ItemStack> weapons = new ArrayList<>();
 		ModItems.all().forEach(item -> weapons.add(new ItemStack(item)));
 		ModBows.all().forEach(bow -> weapons.add(new ItemStack(bow)));
+		ModCrossbows.all().forEach(crossbow -> weapons.add(new ItemStack(crossbow)));
 		int next = 0;
 		int index = 0;
 		for (; next < weapons.size(); index++) {
